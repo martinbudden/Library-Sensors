@@ -1,0 +1,29 @@
+{
+    "cSpell.words": [
+        "altera",
+        "bugprone",
+        "CIPO",
+        "clangtidy",
+        "cppcoreguidelines",
+        "ESPIDF",
+        "espressif",
+        "libc",
+        "llvmlibc",
+        "martinbudden",
+        "raspberrypi",
+        "seeed",
+        "suppr",
+        "unflags",
+        "Wattributes",
+        "Wdisabled",
+        "Wdouble",
+        "Werror",
+        "Wextra",
+        "Wimplicit",
+        "Winline",
+        "Wnarrowing",
+        "Wsign",
+        "Wtrampolines",
+        "xiao"
+    ]
+}
