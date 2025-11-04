@@ -1,7 +1,7 @@
 {
     "name": "Sensors",
     "description": "Sensors",
-    "keywords": "Sensors IMU Inertial Management Unit gyro accelerometer barometer",
+    "keywords": "Sensors IMU gyro accelerometer barometer",
     "authors": {
         "name": "Martin Budden",
         "url": "https://github.com/martinbudden"
