@@ -75,22 +75,22 @@ void IMU_Base::setInterruptDriven()
 {
 }
 
-IMU_Base::xyz_int32_t IMU_Base::getGyroOffset() const
+xyz_t IMU_Base::getGyroOffset() const
 {
     return _gyroOffset;
 }
 
-void IMU_Base::setGyroOffset(const xyz_int32_t& gyroOffset)
+void IMU_Base::setGyroOffset(const xyz_t& gyroOffset)
 {
     _gyroOffset = gyroOffset;
 }
 
-IMU_Base::xyz_int32_t IMU_Base::getAccOffset() const
+xyz_t IMU_Base::getAccOffset() const
 {
     return _accOffset;
 }
 
-void IMU_Base::setAccOffset(const xyz_int32_t& accOffset)
+void IMU_Base::setAccOffset(const xyz_t& accOffset)
 {
     _accOffset = accOffset;
 }
@@ -104,9 +104,9 @@ xyz_t IMU_Base::readGyroRPS()
 {
     const xyz_int32_t gyroRaw = readGyroRaw();
     return mapAxes({
-        .x = static_cast<float>(gyroRaw.x - _gyroOffset.x) * _gyroResolutionRPS,
-        .y = static_cast<float>(gyroRaw.y - _gyroOffset.y) * _gyroResolutionRPS,
-        .z = static_cast<float>(gyroRaw.z - _gyroOffset.z) * _gyroResolutionRPS
+        .x = static_cast<float>(gyroRaw.x) * _gyroResolutionRPS - _gyroOffset.x,
+        .y = static_cast<float>(gyroRaw.y) * _gyroResolutionRPS - _gyroOffset.y,
+        .z = static_cast<float>(gyroRaw.z) * _gyroResolutionRPS - _gyroOffset.z
     });
 }
 
@@ -114,9 +114,9 @@ xyz_t IMU_Base::readGyroDPS()
 {
     const xyz_int32_t gyroRaw = readGyroRaw();
     return mapAxes({
-        .x = static_cast<float>(gyroRaw.x - _gyroOffset.x) * _gyroResolutionDPS,
-        .y = static_cast<float>(gyroRaw.y - _gyroOffset.y) * _gyroResolutionDPS,
-        .z = static_cast<float>(gyroRaw.z - _gyroOffset.z) * _gyroResolutionDPS
+        .x = static_cast<float>(gyroRaw.x) * _gyroResolutionDPS - _gyroOffset.x,
+        .y = static_cast<float>(gyroRaw.y) * _gyroResolutionDPS - _gyroOffset.y,
+        .z = static_cast<float>(gyroRaw.z) * _gyroResolutionDPS - _gyroOffset.z
     });
 }
 
@@ -124,9 +124,9 @@ xyz_t IMU_Base::readAcc()
 {
     const xyz_int32_t accRaw = readAccRaw();
     return mapAxes({
-        .x = static_cast<float>(accRaw.x - _accOffset.x) * _accResolution,
-        .y = static_cast<float>(accRaw.y - _accOffset.y) * _accResolution,
-        .z = static_cast<float>(accRaw.z - _accOffset.z) * _accResolution
+        .x = static_cast<float>(accRaw.x) * _accResolution - _accOffset.x,
+        .y = static_cast<float>(accRaw.y) * _accResolution - _accOffset.y,
+        .z = static_cast<float>(accRaw.z) * _accResolution - _accOffset.z
     });
 }
 

@@ -171,10 +171,10 @@ public:
     int32_t WAIT_IMU_DATA_READY(uint32_t ticksToWait) { return _busBase->WAIT_DATA_READY(ticksToWait); }
     void SIGNAL_IMU_DATA_READY_FROM_ISR() { _busBase->SIGNAL_DATA_READY_FROM_ISR(); } //! should not be used directly, made public for debugging purposes
 
-    xyz_int32_t getGyroOffset() const;
-    void setGyroOffset(const xyz_int32_t& gyroOffset);
-    xyz_int32_t getAccOffset() const;
-    void setAccOffset(const xyz_int32_t& accOffset);
+    xyz_t getGyroOffset() const;
+    void setGyroOffset(const xyz_t& gyroOffset);
+    xyz_t getAccOffset() const;
+    void setAccOffset(const xyz_t& accOffset);
 
     virtual xyz_int32_t readGyroRaw() = 0;
     virtual xyz_int32_t readAccRaw() = 0;
@@ -227,8 +227,8 @@ protected:
     float _accResolution { 8.0F / 32768.0F };
     uint32_t _gyroSampleRateHz {};
     uint32_t _accSampleRateHz {};
-    xyz_int32_t _gyroOffset {};
-    xyz_int32_t _accOffset {};
+    xyz_t _gyroOffset {};
+    xyz_t _accOffset {};
     uint16_t _gyroIdMSP {};
     uint16_t _accIdMSP {};
 };
