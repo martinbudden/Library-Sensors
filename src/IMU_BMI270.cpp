@@ -445,7 +445,7 @@ IMU_Base::accGyroRPS_t IMU_BMI270::accGyroRPSFromRaw(const acc_gyro_data_t::valu
         },
         .acc = {
             .x =  static_cast<float>(data.acc_x - _accOffset.x) * _accResolution,
-            .y =  static_cast<float>(data.acc_y - _accOffset.y)* _accResolution,
+            .y =  static_cast<float>(data.acc_y - _accOffset.y) * _accResolution,
             .z =  static_cast<float>(data.acc_z - _accOffset.z) * _accResolution
         }
     };
@@ -457,7 +457,7 @@ IMU_Base::accGyroRPS_t IMU_BMI270::accGyroRPSFromRaw(const acc_gyro_data_t::valu
             .z =  static_cast<float>(data.gyro_z - _gyroOffset.z) * _gyroResolutionRPS
         },
         .acc = {
-            .x =  static_cast<float>(data.acc_y - _accOffset.y)* _accResolution,
+            .x =  static_cast<float>(data.acc_y - _accOffset.y) * _accResolution,
             .y = -static_cast<float>(data.acc_x - _accOffset.x) * _accResolution,
             .z =  static_cast<float>(data.acc_z - _accOffset.z) * _accResolution
         }
@@ -471,7 +471,7 @@ IMU_Base::accGyroRPS_t IMU_BMI270::accGyroRPSFromRaw(const acc_gyro_data_t::valu
         },
         .acc = {
             .x = -static_cast<float>(data.acc_x - _accOffset.x) * _accResolution,
-            .y = -static_cast<float>(data.acc_y - _accOffset.y)* _accResolution,
+            .y = -static_cast<float>(data.acc_y - _accOffset.y) * _accResolution,
             .z =  static_cast<float>(data.acc_z - _accOffset.z) * _accResolution
         }
     };
@@ -483,7 +483,7 @@ IMU_Base::accGyroRPS_t IMU_BMI270::accGyroRPSFromRaw(const acc_gyro_data_t::valu
             .z =  static_cast<float>(data.gyro_z - _gyroOffset.z) * _gyroResolutionRPS
         },
         .acc = {
-            .x = -static_cast<float>(data.acc_y - _accOffset.y)* _accResolution,
+            .x = -static_cast<float>(data.acc_y - _accOffset.y) * _accResolution,
             .y =  static_cast<float>(data.acc_x - _accOffset.x) * _accResolution,
             .z =  static_cast<float>(data.acc_z - _accOffset.z) * _accResolution
         }
@@ -498,7 +498,7 @@ IMU_Base::accGyroRPS_t IMU_BMI270::accGyroRPSFromRaw(const acc_gyro_data_t::valu
         .acc = {
             .x =  static_cast<float>(data.acc_x - _accOffset.x) * _accResolution,
             .y =  static_cast<float>(data.acc_z - _accOffset.z) * _accResolution,
-            .z = -static_cast<float>(data.acc_y - _accOffset.y)* _accResolution
+            .z = -static_cast<float>(data.acc_y - _accOffset.y) * _accResolution
         }
     };
 #else
@@ -515,7 +515,7 @@ IMU_Base::accGyroRPS_t IMU_BMI270::accGyroRPSFromRaw(const acc_gyro_data_t::valu
             },
             .acc = {
                 .x =  static_cast<float>(data.acc_x - _accOffset.x) * _accResolution,
-                .y =  static_cast<float>(data.acc_y - _accOffset.y)* _accResolution,
+                .y =  static_cast<float>(data.acc_y - _accOffset.y) * _accResolution,
                 .z =  static_cast<float>(data.acc_z - _accOffset.z) * _accResolution
             }
         };
@@ -527,7 +527,7 @@ IMU_Base::accGyroRPS_t IMU_BMI270::accGyroRPSFromRaw(const acc_gyro_data_t::valu
                 .z =  static_cast<float>(data.gyro_z - _gyroOffset.z) * _gyroResolutionRPS
             },
             .acc = {
-                .x = -static_cast<float>(data.acc_y - _accOffset.y)* _accResolution,
+                .x = -static_cast<float>(data.acc_y - _accOffset.y) * _accResolution,
                 .y =  static_cast<float>(data.acc_x - _accOffset.x) * _accResolution,
                 .z =  static_cast<float>(data.acc_z - _accOffset.z) * _accResolution
             }
@@ -541,7 +541,7 @@ IMU_Base::accGyroRPS_t IMU_BMI270::accGyroRPSFromRaw(const acc_gyro_data_t::valu
             },
             .acc = {
                 .x = -static_cast<float>(data.acc_x - _accOffset.x) * _accResolution,
-                .y = -static_cast<float>(data.acc_y - _accOffset.y)* _accResolution,
+                .y = -static_cast<float>(data.acc_y - _accOffset.y) * _accResolution,
                 .z =  static_cast<float>(data.acc_z - _accOffset.z) * _accResolution
             }
         };
@@ -553,7 +553,7 @@ IMU_Base::accGyroRPS_t IMU_BMI270::accGyroRPSFromRaw(const acc_gyro_data_t::valu
                 .z =  static_cast<float>(data.gyro_z - _gyroOffset.z) * _gyroResolutionRPS
             },
             .acc = {
-                .x =  static_cast<float>(data.acc_y - _accOffset.y)* _accResolution,
+                .x =  static_cast<float>(data.acc_y - _accOffset.y) * _accResolution,
                 .y = -static_cast<float>(data.acc_x - _accOffset.x) * _accResolution,
                 .z =  static_cast<float>(data.acc_z - _accOffset.z) * _accResolution
             }
@@ -568,7 +568,7 @@ IMU_Base::accGyroRPS_t IMU_BMI270::accGyroRPSFromRaw(const acc_gyro_data_t::valu
             .acc = {
                 .x =  static_cast<float>(data.acc_x - _accOffset.x) * _accResolution,
                 .y =  static_cast<float>(data.acc_z - _accOffset.z) * _accResolution,
-                .z = -static_cast<float>(data.acc_y - _accOffset.y)* _accResolution
+                .z = -static_cast<float>(data.acc_y - _accOffset.y) * _accResolution
             }
         };
     default:
@@ -580,7 +580,7 @@ IMU_Base::accGyroRPS_t IMU_BMI270::accGyroRPSFromRaw(const acc_gyro_data_t::valu
             }),
             .acc = mapAxes({
                 .x =  static_cast<float>(data.acc_x - _accOffset.x) * _accResolution,
-                .y =  static_cast<float>(data.acc_y - _accOffset.y)* _accResolution,
+                .y =  static_cast<float>(data.acc_y - _accOffset.y) * _accResolution,
                 .z =  static_cast<float>(data.acc_z - _accOffset.z) * _accResolution
             })
         };
