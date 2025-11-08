@@ -69,7 +69,6 @@ private:
 #pragma pack(pop)
 public:
     virtual void setInterruptDriven() override;
-    virtual void setGyroOffset(const xyz_int32_t& gyroOffset) override;
 
     virtual xyz_int32_t readGyroRaw() override;
     virtual xyz_int32_t readAccRaw() override;
@@ -82,8 +81,6 @@ public:
 
     float readTemperature() const;
     int32_t readTemperatureRaw() const;
-
-    static mems_sensor_data_t::value_t gyroOffsetFromXYZ(const xyz_int32_t& data);
 private:
     xyz_t gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const;
     xyz_t accFromRaw(const mems_sensor_data_t::value_t& data) const;

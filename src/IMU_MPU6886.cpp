@@ -204,40 +204,10 @@ int IMU_MPU6886::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSe
     return static_cast<int>(_gyroSampleRateHz);
 }
 
-/*!
-Gyro offset adjustment.
-These values are used to remove DC bias from the sensor output. The values are
-added to the gyroscope sensor value before going into the sensor register.
-So the offset value is negated.
-*/
-IMU_MPU6886::mems_sensor_data_t::value_t IMU_MPU6886::gyroOffsetFromXYZ(const xyz_int32_t& data)
-{
-    return mems_sensor_data_t::value_t {
-        .x_h = static_cast<uint8_t>((-data.x) >> 8U),
-        .x_l = static_cast<uint8_t>(static_cast<uint32_t>(-data.x) & 0xFFU),
-        .y_h = static_cast<uint8_t>((-data.y) >> 8U),
-        .y_l = static_cast<uint8_t>(static_cast<uint32_t>(-data.y) & 0xFFU),
-        .z_h = static_cast<uint8_t>((-data.z) >> 8U),
-        .z_l = static_cast<uint8_t>(static_cast<uint32_t>(-data.z) & 0xFFU)
-    };
-}
-
 void IMU_MPU6886::setInterruptDriven()
 {
     // set interrupt level as configured in init()
     _bus.setInterruptDriven(BUS_BASE::IRQ_EDGE_RISE);
-}
-
-void IMU_MPU6886::setGyroOffset(const xyz_int32_t& gyroOffset)
-{
-#if false
-    // Setting the XG_OFFS registers seems to have no effect, so this code disabled
-    const mems_sensor_data_t offset = gyroOffsetFromXYZ(gyroOffset);
-    _bus.writeRegister(REG_XG_OFFS_USRH, reinterpret_cast<const uint8_t*>(&offset), sizeof(offset)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-    delayMs(1);
-#else
-    _gyroOffset = gyroOffset;
-#endif
 }
 
 IMU_Base::xyz_int32_t IMU_MPU6886::readGyroRaw()

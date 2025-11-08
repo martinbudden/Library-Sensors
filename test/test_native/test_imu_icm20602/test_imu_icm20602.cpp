@@ -12,18 +12,6 @@ void tearDown()
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-init-variables,readability-magic-numbers)
 void test_icm20602()
 {
-    const IMU_Base::xyz_int32_t input { .x =70, .y = -70, .z = 400 };
-    const IMU_ICM20602::mems_sensor_data_t::value_t output = IMU_ICM20602::gyroOffsetFromXYZ(input);
-
-    TEST_ASSERT_EQUAL_UINT8(0xFF, output.x_h);
-    TEST_ASSERT_EQUAL_UINT8(0xBA, output.x_l);
-
-    TEST_ASSERT_EQUAL_UINT8(0x00, output.y_h);
-    TEST_ASSERT_EQUAL_UINT8(0x46, output.y_l);
-
-    TEST_ASSERT_EQUAL_UINT8(0xFE, output.z_h);
-    TEST_ASSERT_EQUAL_UINT8(0x70, output.z_l);
-
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
     constexpr uint32_t spiFrequency = 1000000;
     static const IMU_ICM20602 imu(IMU_Base::XPOS_YPOS_ZPOS, spiFrequency, BUS_SPI::BUS_INDEX_0, BUS_SPI::spi_pins_t{});

@@ -171,10 +171,10 @@ public:
     int32_t WAIT_IMU_DATA_READY(uint32_t ticksToWait) { return _busBase->WAIT_DATA_READY(ticksToWait); }
     void SIGNAL_IMU_DATA_READY_FROM_ISR() { _busBase->SIGNAL_DATA_READY_FROM_ISR(); } //! should not be used directly, made public for debugging purposes
 
-    virtual xyz_int32_t getGyroOffset() const;
-    virtual void setGyroOffset(const xyz_int32_t& gyroOffset);
-    virtual xyz_int32_t getAccOffset() const;
-    virtual void setAccOffset(const xyz_int32_t& accOffset);
+    xyz_int32_t getGyroOffset() const;
+    void setGyroOffset(const xyz_int32_t& gyroOffset);
+    xyz_int32_t getAccOffset() const;
+    void setAccOffset(const xyz_int32_t& accOffset);
 
     virtual xyz_int32_t readGyroRaw() = 0;
     virtual xyz_int32_t readAccRaw() = 0;
