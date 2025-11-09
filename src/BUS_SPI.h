@@ -61,11 +61,11 @@ public:
     FAST_CODE uint8_t writeRegister(uint8_t reg, uint8_t data);
     FAST_CODE uint8_t writeRegister(uint8_t reg, const uint8_t* data, size_t length);
     FAST_CODE uint8_t writeBytes(const uint8_t* data, size_t length);
-    FAST_CODE static void cs_select();
-    FAST_CODE static void cs_deselect();
+    FAST_CODE static void cs_select(const BUS_SPI& bus);
+    FAST_CODE static void cs_deselect(const BUS_SPI& bus);
     inline uint16_t getIrqPin() const { return _pins.irq.pin; }
 public:
-    static BUS_SPI* bus; //!< alias of `this` to be used in interrupt service routine
+    static BUS_SPI* self; //!< alias of `this` to be used in interrupt service routine
 private:
     uint32_t _clockDivider {1};
     uint32_t _frequency {1000000};
