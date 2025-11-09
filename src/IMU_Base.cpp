@@ -95,11 +95,6 @@ void IMU_Base::setAccOffset(const xyz_t& accOffset)
     _accOffset = accOffset;
 }
 
-int32_t IMU_Base::getAccOneG_Raw() const
-{
-    return static_cast<int32_t>(1.0F / _accResolution);
-}
-
 xyz_t IMU_Base::readGyroRPS()
 {
     const xyz_int32_t gyroRaw = readGyroRaw();

@@ -18,7 +18,6 @@ void test_icm426xx()
 #else
     static IMU_ICM426xx imu(IMU_Base::XPOS_YPOS_ZPOS, IMU_I2C_SDA_PIN, IMU_I2C_SCL_PIN);
 #endif
-    TEST_ASSERT_EQUAL(4096, imu.getAccOneG_Raw());
     TEST_ASSERT_EQUAL(0, imu.getFlags());
 
     imu.init(8000, IMU_Base::GYRO_FULL_SCALE_MAX, IMU_Base::ACC_FULL_SCALE_MAX, nullptr);

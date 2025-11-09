@@ -170,7 +170,7 @@ private:
     bool sendCommand(uint8_t command);
 protected:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_BNO085_USE_SPI_BUS)
-    BUS_SPI _bus; //!< SPI bus interface,
+    BUS_SPI _bus; //!< SPI bus interface
 #else
     BUS_I2C _bus; //!< I2C bus interface
 #endif

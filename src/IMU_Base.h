@@ -69,7 +69,13 @@ public:
 
         XPOS_YPOS_ZPOS_135 = YPOS_XNEG_ZPOS_45,
         XPOS_YPOS_ZPOS_225 = XNEG_YNEG_ZPOS_45,
-        XPOS_YPOS_ZPOS_315 = YNEG_XPOS_ZPOS_45
+        XPOS_YPOS_ZPOS_315 = YNEG_XPOS_ZPOS_45,
+
+        // North East Down (NED) equivalents
+        XPOS_YPOS_ZPOS_NED = YPOS_XPOS_ZNEG,
+        YPOS_XNEG_ZPOS_NED = XNEG_YPOS_ZNEG,
+        XNEG_YNEG_ZPOS_NED = YNEG_XNEG_ZNEG,
+        YNEG_XPOS_ZPOS_NED = XPOS_YNEG_ZNEG,
     };
 
     enum { TARGET_OUTPUT_DATA_RATE_MAX = 0 };
@@ -178,7 +184,6 @@ public:
 
     virtual xyz_int32_t readGyroRaw() = 0;
     virtual xyz_int32_t readAccRaw() = 0;
-    virtual int32_t getAccOneG_Raw() const;
 
     // read functions have default implementations in the base class for convenience,
     // but should be reimplemented in derived classes for efficiency

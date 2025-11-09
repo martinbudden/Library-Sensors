@@ -6,6 +6,25 @@
 
 class IMU_ICM426xx : public IMU_Base {
 public:
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_ICM426XX_USE_SPI_BUS)
+    // SPI constructor
+    IMU_ICM426xx(axis_order_e axisOrder, uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::stm32_spi_pins_t& pins);
+    IMU_ICM426xx(axis_order_e axisOrder, uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::spi_pins_t& pins);
+#else
+    // I2C constructors
+    IMU_ICM426xx(axis_order_e axisOrder, BUS_BASE::bus_index_e I2C_index, const BUS_I2C::stm32_i2c_pins_t& pins, uint8_t I2C_address);
+    IMU_ICM426xx(axis_order_e axisOrder, const BUS_I2C::stm32_i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axisOrder, BUS_BASE::BUS_INDEX_0, pins, I2C_address) {}
+    IMU_ICM426xx(axis_order_e axisOrder, const BUS_I2C::stm32_i2c_pins_t& pins) : IMU_ICM426xx(axisOrder, pins, I2C_ADDRESS) {}
+
+    IMU_ICM426xx(axis_order_e axisOrder, BUS_BASE::bus_index_e I2C_index, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address);
+    IMU_ICM426xx(axis_order_e axisOrder, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axisOrder, BUS_BASE::BUS_INDEX_0, pins, I2C_address) {}
+    IMU_ICM426xx(axis_order_e axisOrder, const BUS_I2C::i2c_pins_t& pins) : IMU_ICM426xx(axisOrder, pins, I2C_ADDRESS) {}
+#if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
+    IMU_ICM426xx(axis_order_e axisOrder, TwoWire& wire, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address);
+#endif
+#endif
+    virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* i2cMutex) override;
+public:
     static constexpr uint8_t I2C_ADDRESS = 0x6A;
     static constexpr uint8_t I2C_ADDRESS_ALTERNATIVE = 0x6B;
 #pragma pack(push, 1)
@@ -36,25 +55,6 @@ public:
     };
 #pragma pack(pop)
 public:
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_ICM426XX_USE_SPI_BUS)
-    // SPI constructor
-    IMU_ICM426xx(axis_order_e axisOrder, uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::stm32_spi_pins_t& pins);
-    IMU_ICM426xx(axis_order_e axisOrder, uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::spi_pins_t& pins);
-#else
-    // I2C constructors
-    IMU_ICM426xx(axis_order_e axisOrder, BUS_BASE::bus_index_e I2C_index, const BUS_I2C::stm32_i2c_pins_t& pins, uint8_t I2C_address);
-    IMU_ICM426xx(axis_order_e axisOrder, const BUS_I2C::stm32_i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axisOrder, BUS_BASE::BUS_INDEX_0, pins, I2C_address) {}
-    IMU_ICM426xx(axis_order_e axisOrder, const BUS_I2C::stm32_i2c_pins_t& pins) : IMU_ICM426xx(axisOrder, pins, I2C_ADDRESS) {}
-
-    IMU_ICM426xx(axis_order_e axisOrder, BUS_BASE::bus_index_e I2C_index, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address);
-    IMU_ICM426xx(axis_order_e axisOrder, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axisOrder, BUS_BASE::BUS_INDEX_0, pins, I2C_address) {}
-    IMU_ICM426xx(axis_order_e axisOrder, const BUS_I2C::i2c_pins_t& pins) : IMU_ICM426xx(axisOrder, pins, I2C_ADDRESS) {}
-#if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-    IMU_ICM426xx(axis_order_e axisOrder, TwoWire& wire, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address);
-#endif
-#endif
-public:
-    virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* i2cMutex) override;
     virtual void setInterruptDriven() override;
 
     virtual xyz_int32_t readGyroRaw() override;

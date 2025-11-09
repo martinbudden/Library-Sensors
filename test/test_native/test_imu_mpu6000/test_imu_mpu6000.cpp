@@ -18,7 +18,6 @@ void test_mpu6000()
 #else
     static IMU_MPU6000 imu(IMU_Base::XPOS_YPOS_ZPOS, BUS_I2C::i2c_pins_t{});
 #endif
-    TEST_ASSERT_EQUAL(4096, imu.getAccOneG_Raw());
     TEST_ASSERT_EQUAL(0, imu.getFlags());
 
     imu.init(8000, IMU_Base::GYRO_FULL_SCALE_MAX, IMU_Base::ACC_FULL_SCALE_MAX, nullptr);

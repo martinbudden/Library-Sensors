@@ -21,12 +21,9 @@ public:
     IMU_ICM20602(axis_order_e axisOrder, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM20602(axisOrder, BUS_I2C::BUS_INDEX_0, pins, I2C_address) {}
     IMU_ICM20602(axis_order_e axisOrder, const BUS_I2C::i2c_pins_t& pins) : IMU_ICM20602(axisOrder, pins, I2C_ADDRESS) {}
 #endif
-public:
     virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* i2cMutex) override;
 public:
     static constexpr uint8_t I2C_ADDRESS = 0x68;
-    enum acc_scale_e { AFS_2G = 0, AFS_4G, AFS_8G, AFS_16G };
-    enum gyro_scale_e { GFS_250DPS = 0, GFS_500DPS, GFS_1000DPS, GFS_2000DPS };
 #pragma pack(push, 1)
     union mems_sensor_data_t {
         enum { DATA_SIZE = 6 };

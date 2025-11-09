@@ -18,7 +18,6 @@ void test_mpu6886()
 #else
     static const IMU_MPU6886 imu(IMU_Base::XPOS_YPOS_ZPOS, BUS_I2C::i2c_pins_t{});
 #endif
-    TEST_ASSERT_EQUAL(4096, imu.getAccOneG_Raw());
     TEST_ASSERT_EQUAL(0, imu.getFlags());
 }
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-init-variables,readability-magic-numbers)

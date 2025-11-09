@@ -476,29 +476,29 @@ FAST_CODE IMU_Base::accGyroRPS_t IMU_ICM426xx::getAccGyroRPS() const
 
 xyz_t IMU_ICM426xx::gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const
 {
-#if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
+#if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return xyz_t {
-        .x = -static_cast<float>(data.y) * _gyroResolutionRPS - _gyroOffset.y,
-        .y =  static_cast<float>(data.x) * _gyroResolutionRPS - _gyroOffset.x,
-        .z =  static_cast<float>(data.z) * _gyroResolutionRPS - _gyroOffset.z
+        .x =   static_cast<float>(data.x) * _gyroResolutionRPS - _gyroOffset.x,
+        .y =   static_cast<float>(data.y) * _gyroResolutionRPS - _gyroOffset.y,
+        .z =   static_cast<float>(data.z) * _gyroResolutionRPS - _gyroOffset.z
+    };
+#elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
+    return xyz_t {
+        .x = -(static_cast<float>(data.y) * _gyroResolutionRPS - _gyroOffset.y),
+        .y =   static_cast<float>(data.x) * _gyroResolutionRPS - _gyroOffset.x,
+        .z =   static_cast<float>(data.z) * _gyroResolutionRPS - _gyroOffset.z
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YPOS_XNEG_ZPOS)
     return xyz_t {
-        .x =  static_cast<float>(data.y) * _gyroResolutionRPS - _gyroOffset.y,
-        .y = -static_cast<float>(data.x) * _gyroResolutionRPS - _gyroOffset.x,
-        .z =  static_cast<float>(data.z) * _gyroResolutionRPS - _gyroOffset.z
+        .x =   static_cast<float>(data.y) * _gyroResolutionRPS - _gyroOffset.y,
+        .y = -(static_cast<float>(data.x) * _gyroResolutionRPS - _gyroOffset.x),
+        .z =   static_cast<float>(data.z) * _gyroResolutionRPS - _gyroOffset.z
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_ZPOS_YNEG)
     return xyz_t {
-        .x =  static_cast<float>(data.x) * _gyroResolutionRPS - _gyroOffset.x,
-        .y =  static_cast<float>(data.z) * _gyroResolutionRPS - _gyroOffset.z,
-        .z = -static_cast<float>(data.y) * _gyroResolutionRPS - _gyroOffset.y
-    };
-#elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
-    return xyz_t {
-        .x =  static_cast<float>(data.x) * _gyroResolutionRPS - _gyroOffset.x,
-        .y =  static_cast<float>(data.y) * _gyroResolutionRPS - _gyroOffset.y,
-        .z =  static_cast<float>(data.z) * _gyroResolutionRPS - _gyroOffset.z
+        .x =   static_cast<float>(data.x) * _gyroResolutionRPS - _gyroOffset.x,
+        .y =   static_cast<float>(data.z) * _gyroResolutionRPS - _gyroOffset.z,
+        .z = -(static_cast<float>(data.y) * _gyroResolutionRPS - _gyroOffset.y)
     };
 #else
     const xyz_t gyro {
@@ -512,29 +512,29 @@ xyz_t IMU_ICM426xx::gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) con
 
 xyz_t IMU_ICM426xx::accFromRaw(const mems_sensor_data_t::value_t& data) const
 {
-#if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
+#if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return xyz_t {
-        .x = -static_cast<float>(data.y) * _accResolution - _accOffset.y,
-        .y =  static_cast<float>(data.x) * _accResolution - _accOffset.x,
-        .z =  static_cast<float>(data.z) * _accResolution - _accOffset.z
+        .x =   static_cast<float>(data.x) * _accResolution - _accOffset.x,
+        .y =   static_cast<float>(data.y) * _accResolution - _accOffset.y,
+        .z =   static_cast<float>(data.z) * _accResolution - _accOffset.z
+    };
+#elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
+    return xyz_t {
+        .x = -(static_cast<float>(data.y) * _accResolution - _accOffset.y),
+        .y =   static_cast<float>(data.x) * _accResolution - _accOffset.x,
+        .z =   static_cast<float>(data.z) * _accResolution - _accOffset.z
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YPOS_XNEG_ZPOS)
     return xyz_t {
-        .x =  static_cast<float>(data.y) * _accResolution - _accOffset.y,
-        .y = -static_cast<float>(data.x) * _accResolution - _accOffset.x,
-        .z =  static_cast<float>(data.z) * _accResolution - _accOffset.z
+        .x =   static_cast<float>(data.y) * _accResolution - _accOffset.y,
+        .y = -(static_cast<float>(data.x) * _accResolution - _accOffset.x),
+        .z =   static_cast<float>(data.z) * _accResolution - _accOffset.z
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_ZPOS_YNEG)
     return xyz_t {
-        .x =  static_cast<float>(data.x) * _accResolution - _accOffset.x,
-        .y =  static_cast<float>(data.z) * _accResolution - _accOffset.z,
-        .z = -static_cast<float>(data.y) * _accResolution - _accOffset.y
-    };
-#elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
-    return xyz_t {
-        .x =  static_cast<float>(data.x) * _accResolution - _accOffset.x,
-        .y =  static_cast<float>(data.y) * _accResolution - _accOffset.y,
-        .z =  static_cast<float>(data.z) * _accResolution - _accOffset.z
+        .x =   static_cast<float>(data.x) * _accResolution - _accOffset.x,
+        .y =   static_cast<float>(data.z) * _accResolution - _accOffset.z,
+        .z = -(static_cast<float>(data.y) * _accResolution - _accOffset.y)
     };
 #else
     const xyz_t acc = {
@@ -551,149 +551,188 @@ IMU_Base::accGyroRPS_t IMU_ICM426xx::accGyroRPSFromRaw(const acc_gyro_data_t::va
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return accGyroRPS_t {
         .gyroRPS = {
-            .x =  static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
-            .y =  static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
-            .z =  static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
+            .x =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
+            .y =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
+            .z =   static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
         },
         .acc = {
-            .x =  static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
-            .y =  static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
-            .z =  static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
+            .x =   static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
+            .y =   static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
+            .z =   static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YPOS_XNEG_ZPOS)
     return accGyroRPS_t {
         .gyroRPS = {
-            .x =  static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
-            .y = -static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
-            .z =  static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
+            .x =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
+            .y = -(static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x),
+            .z =   static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
         },
         .acc = {
-            .x =  static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
-            .y = -static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
-            .z =  static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
+            .x =   static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
+            .y = -(static_cast<float>(data.acc_x) * _accResolution - _accOffset.x),
+            .z =   static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XNEG_YNEG_ZPOS)
     return accGyroRPS_t {
         .gyroRPS = {
-            .x = -static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
-            .y = -static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
-            .z =  static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
+            .x = -(static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x),
+            .y = -(static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y),
+            .z =   static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
         },
         .acc = {
-            .x = -static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
-            .y = -static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
-            .z =  static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
+            .x = -(static_cast<float>(data.acc_x) * _accResolution - _accOffset.x),
+            .y = -(static_cast<float>(data.acc_y) * _accResolution - _accOffset.y),
+            .z =   static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
     return accGyroRPS_t {
         .gyroRPS = {
-            .x = -static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
-            .y =  static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
-            .z =  static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
+            .x = -(static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y),
+            .y =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
+            .z =   static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
         },
         .acc = {
-            .x = -static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
-            .y =  static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
-            .z =  static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
+            .x = -(static_cast<float>(data.acc_y) * _accResolution - _accOffset.y),
+            .y =   static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
+            .z =   static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_ZPOS_YNEG)
     return accGyroRPS_t {
         .gyroRPS = {
-            .x =  static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
-            .y =  static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z,
-            .z = -static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y
+            .x =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
+            .y =   static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z,
+            .z = -(static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y)
         },
         .acc = {
-            .x =  static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
-            .y =  static_cast<float>(data.acc_z) * _accResolution - _accOffset.z,
-            .z = -static_cast<float>(data.acc_y) * _accResolution - _accOffset.y
+            .x =   static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
+            .y =   static_cast<float>(data.acc_z) * _accResolution - _accOffset.z,
+            .z = -(static_cast<float>(data.acc_y) * _accResolution - _accOffset.y)
         }
     };
 #else
     // Axis order mapping done at run-time
-    // scope return values are fully calculated to allow eliding copy on return (return value optimization RVO)
+    // return values are fully calculated for each `case` to allow eliding copy on return (return value optimization, RVO)
     // speed optimization is more important than size optimization here
     switch (_axisOrder) {
     case XPOS_YPOS_ZPOS: // NOLINT(bugprone-branch-clone)
         return accGyroRPS_t {
             .gyroRPS = {
-                .x =  static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
-                .y =  static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
-                .z =  static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
+                .x =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
+                .y =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
+                .z =   static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
             },
             .acc = {
-                .x =  static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
-                .y =  static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
-                .z =  static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
-            }
-        };
-    case YNEG_XPOS_ZPOS:
-        return accGyroRPS_t {
-            .gyroRPS = {
-                .x = -static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
-                .y =  static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
-                .z =  static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
-            },
-            .acc = {
-                .x = -static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
-                .y =  static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
-                .z =  static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
-            }
-        };
-    case XNEG_YNEG_ZPOS:
-        return accGyroRPS_t {
-            .gyroRPS = {
-                .x = -static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
-                .y = -static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
-                .z =  static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
-            },
-            .acc = {
-                .x = -static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
-                .y = -static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
-                .z =  static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
+                .x =   static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
+                .y =   static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
+                .z =   static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
             }
         };
     case YPOS_XNEG_ZPOS:
         return accGyroRPS_t {
             .gyroRPS = {
-                .x =  static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
-                .y = -static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
-                .z =  static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
+                .x =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
+                .y = -(static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x),
+                .z =   static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
             },
             .acc = {
-                .x =  static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
-                .y = -static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
-                .z =  static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
+                .x =   static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
+                .y = -(static_cast<float>(data.acc_x) * _accResolution - _accOffset.x),
+                .z =   static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
             }
         };
-    case XPOS_ZPOS_YNEG:
+    case XNEG_YNEG_ZPOS:
         return accGyroRPS_t {
             .gyroRPS = {
-                .x =  static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
-                .y =  static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z,
-                .z = -static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y
+                .x = -(static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x),
+                .y = -(static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y),
+                .z =   static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
             },
             .acc = {
-                .x =  static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
-                .y =  static_cast<float>(data.acc_z) * _accResolution - _accOffset.z,
-                .z = -static_cast<float>(data.acc_y) * _accResolution - _accOffset.y
+                .x = -(static_cast<float>(data.acc_x) * _accResolution - _accOffset.x),
+                .y = -(static_cast<float>(data.acc_y) * _accResolution - _accOffset.y),
+                .z =   static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
+            }
+        };
+    case YNEG_XPOS_ZPOS:
+        return accGyroRPS_t {
+            .gyroRPS = {
+                .x = -(static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y),
+                .y =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
+                .z =   static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
+            },
+            .acc = {
+                .x = -(static_cast<float>(data.acc_y) * _accResolution - _accOffset.y),
+                .y =   static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
+                .z =   static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
+            }
+        };
+    case XPOS_YNEG_ZNEG:
+        return accGyroRPS_t {
+            .gyroRPS = {
+                .x =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
+                .y = -(static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y),
+                .z = -(static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z)
+            },
+            .acc = {
+                .x =   static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
+                .y = -(static_cast<float>(data.acc_y) * _accResolution - _accOffset.y),
+                .z = -(static_cast<float>(data.acc_z) * _accResolution - _accOffset.z)
+            }
+        };
+    case YPOS_XPOS_ZNEG:
+        return accGyroRPS_t {
+            .gyroRPS = {
+                .x =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
+                .y =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
+                .z = -(static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z)
+            },
+            .acc = {
+                .x =   static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
+                .y =   static_cast<float>(data.acc_z) * _accResolution - _accOffset.x,
+                .z = -(static_cast<float>(data.acc_z) * _accResolution - _accOffset.z)
+            }
+        };
+    case XNEG_YPOS_ZNEG:
+        return accGyroRPS_t {
+            .gyroRPS = {
+                .x = -(static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x),
+                .y =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
+                .z = -(static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z)
+            },
+            .acc = {
+                .x = -(static_cast<float>(data.acc_x) * _accResolution - _accOffset.x),
+                .y =   static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
+                .z = -(static_cast<float>(data.acc_z) * _accResolution - _accOffset.z)
+            }
+        };
+    case YNEG_XNEG_ZNEG:
+        return accGyroRPS_t {
+            .gyroRPS = {
+                .x = -(static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y),
+                .y = -(static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x),
+                .z = -(static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z)
+            },
+            .acc = {
+                .x = -(static_cast<float>(data.acc_y) * _accResolution - _accOffset.y),
+                .y = -(static_cast<float>(data.acc_x) * _accResolution - _accOffset.x),
+                .z = -(static_cast<float>(data.acc_z) * _accResolution - _accOffset.z)
             }
         };
     default:
         return accGyroRPS_t {
             .gyroRPS = mapAxes({
-                .x =  static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
-                .y =  static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
-                .z =  static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
+                .x =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
+                .y =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
+                .z =   static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z
             }),
             .acc = mapAxes({
-                .x =  static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
-                .y =  static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
-                .z =  static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
+                .x =   static_cast<float>(data.acc_x) * _accResolution - _accOffset.x,
+                .y =   static_cast<float>(data.acc_y) * _accResolution - _accOffset.y,
+                .z =   static_cast<float>(data.acc_z) * _accResolution - _accOffset.z
             })
         };
     } // end switch
