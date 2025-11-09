@@ -77,13 +77,12 @@ public:
     FAST_CODE virtual accGyroRPS_t readAccGyroRPS() override;
     FAST_CODE virtual accGyroRPS_t getAccGyroRPS() const override;
 private:
-private:
     xyz_t gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const;
     xyz_t accFromRaw(const mems_sensor_data_t::value_t& data) const;
     accGyroRPS_t accGyroRPSFromRaw(const acc_temperature_gyro_data_t::value_t& data) const;
 private:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_MPU6000_USE_SPI_BUS)
-    BUS_SPI _bus; //!< SPI bus interface,
+    BUS_SPI _bus; //!< SPI bus interface
 #else
     BUS_I2C _bus; //!< I2C bus interface
 #endif

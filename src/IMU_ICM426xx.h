@@ -71,7 +71,7 @@ private:
     accGyroRPS_t accGyroRPSFromRaw(const acc_gyro_data_t::value_t& data) const;
 private:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_ICM426XX_USE_SPI_BUS)
-    BUS_SPI _bus; //!< SPI bus interface,
+    BUS_SPI _bus; //!< SPI bus interface
 #else
     BUS_I2C _bus; //!< I2C bus interface
 #endif

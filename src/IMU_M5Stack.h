@@ -36,4 +36,3 @@ private:
     };
     accGyroRPS_t accGyroRPSFromRaw(const acc_temperature_gyro_data_t& data) const;
 };
-
