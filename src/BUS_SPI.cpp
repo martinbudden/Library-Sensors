@@ -217,7 +217,6 @@ BUS_SPI::BUS_SPI(uint32_t frequency, bus_index_e SPI_index, const stm32_spi_pins
 
 void BUS_SPI::init()
 {
-    self = this;
 #if defined(FRAMEWORK_RPI_PICO)
     static_assert(static_cast<int>(IRQ_LEVEL_LOW) == GPIO_IRQ_LEVEL_LOW);
     static_assert(static_cast<int>(IRQ_LEVEL_HIGH) == GPIO_IRQ_LEVEL_HIGH);
@@ -435,6 +434,7 @@ This routine sets the GPIO IRQ pin to input and attaches the dataReadyISR to be 
 */
 void BUS_SPI::setInterruptDriven(irq_level_e irqLevel) // NOLINT(readability-make-member-function-const)
 {
+    self = this;
     assert(_pins.irq.pin != IRQ_NOT_SET);
 
 #if defined(FRAMEWORK_ARDUINO_ESP32)

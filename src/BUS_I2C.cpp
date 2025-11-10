@@ -14,7 +14,7 @@
 #endif
 
 
-BUS_I2C* BUS_I2C::bus {nullptr};
+BUS_I2C* BUS_I2C::self {nullptr};
 
 /*!
 Data ready interrupt service routine (ISR)
@@ -28,15 +28,15 @@ void __not_in_flash_func(BUS_I2C::dataReadyISR)(unsigned int gpio, uint32_t even
     (void)events;
     //gpio_put(PICO_DEFAULT_LED_PIN, 1);
     // reading the IMU register resets the interrupt
-    bus->readDeviceData();
-    bus->SIGNAL_DATA_READY_FROM_ISR();
+    self->readDeviceData();
+    self->SIGNAL_DATA_READY_FROM_ISR();
 }
 #else
 FAST_CODE void BUS_I2C::dataReadyISR()
 {
     // reading the IMU register resets the interrupt
-    bus->readDeviceData();
-    bus->SIGNAL_DATA_READY_FROM_ISR();
+    self->readDeviceData();
+    self->SIGNAL_DATA_READY_FROM_ISR();
 }
 #endif
 
@@ -83,8 +83,6 @@ BUS_I2C::BUS_I2C(uint8_t I2C_address, bus_index_e I2C_index, const i2c_pins_t& p
 
 void BUS_I2C::init()
 {
-    bus = this;
-
 #if defined(FRAMEWORK_RPI_PICO)
     static_assert(static_cast<int>(IRQ_LEVEL_LOW) == GPIO_IRQ_LEVEL_LOW);
     static_assert(static_cast<int>(IRQ_LEVEL_HIGH) == GPIO_IRQ_LEVEL_HIGH);
@@ -251,6 +249,8 @@ BUS_I2C::BUS_I2C(uint8_t I2C_address, bus_index_e I2C_index)
 
 void BUS_I2C::setInterruptDriven(irq_level_e irqLevel) // NOLINT(readability-make-member-function-const)
 {
+    self = this;
+
     assert(_pins.irq.pin != IRQ_NOT_SET);
 
 #if defined(FRAMEWORK_RPI_PICO)

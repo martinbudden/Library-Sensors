@@ -69,7 +69,7 @@ public:
     FAST_CODE uint8_t writeRegister(uint8_t reg, const uint8_t* data, size_t length);
     FAST_CODE uint8_t writeBytes(const uint8_t* data, size_t length);
 private:
-    static BUS_I2C* bus; //!< alias of `this` to be used in interrupt service routine
+    static BUS_I2C* self; //!< alias of `this` to be used in interrupt service routine
     bus_index_e _I2C_index {};
     stm32_i2c_pins_t _pins {};
 #if defined(FRAMEWORK_RPI_PICO)
