@@ -210,8 +210,6 @@ BUS_I2C::BUS_I2C(uint8_t I2C_address, TwoWire& wire, const i2c_pins_t& pins) :
     _wire(wire),
     _I2C_address(I2C_address)
 {
-    bus = this;
-
     _pins.sda = {0,pins.sda};
     _pins.scl = {0,pins.scl};
     _pins.irq = {0,pins.irq};
