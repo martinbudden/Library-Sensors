@@ -42,6 +42,22 @@ public:
         port_pin_t copi; // TX, COPI, MOSI, PICO
         port_pin_t irq; // interrupt pin
     };
+    enum bus_status_e { BUS_READY, BUS_BUSY, BUS_ABORT };
+    struct segment_t {
+        union {
+            struct {
+                uint8_t* txData; // Transmit buffer
+                uint8_t* rxData; // Receive buffer
+            } buffers;
+            struct {
+                const BUS_SPI* dev; // Link to the device associated with the next transfer
+                volatile segment_t* segments; // Segments to process in the next transfer.
+            } link;
+        } u;
+        int len;
+        bool negateCS; // Should CS be negated at the end of this segment
+        bus_status_e (*callbackFn)(uint32_t arg);
+    };
     static constexpr uint8_t READ_BIT = 0x80U;
 public:
     virtual ~BUS_SPI();
@@ -51,6 +67,17 @@ public:
     void init();
     void configureDMA();
     void setInterruptDriven(irq_level_e irqLevel);
+
+    uint16_t calculateClockDivider(uint32_t frequencyHz);
+    uint32_t calculateClock(uint16_t clockDivisor);
+    void setClockDivisor(uint16_t divisor);
+    void setClockPhasePolarity(bool leadingEdge);
+    void dmaEnable(bool enable);
+    void dmaSequence(segment_t* segments);
+    void dmaWait();
+    void dmaRelease();
+    bool dmaIsBusy();
+
     FAST_CODE bool readDeviceData();
     FAST_CODE bool readDeviceDataDMA();
     FAST_CODE uint8_t readRegister(uint8_t reg) const;

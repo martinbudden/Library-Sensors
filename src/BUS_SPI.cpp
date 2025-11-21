@@ -806,3 +806,57 @@ FAST_CODE uint8_t BUS_SPI::writeBytes(const uint8_t* data, size_t length) // NOL
 #endif // FRAMEWORK
     return 0;
 }
+
+// Determine the divisor to use for a given bus frequency
+uint16_t BUS_SPI::calculateClockDivider(uint32_t frequencyHz)
+{
+    (void)frequencyHz;
+    return 1;
+}
+
+// Return the SPI clock based on the given divisor
+uint32_t BUS_SPI::calculateClock(uint16_t clockDivisor)
+{
+    (void)clockDivisor;
+    return 10'000'000; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+}
+
+// Set the clock divisor to be used for accesses by the given device
+void BUS_SPI::setClockDivisor(uint16_t divisor)
+{
+    (void)divisor;
+}
+
+// Set the clock phase/polarity to be used for accesses by the given device
+void BUS_SPI::setClockPhasePolarity(bool leadingEdge)
+{
+    (void)leadingEdge;
+}
+
+// Enable/disable DMA on a specific device. Enabled by default.
+void BUS_SPI::dmaEnable(bool enable)
+{
+    (void)enable;
+}
+
+// DMA transfer setup and start
+void BUS_SPI::dmaSequence(segment_t* segments)
+{
+    (void)segments;
+}
+
+// Wait for DMA completion
+void BUS_SPI::dmaWait()
+{
+}
+
+// Negate CS if held asserted after a transfer
+void BUS_SPI::dmaRelease()
+{
+}
+
+// Return true if DMA engine is busy
+bool BUS_SPI::dmaIsBusy()
+{
+    return false;
+}
