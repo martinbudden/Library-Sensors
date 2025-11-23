@@ -1,7 +1,7 @@
 #if defined (USE_EMPTY_MAIN)
 
 #include "IMU_LSM6DS3TR_C.h"
-
+#if !defined(FRAMEWORK_TEST)
 static void setupIMU()
 {
     enum {PA=0, PB=1, PC=2, PD=3, PE=4, PF=5, PG=6, PH=7};
@@ -19,6 +19,7 @@ static void setupIMU()
     (void)imu;
 #endif
 }
+#endif
 
 #if defined(FRAMEWORK_RPI_PICO)
 int main()

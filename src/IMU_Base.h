@@ -127,6 +127,7 @@ public:
         MSP_GYRO_ID_NONE = 0, MSP_GYRO_ID_DEFAULT = 1, MSP_GYRO_ID_VIRTUAL = 20,
         MSP_ACC_ID_DEFAULT = 0, MSP_ACC_ID_NONE = 1 , MSP_ACC_ID_VIRTUAL = 21
     };
+    enum calibration_type_e { CALIBRATE_ACC_AND_GYRO, CALIBRATE_GYRO_ONLY };
 
     // IMU characteristics flag values
     enum : uint32_t { IMU_AUTO_CALIBRATES = 0x01, IMU_PERFORMS_SENSOR_FUSION = 0x02 };
@@ -196,6 +197,7 @@ public:
     uint32_t getAccSampleRateHz() const { return _accSampleRateHz; }
     uint16_t getGyroIdMSP() const { return _gyroIdMSP; }
     uint16_t getAccIdMSP() const { return _accIdMSP; }
+    void calibrate(calibration_type_e calibrationType, size_t calibrationCount);
 
     virtual void setInterruptDriven();
     int32_t WAIT_IMU_DATA_READY() { return _busBase->WAIT_DATA_READY(); }

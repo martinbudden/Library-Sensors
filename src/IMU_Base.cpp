@@ -396,3 +396,61 @@ IMU_Base::axis_order_e IMU_Base::axisOrderFromAlignment(const xyz_alignment_t& a
     (void)alignment;
     return XPOS_YPOS_ZPOS;
 }
+
+void IMU_Base::calibrate(calibration_type_e calibrationType, size_t calibrationCount)
+{
+    int64_t gyroX = 0;
+    int64_t gyroY = 0;
+    int64_t gyroZ = 0;
+    int64_t accX = 0;
+    int64_t accY = 0;
+    int64_t accZ = 0;
+
+    for (size_t ii = 0; ii < calibrationCount; ++ii) {
+        delayMs(1);
+
+        const xyz_int32_t gyro32 = readGyroRaw();
+        gyroX += gyro32.x;
+        gyroY += gyro32.y;
+        gyroZ += gyro32.x;
+
+        const xyz_int32_t acc32 = readAccRaw();
+        accX += acc32.x;
+        accY += acc32.y;
+        accZ += acc32.z;
+    }
+
+    const xyz_t gyroOffset = xyz_t {
+        .x = static_cast<float>(gyroX) / static_cast<float>(calibrationCount),
+        .y = static_cast<float>(gyroY) / static_cast<float>(calibrationCount),
+        .z = static_cast<float>(gyroZ) / static_cast<float>(calibrationCount)
+    } *  getAccResolution();
+
+    xyz_t accOffset = {
+        .x = static_cast<float>(accX) / static_cast<float>(calibrationCount),
+        .y = static_cast<float>(accY) / static_cast<float>(calibrationCount),
+        .z = static_cast<float>(accZ) / static_cast<float>(calibrationCount)
+    };
+
+    const float oneG = 1.0F / getAccResolution();
+    const float halfG = oneG / 2.0F;
+    if (accOffset.x > halfG) {
+        accOffset.x -= oneG;
+    } else if (accOffset.x < - halfG) {
+        accOffset.x += oneG;
+    } else if (accOffset.y > halfG) {
+        accOffset.y -= oneG;
+    } else if (accOffset.y < - halfG) {
+        accOffset.y += oneG;
+    } else if (accOffset.z > halfG) {
+        accOffset.z -= oneG;
+    } else if (accOffset.z < - halfG) {
+        accOffset.z += oneG;
+    }
+    accOffset *= getAccResolution();
+
+    setGyroOffset(gyroOffset);
+    if (calibrationType == CALIBRATE_ACC_AND_GYRO) {
+        setAccOffset(accOffset);
+    }
+}

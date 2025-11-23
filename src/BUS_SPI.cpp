@@ -5,6 +5,7 @@
 #if defined(FRAMEWORK_RPI_PICO)
 //#include <boards/pico.h> // for PICO_DEFAULT_LED_PIN
 #include <cstring>
+#include <hardware/clocks.h>
 #include <hardware/dma.h>
 #include <hardware/spi.h>
 #include <pico/binary_info.h>
@@ -810,15 +811,76 @@ FAST_CODE uint8_t BUS_SPI::writeBytes(const uint8_t* data, size_t length) // NOL
 // Determine the divisor to use for a given bus frequency
 uint16_t BUS_SPI::calculateClockDivider(uint32_t frequencyHz)
 {
+#if defined(FRAMEWORK_RPI_PICO)
+    /*
+      SPI clock is set in Betaflight code by calling spiSetClkDivisor, which records a uint16_t value into a .speed field.
+      In order to maintain this code (for simplicity), record the prescale and postdiv numbers as calculated in
+      pico-sdk/src/rp2_common/hardware_spi.c: spi_set_baudrate()
+
+      prescale and postdiv are in range 1..255 and are packed into the return value.
+    */
+
+    uint32_t spiClock = clock_get_hz(clk_peri);
+    // Find smallest prescale value which puts output frequency in range of
+    // post-divide. Prescale is an even number from 2 to 254 inclusive.
+    uint32_t prescale = 2; 
+    while (prescale <= 254) {
+        if (spiClock < prescale * 256 * static_cast<uint64_t>(frequencyHz)) {
+            break;
+        }
+        prescale += 2;
+    }
+    if (prescale > 254) {
+        prescale = 254;
+    }
+
+    // Find largest post-divide which makes output <= freq. Post-divide is
+    // an integer in the range 1 to 256 inclusive.
+    uint32_t postdiv = 256;
+    while (postdiv > 1) {
+        if (spiClock / (prescale * (postdiv - 1)) > frequencyHz) {
+            break;
+        }
+        --postdiv;
+    }
+
+    // Store prescale, (postdiv - 1), both in range 0 to 255.
+    return (uint16_t)((prescale << 8) + (postdiv - 1));
+#else
     (void)frequencyHz;
     return 1;
+#endif
 }
+
+
 
 // Return the SPI clock based on the given divisor
 uint32_t BUS_SPI::calculateClock(uint16_t clockDivisor)
 {
-    (void)clockDivisor;
-    return 10'000'000; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    enum { DEFAULT_CLOCK = 64'000'000 };
+#if defined(FRAMEWORK_RPI_PICO)
+    const uint32_t clock = DEFAULT_CLOCK;
+#elif defined(FRAMEWORK_ESPIDF)
+    const uint32_t clock = DEFAULT_CLOCK;
+#elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
+#if defined(FRAMEWORK_STM32_CUBE_F1)
+    const uint32_t clock = SystemCoreClock / 2;
+#elif defined(FRAMEWORK_STM32_CUBE_F3)
+    const uint32_t clock = SystemCoreClock / 2;
+#elif defined(FRAMEWORK_STM32_CUBE_F4)
+    const uint32_t clock = SystemCoreClock / 2;
+#elif defined(FRAMEWORK_STM32_CUBE_F7)
+    const uint32_t clock = SystemCoreClock / 2;
+#else
+    const uint32_t clock = DEFAULT_CLOCK;
+#endif
+    return clock / clockDivisor;
+#elif defined(FRAMEWORK_TEST)
+    const uint32_t clock = DEFAULT_CLOCK;
+#else // defaults to FRAMEWORK_ARDUINO
+    const uint32_t clock = DEFAULT_CLOCK;
+#endif // FRAMEWORK
+    return clock / clockDivisor;
 }
 
 // Set the clock divisor to be used for accesses by the given device
