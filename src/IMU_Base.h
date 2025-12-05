@@ -181,8 +181,8 @@ public:
         xyz_t gyroRPS;
         xyz_t acc;
     };
-    static constexpr float degreesToRadians = static_cast<float>(M_PI / 180.0);
-    static constexpr float radiansToDegrees = static_cast<float>(180.0 / M_PI);
+    static constexpr float DEGREES_TO_RADIANS = static_cast<float>(3.14159265358979323846 / 180.0);
+    static constexpr float RADIANS_TO_DEGREES = static_cast<float>(180.0 / 3.14159265358979323846);
 public:
     static void delayMs(int ms);
     virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* i2cMutex) = 0;

@@ -176,9 +176,9 @@ xyz_t IMU_M5_UNIFIED::readGyroRPS()
     const m5::IMU_Class::imu_data_t& data = M5.Imu.getImuData();
     const xyz_t gyroRPS {
         // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-        .x = data.gyro.x * degreesToRadians,
-        .y = data.gyro.y * degreesToRadians,
-        .z = data.gyro.z * degreesToRadians
+        .x = data.gyro.x * DEGREES_TO_RADIANS,
+        .y = data.gyro.y * DEGREES_TO_RADIANS,
+        .z = data.gyro.z * DEGREES_TO_RADIANS
         // NOLINTEND(cppcoreguidelines-pro-type-union-access)
     };
     return gyroRPS;
@@ -213,9 +213,9 @@ FAST_CODE IMU_Base::accGyroRPS_t IMU_M5_UNIFIED::readAccGyroRPS()
     return accGyroRPS_t {
         // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
         .gyroRPS = {
-            .x = data.gyro.x * degreesToRadians,
-            .y = data.gyro.y * degreesToRadians,
-            .z = data.gyro.z * degreesToRadians
+            .x = data.gyro.x * DEGREES_TO_RADIANS,
+            .y = data.gyro.y * DEGREES_TO_RADIANS,
+            .z = data.gyro.z * DEGREES_TO_RADIANS
         },
         .acc = {
             .x = data.accel.x,

@@ -111,15 +111,12 @@ private:
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     mutable SPI_HandleTypeDef _spi {};
 #elif defined(FRAMEWORK_TEST)
-    static void dataReadyISR();
+    static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
 #else // defaults to FRAMEWORK_ARDUINO
-    FAST_CODE static void dataReadyISR();// cppcheck-suppress unusedPrivateFunction
+    FAST_CODE static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
     mutable volatile uint32_t* _csOut {};
     uint32_t _csBit {};
-#if defined(FRAMEWORK_ARDUINO_ESP32)
-#else
     SPIClass& _spi;
-#endif
 #endif // FRAMEWORK
 #if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
     mutable std::array<uint8_t, 256> _writeReadBuf {};

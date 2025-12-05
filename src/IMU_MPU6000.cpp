@@ -1,7 +1,7 @@
 #include "IMU_MPU6000.h"
 
-//#define SERIAL_OUTPUT
-#if defined(SERIAL_OUTPUT)
+//#define LIBRARY_SENSORS_SERIAL_DEBUG
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
 #if defined(FRAMEWORK_ARDUINO_ESP32) || defined(ESP32) || defined(ARDUINO_ARCH_ESP32)// ESP32, ARDUINO_ARCH_ESP32 defined in platform.txt
 #include <HardwareSerial.h>
 #else
@@ -193,7 +193,7 @@ int IMU_MPU6000::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSe
         _gyroResolutionDPS = 2000.0F / 32768.0F;
         break;
     }
-    _gyroResolutionRPS = _gyroResolutionDPS * degreesToRadians;
+    _gyroResolutionRPS = _gyroResolutionDPS * DEGREES_TO_RADIANS;
     _bus.writeRegister(REG_GYRO_CONFIG, GYRO_RANGE);
     delayMs(15);
 
@@ -273,7 +273,7 @@ xyz_t IMU_MPU6000::readGyroRPS()
 
 xyz_t IMU_MPU6000::readGyroDPS()
 {
-    return readGyroRPS() * radiansToDegrees;
+    return readGyroRPS() * RADIANS_TO_DEGREES;
 }
 
 xyz_t IMU_MPU6000::readAcc()

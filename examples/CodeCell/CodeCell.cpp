@@ -1,11 +1,6 @@
 #include <Arduino.h>
 #include <IMU_BNO085.h>
 
-//static constexpr uint8_t I2C_SDA_PIN = 8;
-//static constexpr uint8_t I2C_SCL_PIN = 9;
-
-#define IMU_I2C_PINS        pins_t{.sda=,8,.scl=9,.irq=0xFF}
-
 static IMU_Base* imu;
 
 void setup()
@@ -24,7 +19,7 @@ void setup()
 void loop()
 {
     // read the gyro data and convert from radians per second to degrees per second
-    const xyz_t gyroDPS = imu->readGyroRPS() * IMU_Base::radiansToDegrees;
+    const xyz_t gyroDPS = imu->readGyroRPS() * IMU_Base::RADIANS_TO_DEGREES;
     Serial.print("gyroX:");
     Serial.print(gyroDPS.x);
     Serial.print(" gyroY:");

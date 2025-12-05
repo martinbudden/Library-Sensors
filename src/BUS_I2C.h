@@ -85,7 +85,7 @@ private:
     FAST_CODE static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
     mutable I2C_HandleTypeDef _I2C {};
 #elif defined(FRAMEWORK_TEST)
-    static void dataReadyISR();
+    static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
 #else // defaults to FRAMEWORK_ARDUINO
     FAST_CODE static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
     TwoWire& _wire;

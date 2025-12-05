@@ -1,6 +1,6 @@
 #include "IMU_ICM426xx.h"
-//#define SERIAL_OUTPUT
-#if defined(SERIAL_OUTPUT)
+//#define LIBRARY_SENSORS_SERIAL_DEBUG
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
 #if defined(FRAMEWORK_ARDUINO_ESP32) || defined(ESP32) || defined(ARDUINO_ARCH_ESP32)// ESP32, ARDUINO_ARCH_ESP32 defined in platform.txt
 #include <HardwareSerial.h>
 #else
@@ -244,12 +244,16 @@ int IMU_ICM426xx::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroS
 
     _bus.writeRegister(REG_DEVICE_CONFIG, DEVICE_CONFIG_DEFAULT); // default reset configuration
 
+// NOLINTBEGIN(hicpp-signed-bitwise)
+
     // set AntiAlias filter, see pages 28ff of TDK ICM-42688-P Datasheet
-    enum { GYRO_AAF_DELT=38, GYRO_AAF_DELTSQR=1440, GYRO_AAF_BITSH=4 }; // gives 3dB Bandwidth of 2029 Hz
+    static constexpr uint8_t GYRO_AAF_DELT = 38;
+    static constexpr uint16_t GYRO_AAF_DELTSQR = 1440;
+    static constexpr uint8_t GYRO_AAF_BITSH = 4; // gives 3dB Bandwidth of 2029 Hz
     _bus.writeRegister(REG_BANK_SEL, 1);
     _bus.writeRegister(REG_BANK1_GYRO_CONFIG_STATIC3, GYRO_AAF_DELT);
-    _bus.writeRegister(REG_BANK1_GYRO_CONFIG_STATIC4, GYRO_AAF_DELTSQR & 0xFF);
-    _bus.writeRegister(REG_BANK1_GYRO_CONFIG_STATIC5, (GYRO_AAF_BITSH << 4)| (GYRO_AAF_DELTSQR >> 8));
+    _bus.writeRegister(REG_BANK1_GYRO_CONFIG_STATIC4, static_cast<uint8_t>(GYRO_AAF_DELTSQR & 0xFFU));
+    _bus.writeRegister(REG_BANK1_GYRO_CONFIG_STATIC5, (GYRO_AAF_BITSH << 4U) | (GYRO_AAF_DELTSQR >> 8U));
     _bus.writeRegister(REG_BANK_SEL, 0);
 
     // REG_GYRO_CONFIG1 defaults to first order gyro ui filter, 3rd order GYRO_DEC2_M2_ORD filter, so is left unchanged
@@ -278,8 +282,10 @@ int IMU_ICM426xx::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroS
 #endif
 
     // Turn on gyro and acc on before configuring Output Data Rate(ODR) and Full Scale Rate (FSRP)
-    _bus.writeRegister(REG_PWR_MGMT0, PWR_TEMP_ENABLED | PWR_GYRO_LOW_NOISE | PWR_ACCEL_LOW_NOISE); // cppcheck-suppress badBitmaskCheck
+    _bus.writeRegister(REG_PWR_MGMT0, static_cast<uint8_t>(PWR_TEMP_ENABLED | PWR_GYRO_LOW_NOISE | PWR_ACCEL_LOW_NOISE)); // cppcheck-suppress badBitmaskCheck
     delayMs(1);
+
+// NOLINTEND(hicpp-signed-bitwise)
 
     // calculate the GYRO_ODR bit values to write to the REG_GYRO_CONFIG0 register
     const uint8_t GYRO_ODR =
@@ -333,7 +339,7 @@ int IMU_ICM426xx::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroS
         _gyroResolutionDPS = 2000.0F / 32768.0F;
         break;
     }
-    _gyroResolutionRPS = _gyroResolutionDPS * degreesToRadians;
+    _gyroResolutionRPS = _gyroResolutionDPS * DEGREES_TO_RADIANS;
 
     _bus.writeRegister(REG_GYRO_CONFIG0, GYRO_RANGE | GYRO_ODR);
     delayMs(1);
@@ -443,7 +449,7 @@ xyz_t IMU_ICM426xx::readGyroRPS()
 
 xyz_t IMU_ICM426xx::readGyroDPS()
 {
-    return readGyroRPS() * radiansToDegrees;
+    return readGyroRPS() * RADIANS_TO_DEGREES;
 }
 
 xyz_t IMU_ICM426xx::readAcc()

@@ -1,7 +1,6 @@
-#if defined (USE_EMPTY_MAIN)
+#if defined (LIBRARY_SENSORS_USE_EMPTY_MAIN)
 
 #include "IMU_LSM6DS3TR_C.h"
-#if !defined(FRAMEWORK_TEST)
 static void setupIMU()
 {
     enum {PA=0, PB=1, PC=2, PD=3, PE=4, PF=5, PG=6, PH=7};
@@ -19,7 +18,6 @@ static void setupIMU()
     (void)imu;
 #endif
 }
-#endif
 
 #if defined(FRAMEWORK_RPI_PICO)
 int main()
@@ -46,6 +44,12 @@ int main()
 
 #elif defined(FRAMEWORK_TEST)
 
+int main()
+{
+    setupIMU();
+    return 0;
+}
+
 #else // defaults to FRAMEWORK_ARDUINO
 
 #include <Arduino.h>
@@ -61,4 +65,4 @@ void loop()
 }
 #endif // FRAMEWORK
 
-#endif // USE_EMPTY_MAIN
+#endif //     -D LIBRARY_SENSORS_USE_EMPTY_MAIN

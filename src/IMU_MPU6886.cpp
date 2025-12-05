@@ -1,6 +1,6 @@
 #include "IMU_MPU6886.h"
-//#define SERIAL_OUTPUT
-#if defined(SERIAL_OUTPUT)
+//#define LIBRARY_SENSORS_SERIAL_DEBUG
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
 #include <HardwareSerial.h>
 #endif
 
@@ -139,7 +139,7 @@ int IMU_MPU6886::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSe
 
     const uint8_t chipID = _bus.readRegister(REG_WHO_AM_I);
     delayMs(1);
-#if defined(SERIAL_OUTPUT)
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
     Serial.printf("IMU init, chipID=%02x\r\n", chipID);
 #else
     (void)chipID;
@@ -161,7 +161,7 @@ int IMU_MPU6886::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSe
     constexpr uint8_t GYRO_FCHOICE_B = 0x00; // enables gyro update rate and filter configuration using REG_CONFIG
     _bus.writeRegister(REG_GYRO_CONFIG, (GFS_2000DPS << 3) | GYRO_FCHOICE_B); // cppcheck-suppress badBitmaskCheck
     _gyroResolutionDPS = GYRO_2000DPS_RES;
-    _gyroResolutionRPS = GYRO_2000DPS_RES * degreesToRadians;
+    _gyroResolutionRPS = GYRO_2000DPS_RES * DEGREES_TO_RADIANS;
     delayMs(1);
 
     // Accelerometer scale is fixed at 8G, the maximum supported.
@@ -255,7 +255,7 @@ xyz_t IMU_MPU6886::readGyroRPS()
 
 xyz_t IMU_MPU6886::readGyroDPS()
 {
-    return readGyroRPS() * radiansToDegrees;
+    return readGyroRPS() * RADIANS_TO_DEGREES;
 }
 
 xyz_t IMU_MPU6886::readAcc()

@@ -1,6 +1,6 @@
 #include "BarometerBMP280.h"
-//#define SERIAL_OUTPUT
-#if defined(SERIAL_OUTPUT)
+//#define LIBRARY_SENSORS_SERIAL_DEBUG
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
 #include <HardwareSerial.h>
 #endif
 
@@ -63,7 +63,7 @@ namespace { // use anonymous namespace to make items local to this translation u
     constexpr uint8_t STANDBY_MS_4000   = 0x07;
 
     constexpr uint8_t SPI_3WIRE_ENABLE  = 0x01;
-} // end namespace/
+} // end namespace
 
 #if defined(LIBRARY_SENSORS_BAROMETER_USE_SPI_BUS)
 BarometerBMP280::BarometerBMP280(uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::stm32_spi_pins_t& pins) :
@@ -113,6 +113,7 @@ int BarometerBMP280::init()
     delayMs(1);
     */
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,hicpp-signed-bitwise,readability-magic-numbers)
     const uint8_t mode = MODE_FORCED;
     const uint8_t TEMPERATURE_OSR = SAMPLING_X1;
     const uint8_t PRESSURE_OSR = SAMPLING_X8;
@@ -130,17 +131,19 @@ int BarometerBMP280::init()
     constexpr uint32_t delayMs = ((TIME_INIT_MAX + TIME_MEASURE_PER_OSRS_MAX * (((1 << TEMPERATURE_OSR) >> 1) + ((1 << PRESSURE_OSR) >> 1)) + TIME_SETUP_PRESSURE_MAX + 15) / 16);
     _sampleRateHz = 1000 / delayMs; // delay ~ 23ms, sample rate ~ 43.5Hz
     return static_cast<int>(_sampleRateHz);
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,hicpp-signed-bitwise,readability-magic-numbers)
 }
 
 float BarometerBMP280::readTemperatureCelsius()
 {
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
     const int32_t T1 = static_cast<int32_t>(_calibrationData.value.dig_T1);
     const int32_t T2 = static_cast<int32_t>(_calibrationData.value.dig_T2);
     const int32_t T3 = static_cast<int32_t>(_calibrationData.value.dig_T3);
 
     pressure_temperature_data_u pt; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
     _bus.readRegister(REG_TEMPERATURE_MSB, &pt.data[3], 3);
-    const int32_t adcT = static_cast<int32_t>(
+    const auto adcT = static_cast<int32_t>(
             ((static_cast<uint32_t>(pt.value.temperature_msb) << 16) |
             (static_cast<uint32_t>(pt.value.temperature_lsb) << 8) |
             static_cast<uint32_t>(pt.value.temperature_xlsb)) >> 4
@@ -151,28 +154,30 @@ float BarometerBMP280::readTemperatureCelsius()
     _temperatureCelsius = static_cast<float>((_temperatureFine * 5 + 128) >> 8) / 100.0F;
 
     return _temperatureCelsius;
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
 }
 
 float BarometerBMP280::readPressurePascals()
 {
-    const int32_t T1 = static_cast<int32_t>(_calibrationData.value.dig_T1);
-    const int32_t T2 = static_cast<int32_t>(_calibrationData.value.dig_T2);
-    const int32_t T3 = static_cast<int32_t>(_calibrationData.value.dig_T3);
-    const int64_t P1 = static_cast<int64_t>(_calibrationData.value.dig_P1);
-    const int64_t P2 = static_cast<int64_t>(_calibrationData.value.dig_P2);
-    const int64_t P3 = static_cast<int64_t>(_calibrationData.value.dig_P3);
-    const int64_t P4 = static_cast<int64_t>(_calibrationData.value.dig_P4);
-    const int64_t P5 = static_cast<int64_t>(_calibrationData.value.dig_P5);
-    const int64_t P6 = static_cast<int64_t>(_calibrationData.value.dig_P6);
-    const int64_t P7 = static_cast<int64_t>(_calibrationData.value.dig_P7);
-    const int64_t P8 = static_cast<int64_t>(_calibrationData.value.dig_P8);
-    const int64_t P9 = static_cast<int64_t>(_calibrationData.value.dig_P9);
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
+    const auto T1 = static_cast<int32_t>(_calibrationData.value.dig_T1);
+    const auto T2 = static_cast<int32_t>(_calibrationData.value.dig_T2);
+    const auto T3 = static_cast<int32_t>(_calibrationData.value.dig_T3);
+    const auto P1 = static_cast<int64_t>(_calibrationData.value.dig_P1);
+    const auto P2 = static_cast<int64_t>(_calibrationData.value.dig_P2);
+    const auto P3 = static_cast<int64_t>(_calibrationData.value.dig_P3);
+    const auto P4 = static_cast<int64_t>(_calibrationData.value.dig_P4);
+    const auto P5 = static_cast<int64_t>(_calibrationData.value.dig_P5);
+    const auto P6 = static_cast<int64_t>(_calibrationData.value.dig_P6);
+    const auto P7 = static_cast<int64_t>(_calibrationData.value.dig_P7);
+    const auto P8 = static_cast<int64_t>(_calibrationData.value.dig_P8);
+    const auto P9 = static_cast<int64_t>(_calibrationData.value.dig_P9);
 
     // burst read of temperature and pressure data
     // read together in burst so data is consistent, as specified in datasheet
     pressure_temperature_data_u pt; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
     _bus.readRegister(REG_PRESSURE_MSB, &pt.data[0], sizeof(pt));
-    const int32_t adcT = static_cast<int32_t>(
+    const auto adcT = static_cast<int32_t>(
             ((static_cast<uint32_t>(pt.value.temperature_msb) << 16) |
             (static_cast<uint32_t>(pt.value.temperature_lsb) << 8) |
             static_cast<uint32_t>(pt.value.temperature_xlsb)) >> 4
@@ -184,17 +189,17 @@ float BarometerBMP280::readPressurePascals()
     _temperatureFine = (vt1 >> 11) + (vt2 >> 14);
     _temperatureCelsius = static_cast<float>((_temperatureFine * 5 + 128) >> 8) / 100.0F;
 
-    int64_t vp1 = static_cast<int64_t>(_temperatureFine) - 128000;
+    auto vp1 = static_cast<int64_t>(_temperatureFine) - 128000;
     int64_t vp2 = vp1 * vp1 * P6;
     vp2 = vp2 + ((vp1 * P5) << 17);
     vp2 = vp2 + (P4 << 35);
     vp1 = ((vp1 * vp1 * P3) >> 8) + ((vp1 * P2) << 12);
-    vp1 = (((((int64_t)1) << 47) + vp1)) * P1 >> 33;
+    vp1 = ((((static_cast<int64_t>(1)) << 47) + vp1)) * P1 >> 33;
 
     if (vp1 == 0) {
         return 0.0F; // avoid division by zero
     }
-    const int32_t adcP = static_cast<int32_t>(
+    const auto adcP = static_cast<int32_t>(
             ((static_cast<uint32_t>(pt.value.pressure_msb) << 16) |
             (static_cast<uint32_t>(pt.value.pressure_lsb) << 8) |
             static_cast<uint32_t>(pt.value.pressure_xlsb)) >> 4
@@ -207,6 +212,7 @@ float BarometerBMP280::readPressurePascals()
     p = ((p + vp1 + vp2) >> 8) + (P7 << 4);
     _pressurePascals =  static_cast<float>(p) / 256.0F;
     return _pressurePascals;
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
 }
 
 float BarometerBMP280::readAltitudeMeters()
@@ -216,5 +222,5 @@ float BarometerBMP280::readAltitudeMeters()
 
 float BarometerBMP280::calculateAltitudeMeters(float pressure)
 {
-    return 44330.0F * (1.0F - std::pow(pressure/_pressureAtReferenceAltitude, 0.1903F));
+    return 44330.0F * (1.0F - std::pow(pressure/_pressureAtReferenceAltitude, 0.1903F)); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 }

@@ -1,16 +1,18 @@
 #include <Arduino.h>
 #include <IMU_BMI270.h>
-#include <M5Unified.h>
 
-
-#define IMU_I2C_PINS i2c_pins_t{.sda=45,.scl=0,.irq=BUS_I2C::IRQ_NOT_SET}
-
+#define IMU_AXIS_ORDER IMU_Base::XPOS_YPOS_ZPOS
 static IMU_Base* imu;
+
+#if defined(TARGET_M5STACK_ATOMS3R)
+#include <M5Unified.h>
+#endif
 
 void setup()
 {
     enum {PA=0, PB=1, PC=2, PD=3, PE=4, PF=5, PG=6, PH=7};
 
+#if defined(TARGET_M5STACK_ATOMS3R)
     auto cfg = M5.config(); // NOLINT(readability-static-accessed-through-instance)
     cfg.serial_baudrate = 115200;
     M5.begin(cfg);
@@ -19,9 +21,13 @@ void setup()
     Serial.begin(115200);
 
     // statically allocate a BMI270 IMU object
-    static IMU_BMI270 imuStatic(IMU_Base::XPOS_YPOS_ZPOS, BUS_I2C::IMU_I2C_PINS);
-
-    imu = &imuStatic;
+    static IMU_BMI270 imuSensor(IMU_AXIS_ORDER, BUS_I2C::IMU_I2C_PINS);
+#else
+    Serial.begin(115200);
+    enum { SPI_8_MEGAHERTZ = 8000000, SPI_10_MEGAHERTZ = 10000000, SPI_20_MEGAHERTZ = 20000000 };
+    static IMU_BMI270 imuSensor(IMU_AXIS_ORDER, SPI_20_MEGAHERTZ,  BUS_SPI::IMU_SPI_INDEX, BUS_SPI::IMU_SPI_PINS);
+#endif
+    imu = &imuSensor;
 
     // initialize the IMU
     imu->init();

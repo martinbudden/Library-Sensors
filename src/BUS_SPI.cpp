@@ -11,13 +11,15 @@
 #include <pico/binary_info.h>
 #include <pico/stdlib.h>
 #elif defined(FRAMEWORK_ESPIDF)
+#include <driver/spi_master.h>
+#include <driver/gpio.h>
 #elif defined(FRAMEWORK_TEST)
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
 #else // defaults to FRAMEWORK_ARDUINO
+//#if defined(FRAMEWORK_ARDUINO_ESP32)
 #include <Arduino.h>
 #include <SPI.h>
 #endif
-
 
 BUS_SPI* BUS_SPI::self {nullptr}; // copy of this for use in ISRs
 
@@ -34,11 +36,8 @@ void BUS_SPI::cs_select([[maybe_unused]]const BUS_SPI& bus)
 #elif defined(FRAMEWORK_TEST)
 #else // defaults to FRAMEWORK_ARDUINO
 
-#if defined(FRAMEWORK_ARDUINO_ESP32)
-#else
     *bus._csOut &= ~bus._csBit; // set _csOut low
     // digitalWrite(_pins.cs, LOW);
-#endif
 
 #endif // FRAMEWORK
 #endif // LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT
@@ -56,12 +55,8 @@ void BUS_SPI::cs_deselect([[maybe_unused]]const BUS_SPI& bus)
     HAL_GPIO_WritePin(gpioPort(bus._pins.cs), gpioPin(bus._pins.cs), GPIO_PIN_RESET);
 #elif defined(FRAMEWORK_TEST)
 #else // defaults to FRAMEWORK_ARDUINO
-#if defined(FRAMEWORK_ARDUINO_ESP32)
-#else
     *bus._csOut |= bus._csBit; // set _csOut high
     // digitalWrite(_pins.cs, HIGH);
-#endif
-
 #endif // FRAMEWORK
 #endif // LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT
 }
@@ -182,10 +177,7 @@ BUS_SPI::BUS_SPI(uint32_t frequency, bus_index_e SPI_index, const spi_pins_t& pi
 #endif
 #elif defined(FRAMEWORK_TEST)
 #else // defaults to FRAMEWORK_ARDUINO
-#if defined(FRAMEWORK_ARDUINO_ESP32)
-#else
     ,_spi(SPI)
-#endif
 #endif // FRAMEWORK
 {
     _pins.cs =   {0,pins.cs};
@@ -207,10 +199,7 @@ BUS_SPI::BUS_SPI(uint32_t frequency, bus_index_e SPI_index, const stm32_spi_pins
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
 #elif defined(FRAMEWORK_TEST)
 #else // defaults to FRAMEWORK_ARDUINO
-#if defined(FRAMEWORK_ARDUINO_ESP32)
-#else
     ,_spi(SPI)
-#endif
 #endif // FRAMEWORK
 {
     init();
@@ -356,14 +345,11 @@ void BUS_SPI::init()
 
 #else // defaults to FRAMEWORK_ARDUINO
 
-#if defined(FRAMEWORK_ARDUINO_ESP32)
-#else
     _spi.begin();
     _csBit = digitalPinToBitMask(_pins.cs.pin); // NOLINT(cppcoreguidelines-prefer-member-initializer)
     _csOut = portOutputRegister(digitalPinToPort(_pins.cs.pin)); // NOLINT(cppcoreguidelines-prefer-member-initializer)
     pinMode(_pins.cs.pin, OUTPUT);
     cs_deselect(*this);
-#endif
 
 #endif // FRAMEWORK
 
@@ -438,7 +424,12 @@ void BUS_SPI::setInterruptDriven(irq_level_e irqLevel) // NOLINT(readability-mak
     self = this;
     assert(_pins.irq.pin != IRQ_NOT_SET);
 
-#if defined(FRAMEWORK_ARDUINO_ESP32)
+#if defined(FRAMEWORK_RPI_PICO)
+    gpio_init(_pins.irq.pin);
+    gpio_set_dir(_pins.irq.pin, GPIO_IN);
+    enum { IRQ_ENABLED = true };
+    gpio_set_irq_enabled_with_callback(_pins.irq.pin, irqLevel, IRQ_ENABLED, &dataReadyISR);
+#elif defined(FRAMEWORK_ESPIDF)
     pinMode(_pins.irq.pin, INPUT);
     // map to ESP32 constants
     enum { LEVEL_LOW = 0x04, LEVEL_HIGH = 0x05, EDGE_FALL = 0x02, EDGE_RISE = 0x01, EDGE_CHANGE = 0x03 };
@@ -448,11 +439,6 @@ void BUS_SPI::setInterruptDriven(irq_level_e irqLevel) // NOLINT(readability-mak
         (irqLevel == IRQ_EDGE_FALL) ? EDGE_FALL :
         (irqLevel == IRQ_EDGE_RISE) ? EDGE_RISE : EDGE_CHANGE;
     attachInterrupt(digitalPinToInterrupt(_pins.irq.pin), &dataReadyISR, level); // esp32-hal-gpio.h
-#elif defined(FRAMEWORK_RPI_PICO)
-    gpio_init(_pins.irq.pin);
-    gpio_set_dir(_pins.irq.pin, GPIO_IN);
-    enum { IRQ_ENABLED = true };
-    gpio_set_irq_enabled_with_callback(_pins.irq.pin, irqLevel, IRQ_ENABLED, &dataReadyISR);
 #else
     enum { LEVEL_LOW = 0x04, LEVEL_HIGH = 0x05, EDGE_FALL = 0x02, EDGE_RISE = 0x01, EDGE_CHANGE = 0x03 };
     const uint8_t level =
@@ -488,8 +474,6 @@ FAST_CODE uint8_t BUS_SPI::readRegister(uint8_t reg) const
 #elif defined(FRAMEWORK_TEST)
     (void)reg;
 #else // defaults to FRAMEWORK_ARDUINO
-#if defined(FRAMEWORK_ARDUINO_ESP32)
-#else
     _spi.beginTransaction(SPISettings(_frequency, MSBFIRST, SPI_MODE0));
     cs_select(*this);
     _spi.transfer(reg | READ_BIT);
@@ -497,7 +481,6 @@ FAST_CODE uint8_t BUS_SPI::readRegister(uint8_t reg) const
     cs_deselect(*this);
     _spi.endTransaction();
     return ret;
-#endif
 #endif // FRAMEWORK
     return 0;
 }
@@ -564,11 +547,8 @@ FAST_CODE bool BUS_SPI::readDeviceDataDMA()
 #elif defined(FRAMEWORK_TEST)
     return true;
 #else // defaults to FRAMEWORK_ARDUINO
-#if defined(FRAMEWORK_ARDUINO_ESP32)
+
     return readDeviceData();
-#else
-    return readDeviceData();
-#endif
 
 #endif // FRAMEWORK
     return false;
@@ -625,8 +605,6 @@ FAST_CODE bool BUS_SPI::readRegister(uint8_t reg, uint8_t* data, size_t length) 
     (void)length;
 #else // defaults to FRAMEWORK_ARDUINO
 
-#if defined(FRAMEWORK_ARDUINO_ESP32)
-#else
     _spi.beginTransaction(SPISettings(_frequency, MSBFIRST, SPI_MODE0));
     cs_select(*this);
     _spi.transfer(reg | READ_BIT);
@@ -636,7 +614,6 @@ FAST_CODE bool BUS_SPI::readRegister(uint8_t reg, uint8_t* data, size_t length) 
     cs_deselect(*this);
     _spi.endTransaction();
     return true;
-#endif
 
 #endif // FRAMEWORK
     return false;
@@ -664,8 +641,6 @@ FAST_CODE bool BUS_SPI::readBytes(uint8_t* data, size_t length) const // NOLINT(
     (void)length;
 #else // defaults to FRAMEWORK_ARDUINO
 
-#if defined(FRAMEWORK_ARDUINO_ESP32)
-#else
     _spi.beginTransaction(SPISettings(_frequency, MSBFIRST, SPI_MODE0));
     cs_select(*this);
     for (size_t ii = 0; ii < length; ++ii) {
@@ -674,7 +649,6 @@ FAST_CODE bool BUS_SPI::readBytes(uint8_t* data, size_t length) const // NOLINT(
     cs_deselect(*this);
     _spi.endTransaction();
     return true;
-#endif
 
 #endif // FRAMEWORK
     return false;
@@ -711,17 +685,12 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, uint8_t data) // NOLINT(re
     (void)data;
 #else // defaults to FRAMEWORK_ARDUINO
 
-#if defined(FRAMEWORK_ARDUINO_ESP32)
-    (void)reg;
-    (void)data;
-#else
     _spi.beginTransaction(SPISettings(_frequency, MSBFIRST, SPI_MODE0));
     cs_select(*this);
     _spi.transfer(reg);
     _spi.transfer(data);
     cs_deselect(*this);
     _spi.endTransaction();
-#endif
 
 #endif // FRAMEWORK
     return 0;
@@ -756,8 +725,6 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, const uint8_t* data, size_
     (void)length;
 #else // defaults to FRAMEWORK_ARDUINO
 
-#if defined(FRAMEWORK_ARDUINO_ESP32)
-#else
     _spi.beginTransaction(SPISettings(_frequency, MSBFIRST, SPI_MODE0));
     cs_select(*this);
     _spi.transfer(reg);
@@ -767,7 +734,6 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, const uint8_t* data, size_
     cs_deselect(*this);
     _spi.endTransaction();
 
-#endif
 #endif // FRAMEWORK
     return 0;
 }
@@ -793,8 +759,6 @@ FAST_CODE uint8_t BUS_SPI::writeBytes(const uint8_t* data, size_t length) // NOL
     (void)length;
 #else // defaults to FRAMEWORK_ARDUINO
 
-#if defined(FRAMEWORK_ARDUINO_ESP32)
-#else
     _spi.beginTransaction(SPISettings(_frequency, MSBFIRST, SPI_MODE0));
     cs_select(*this);
     for (size_t ii = 0; ii < length; ++ii) {
@@ -802,7 +766,6 @@ FAST_CODE uint8_t BUS_SPI::writeBytes(const uint8_t* data, size_t length) // NOL
     }
     cs_deselect(*this);
     _spi.endTransaction();
-#endif
 
 #endif // FRAMEWORK
     return 0;
@@ -857,7 +820,7 @@ uint16_t BUS_SPI::calculateClockDivider(uint32_t frequencyHz)
 // Return the SPI clock based on the given divisor
 uint32_t BUS_SPI::calculateClock(uint16_t clockDivisor)
 {
-    enum { DEFAULT_CLOCK = 64'000'000 };
+    enum { DEFAULT_CLOCK = 64000000 };
 #if defined(FRAMEWORK_RPI_PICO)
     const uint32_t clock = DEFAULT_CLOCK;
 #elif defined(FRAMEWORK_ESPIDF)

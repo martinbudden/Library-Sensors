@@ -1,5 +1,5 @@
-//#define SERIAL_OUTPUT
-#if defined(SERIAL_OUTPUT)
+//#define LIBRARY_SENSORS_SERIAL_DEBUG
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
 #include <HardwareSerial.h>
 #endif
 
@@ -445,7 +445,7 @@ bool IMU_BNO085::readPacket()
         //Packet is empty
         return false;
     }
-#if defined(SERIAL_OUTPUT)
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
     Serial.printf("\r\nDATALENGTH:%3d(0x%3X) CH:%d, SN:%d\r\n", dataLength, dataLength, _shtpPacket.header.channel, _shtpPacket.header.sequenceNumber);
 #endif
     readData(dataLength - sizeof(SHTP_Header));
@@ -479,11 +479,11 @@ bool IMU_BNO085::readData(size_t readLength)
         }
 
         std::array<uint8_t, MAX_I2C_READ_LENGTH> data;
-        if (_bus.readBytesWithTimeout(reinterpret_cast<uint8_t*>(&data[0]), readCount + sizeof(SHTP_Header), BUS_TIMEOUT_MS) == false) { // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        if (_bus.readBytesWithTimeout(reinterpret_cast<uint8_t*>(&data[0]), readCount + sizeof(SHTP_Header), BUS_TIMEOUT_MS) == false) { // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast,readability-simplify-boolean-expr)
             return false;
         }
 
-#if defined(SERIAL_OUTPUT)
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
         const int dataLength = (~0x8000U) & ((static_cast<uint16_t>(data[1]) << 8U) | static_cast<uint16_t>(data[0]));
         Serial.printf("dataLength:%3d(0x%3X) CH:%d, SN:%d\r\n", dataLength, dataLength, data[2], data[3]);
 #endif
@@ -492,7 +492,7 @@ bool IMU_BNO085::readData(size_t readLength)
         // Read a chunk of data
         if (index + readCount <= MAX_PACKET_SIZE) {
             memcpy(&_shtpPacket.data[index], &data[4], readCount);
-#if defined(SERIAL_OUTPUT)
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
             for (int ii = 0; ii < readCount; ++ii) {
                 Serial.printf("%02x ", _shtpPacket.data[index + ii]);
             }

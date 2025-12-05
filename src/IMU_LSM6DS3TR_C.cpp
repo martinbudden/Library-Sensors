@@ -1,6 +1,6 @@
 #include "IMU_LSM6DS3TR_C.h"
-//#define SERIAL_OUTPUT
-#if defined(SERIAL_OUTPUT)
+//#define LIBRARY_SENSORS_SERIAL_DEBUG
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
 #if defined(FRAMEWORK_ARDUINO_ESP32) || defined(ESP32) || defined(ARDUINO_ARCH_ESP32)// ESP32, ARDUINO_ARCH_ESP32 defined in platform.txt
 #include <HardwareSerial.h>
 #else
@@ -208,7 +208,7 @@ int IMU_LSM6DS3TR_C::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gy
 
     const uint8_t chipID = _bus.readRegisterWithTimeout(REG_WHO_AM_I, 100);
     delayMs(1);
-#if defined(SERIAL_OUTPUT)
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
     Serial.print("IMU init, chipID:0x");
     Serial.println(chipID, HEX);
 #endif
@@ -286,7 +286,7 @@ int IMU_LSM6DS3TR_C::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gy
         _gyroResolutionDPS = 2000.0F / 32768.0F;
         break;
     }
-    _gyroResolutionRPS = _gyroResolutionDPS * degreesToRadians;
+    _gyroResolutionRPS = _gyroResolutionDPS * DEGREES_TO_RADIANS;
     delayMs(1);
 
     // calculate the ACC_ODR bit values to write to the REG_CTRL1_XL register
