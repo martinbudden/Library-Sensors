@@ -10,6 +10,8 @@
 #endif
 typedef struct spi_inst spi_inst_t;
 #elif defined(FRAMEWORK_ESPIDF)
+#include <driver/gpio.h>
+#include <driver/spi_master.h>
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
 #if defined(FRAMEWORK_STM32_CUBE_F1)
 #include <stm32f1xx_hal_spi.h>
@@ -95,9 +97,9 @@ public:
     static BUS_SPI* self; //!< alias of `this` to be used in interrupt service routine
 private:
     uint32_t _clockDivider {1};
-    uint32_t _frequency {1000000};
-    bus_index_e _SPI_index {};
-    stm32_spi_pins_t _pins {};
+    uint32_t _frequencyHz;
+    bus_index_e _SPI_index;
+    stm32_spi_pins_t _pins;
 #if defined(FRAMEWORK_RPI_PICO)
     spi_inst_t* _spi {};
     uint32_t _dmaInterruptNumber {};
@@ -107,7 +109,9 @@ private:
     static void dataReadyISR(unsigned int gpio, uint32_t events);
     static void dmaRxCompleteISR();
 #elif defined(FRAMEWORK_ESPIDF)
-    FAST_CODE static void dataReadyISR();
+    FAST_CODE static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
+    spi_device_handle_t _spi {}; // set by spi_bus_add_device in init()
+    mutable gpio_num_t _csPin {};  // used by pre- and post- transaction callbacks
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     mutable SPI_HandleTypeDef _spi {};
 #elif defined(FRAMEWORK_TEST)
@@ -118,7 +122,7 @@ private:
     uint32_t _csBit {};
     SPIClass& _spi;
 #endif // FRAMEWORK
-#if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
+#if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT) || defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
     mutable std::array<uint8_t, 256> _writeReadBuf {};
 #endif
 };

@@ -28,10 +28,13 @@ int main()
 
 #elif defined(FRAMEWORK_ESPIDF)
 
-extern "C" void app_main()
+void setup()
 {
     setupIMU();
-    return 0;
+}
+
+void loop()
+{
 }
 
 #elif defined(FRAMEWORK_STM32_CUBE)

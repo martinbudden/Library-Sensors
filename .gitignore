@@ -12,3 +12,4 @@ launch.json
 examples/*/.gitignore
 examples/*/.vscode/*.*
 !examples/*/.vscode/settings.json
+CMakeLists.txt

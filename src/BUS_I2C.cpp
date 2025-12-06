@@ -99,7 +99,7 @@ void BUS_I2C::init()
     bi_decl(bi_2pins_with_func(_pins.sda.pin, _pins.scl.pin, GPIO_FUNC_I2C));
 
 #elif defined(FRAMEWORK_ESPIDF)
-
+/*
     i2c_master_bus_config_t i2c_mst_config = {
         .i2c_port = 0,//TEST_I2C_PORT,
         .sda_io_num = static_cast<gpio_num_t>(_pins.sda.pin),
@@ -127,7 +127,7 @@ void BUS_I2C::init()
     };
 
     ESP_ERROR_CHECK(i2c_master_bus_add_device(_bus_handle, &dev_cfg, &_dev_handle));
-
+*/
 #elif defined(FRAMEWORK_STM32_CUBE)
 
     // STM32 indices are 1-based

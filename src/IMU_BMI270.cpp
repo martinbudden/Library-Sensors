@@ -1,4 +1,6 @@
 #include "IMU_BMI270.h"
+
+
 //#define LIBRARY_SENSORS_SERIAL_DEBUG
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
 #if defined(FRAMEWORK_ARDUINO_ESP32) || defined(ESP32) || defined(ARDUINO_ARCH_ESP32)// ESP32, ARDUINO_ARCH_ESP32 defined in platform.txt
@@ -191,6 +193,9 @@ IMU_BMI270::IMU_BMI270(axis_order_e axisOrder, BUS_BASE::bus_index_e I2C_index, 
 
 int IMU_BMI270::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* i2cMutex) // NOLINT(readability-function-cognitive-complexity)
 {
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
+    Serial.print("IMU_BMI270::init\r\n");
+#endif
     static_assert(sizeof(mems_sensor_data_t) == mems_sensor_data_t::DATA_SIZE);
     static_assert(sizeof(acc_gyro_data_t) == acc_gyro_data_t::DATA_SIZE);
 
@@ -213,13 +218,14 @@ int IMU_BMI270::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSen
     _bus.readRegister(REG_CHIP_ID); // dummy read, required for SPI mode
     const uint8_t chipID = _bus.readRegisterWithTimeout(REG_CHIP_ID, 100);
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
-    Serial.print("IMU_BMI270 init, chipID:0x");
+    Serial.print("chipID:0x");
     Serial.println(chipID, HEX);
 #endif
+    (void)chipID;
     //assert(chipID == 0x24);
-    if (chipID != 0x24) {
-        return NOT_DETECTED;
-    }
+    //if (chipID != 0x24) {
+    //    return NOT_DETECTED;
+    //}
     delayMs(1);
 
     //_bus.writeRegister(REG_CMD, 0xB6); // Soft reset
@@ -246,7 +252,7 @@ int IMU_BMI270::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSen
     constexpr uint8_t DATA_READY_INI_2 = 0b01000000;
     _bus.writeRegister(REG_INT_MAP_DATA, DATA_READY_INI_1 | DATA_READY_INI_2); // enable the data ready interrupt pins 1 and 2
     delayMs(1);
-    constexpr uint8_t ACTIVE_HIGH   = 0b00000010;
+    constexpr uint8_t ACTIVE_HIGH   = 0b00000010; // active high and active low are the only options
     constexpr uint8_t OUTPUT_ENABLE = 0b00000100;
     _bus.writeRegister(REG_INT1_IO_CTRL, OUTPUT_ENABLE | ACTIVE_HIGH); // input disabled, push-pull are defaults
     delayMs(1);
@@ -374,7 +380,7 @@ void IMU_BMI270::loadConfigurationData()
 void IMU_BMI270::setInterruptDriven()
 {
     // set interrupt level as configured in init()
-    _bus.setInterruptDriven(BUS_BASE::IRQ_EDGE_RISE);
+    _bus.setInterruptDriven(BUS_BASE::IRQ_LEVEL_HIGH);
 }
 
 IMU_Base::xyz_int32_t IMU_BMI270::readGyroRaw()

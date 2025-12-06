@@ -17,7 +17,8 @@
 #if defined(FRAMEWORK_RPI_PICO)
 typedef struct i2c_inst i2c_inst_t;
 #elif defined(FRAMEWORK_ESPIDF)
-#include "driver/i2c_master.h" // cppcheck-suppress missingInclude
+#include <driver/i2c.h>
+//#include <driver/i2c_master.h>
 #elif defined(FRAMEWORK_STM32_CUBE)
 #elif defined(FRAMEWORK_TEST)
 #else // defaults to FRAMEWORK_ARDUINO
@@ -78,9 +79,9 @@ private:
     FAST_CODE static void dataReadyISR(unsigned int gpio, uint32_t events);
     i2c_inst_t* _I2C {};
 #elif defined(FRAMEWORK_ESPIDF)
-    FAST_CODE static void dataReadyISR();
-    i2c_master_bus_handle_t _bus_handle {};
-    i2c_master_dev_handle_t _dev_handle {};
+    FAST_CODE static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
+    //i2c_master_bus_handle_t _bus_handle {};
+    //i2c_master_dev_handle_t _dev_handle {};
 #elif defined(FRAMEWORK_STM32_CUBE)
     FAST_CODE static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
     mutable I2C_HandleTypeDef _I2C {};
