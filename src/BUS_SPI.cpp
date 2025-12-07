@@ -329,11 +329,20 @@ void BUS_SPI::init()
         .cs_ena_posttrans = 0,  // not used
         .clock_speed_hz = static_cast<int>(_frequencyHz),
         .input_delay_ns = 0, // if this is needed, it is better to reduce the clock speed
+#if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
         .spics_io_num = _pins.cs.pin,
+#else
+        .spics_io_num = -1,
+#endif
         .flags = 0,  // 0 not used
         .queue_size = 10,
+#if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
+        .pre_cb = nullptr,
+        .post_cb = nullptr,
+#else
         .pre_cb = spi_pre_transaction_callback, // calls cs_select
         .post_cb = spi_post_transaction_callback, // calls cs_deselect
+#endif
     };
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_DMA)
     const spi_dma_chan_t spiDMA = SPI_DMA_CH_AUTO;
@@ -673,8 +682,9 @@ uint8_t __not_in_flash_func(BUS_SPI::readRegister)(uint8_t reg) const
 FAST_CODE uint8_t BUS_SPI::readRegister(uint8_t reg) const
 #endif
 {
+    reg |= READ_BIT;
 #if defined(FRAMEWORK_RPI_PICO)
-    std::array<uint8_t, 2> outBuf = {{ static_cast<uint8_t>(reg | READ_BIT), 0 }};
+    std::array<uint8_t, 2> outBuf = {{ reg, 0 }};
     std::array<uint8_t, 2> inBuf;
     cs_select(*this);
     spi_write_read_blocking(_spi, &outBuf[0], &inBuf[0], 2);
@@ -691,6 +701,22 @@ FAST_CODE uint8_t BUS_SPI::readRegister(uint8_t reg) const
         .tx_data = { static_cast<uint8_t>(reg | READ_BIT), 0, 0, 0 },
         .rx_data = { 0, 0, 0, 0 }
     };
+/* Alternative
+see https://github.com/krzychb/esp-lis35de/blob/master/components/lis35de/lis35de.c
+    set .address_bits = 8 in spi_device_interface_config_t and do
+    spi_transaction_t trans {
+        .flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA,
+        .cmd = 0,
+        .addr = static_cast<uint8_t>(reg | READ_BIT),
+        .length = BITS_PER_BYTE*1,
+        .rxlength = BITS_PER_BYTE*1,
+        .user = nullptr,
+        .tx_data = { 0xFF, 0xFF, 0xFF, 0xFF},
+        .rx_data = {}
+    };
+    spi_device_transmit(_spi, &trans);
+    return trans.rx_data[0];
+*/
 /*
     memset(&trans, 0, sizeof(trans));
     trans.flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA;
@@ -701,13 +727,13 @@ FAST_CODE uint8_t BUS_SPI::readRegister(uint8_t reg) const
     //spi_device_acquire_bus(_spi, portMAX_DELAY);
     esp_err_t ret = spi_device_transmit(_spi, &trans);
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
-    Serial.printf("read ret:%d(%d,%d)\r\n", ret, trans.rx_data[0], trans.rx_data[1]);
+    Serial.printf("read ret:%d(%d)\r\n", ret, trans.rx_data[0]);
 #endif
     assert(ret == ESP_OK && "SPI readRegister fail");
     //spi_device_release_bus(_spi);
-    return trans.rx_data[1];
+    return trans.rx_data[0];
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
-    std::array<uint8_t, 2> outBuf = {{ static_cast<uint8_t>(reg | READ_BIT), 0 }};
+    std::array<uint8_t, 2> outBuf = {{ reg, 0 }};
     std::array<uint8_t, 2> inBuf;
     cs_select(*this);
     HAL_SPI_TransmitReceive(&_spi, &outBuf[0], &inBuf[0], 2, HAL_MAX_DELAY);
@@ -718,7 +744,7 @@ FAST_CODE uint8_t BUS_SPI::readRegister(uint8_t reg) const
 #else // defaults to FRAMEWORK_ARDUINO
     _spi.beginTransaction(SPISettings(_frequencyHz, MSBFIRST, SPI_MODE0));
     cs_select(*this);
-    _spi.transfer(reg | READ_BIT);
+    _spi.transfer(reg);
     const uint8_t ret = _spi.transfer(0); // NOLINT(cppcoreguidelines-init-variables) false positive
     cs_deselect(*this);
     _spi.endTransaction();
@@ -744,12 +770,12 @@ FAST_CODE uint8_t BUS_SPI::readRegisterWithTimeout(uint8_t reg, uint32_t timeout
 
 FAST_CODE bool BUS_SPI::readRegister(uint8_t reg, uint8_t* data, size_t length) const // NOLINT(readability-non-const-parameter)
 {
-#if defined(FRAMEWORK_RPI_PICO)
     reg |= READ_BIT;
+#if defined(FRAMEWORK_RPI_PICO)
 #if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
     _writeReadBuf[0] = reg;
     std::array<uint8_t, 256> buf;
-    spi_write_read_blocking(_spi, &_writeReadBuf[0], &buf[0], length+1);
+    spi_write_read_blocking(_spi, &_writeReadBuf[0], &buf[0], length + 1);
     memcpy(data, &buf[1], length);
 #else
     cs_select(*this);
@@ -772,11 +798,9 @@ FAST_CODE bool BUS_SPI::readRegister(uint8_t reg, uint8_t* data, size_t length) 
     esp_err_t ret = spi_device_transmit(_spi, &trans);
     assert(ret == ESP_OK && "SPI readRegister data, len fail");
     //spi_device_release_bus(_spi);
-
     for (size_t ii = 0; ii < length; ++ii) {
         data[ii] = data[ii + 1]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
-    assert(ret == ESP_OK && "SPI readRegister fail");
     return ret;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     cs_select(*this);
@@ -788,17 +812,15 @@ FAST_CODE bool BUS_SPI::readRegister(uint8_t reg, uint8_t* data, size_t length) 
     *data = 0;
     (void)length;
 #else // defaults to FRAMEWORK_ARDUINO
-
     _spi.beginTransaction(SPISettings(_frequencyHz, MSBFIRST, SPI_MODE0));
     cs_select(*this);
-    _spi.transfer(reg | READ_BIT);
+    _spi.transfer(reg);
     for (size_t ii = 0; ii < length; ++ii) {
         data[ii] = _spi.transfer(READ_BIT); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
     cs_deselect(*this);
     _spi.endTransaction();
     return true;
-
 #endif // FRAMEWORK
     return false;
 }
@@ -817,7 +839,7 @@ FAST_CODE bool BUS_SPI::readBytes(uint8_t* data, size_t length) const // NOLINT(
 #elif defined(FRAMEWORK_ESPIDF)
     spi_transaction_t trans {};
     memset(&trans, 0, sizeof(trans));
-    trans.length = BITS_PER_BYTE*(length + 1);
+    trans.length = BITS_PER_BYTE*length;
     trans.user = &_csPin;
     trans.tx_buffer = nullptr;
     trans.rx_buffer = &data[0]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -826,7 +848,6 @@ FAST_CODE bool BUS_SPI::readBytes(uint8_t* data, size_t length) const // NOLINT(
     esp_err_t ret = spi_device_transmit(_spi, &trans);
     assert(ret == ESP_OK && "SPI readBytes fail");
     //spi_device_release_bus(_spi);
-
     return ret;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     const HAL_StatusTypeDef status = HAL_SPI_Transmit(&_spi, data, length, HAL_MAX_DELAY);
@@ -843,7 +864,6 @@ FAST_CODE bool BUS_SPI::readBytes(uint8_t* data, size_t length) const // NOLINT(
     cs_deselect(*this);
     _spi.endTransaction();
     return true;
-
 #endif // FRAMEWORK
     return false;
 }
@@ -862,8 +882,9 @@ FAST_CODE bool BUS_SPI::readBytesWithTimeout(uint8_t* data, size_t length, uint3
 
 FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, uint8_t data) // NOLINT(readability-make-member-function-const)
 {
+    reg &= static_cast<uint8_t>(~READ_BIT);
 #if defined(FRAMEWORK_RPI_PICO)
-    std::array<uint8_t, 2> outBuf = {{ static_cast<uint8_t>(reg & (~READ_BIT)), data }}; // remove read bit as this is a write
+    std::array<uint8_t, 2> outBuf = {{ reg, data }}; // remove read bit as this is a write
     std::array<uint8_t, 2> inBuf;
     cs_select(*this);
     spi_write_read_blocking(_spi, &outBuf[0], &inBuf[0], 2);
@@ -871,38 +892,53 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, uint8_t data) // NOLINT(re
 #elif defined(FRAMEWORK_ESPIDF)
     spi_transaction_t trans {};
     memset(&trans, 0, sizeof(trans));
-    trans.flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA;
+    trans.flags = SPI_TRANS_USE_TXDATA;
     trans.length = BITS_PER_BYTE*2;
     trans.user = &_csPin;
-    trans.tx_data[0] = static_cast<uint8_t>(reg | READ_BIT);
+    trans.tx_data[0] = reg;
     trans.tx_data[1] = data;
     spi_device_transmit(_spi, &trans);
+/* Alternative
+see https://github.com/krzychb/esp-lis35de/blob/master/components/lis35de/lis35de.c
+    set .address_bits = 8 in spi_device_interface_config_t and do
+    reg &= ~READ_BIT; // NOLINT(hicpp-signed-bitwise)
+    spi_transaction_t trans {
+        .flags = SPI_TRANS_USE_TXDATA,
+        .cmd = 0,
+        .addr = reg,
+        .length = BITS_PER_BYTE*1,
+        .rxlength = 0,
+        .user = nullptr,
+        .tx_data = { data },
+        .rx_data = {}
+    };
+    spi_device_transmit(_spi, &trans);
+*/
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     return writeRegister(reg, &data, 1);
 #elif defined(FRAMEWORK_TEST)
     return writeRegister(reg, &data, 1);
 #else // defaults to FRAMEWORK_ARDUINO
-
     _spi.beginTransaction(SPISettings(_frequencyHz, MSBFIRST, SPI_MODE0));
     cs_select(*this);
     _spi.transfer(reg);
     _spi.transfer(data);
     cs_deselect(*this);
     _spi.endTransaction();
-
 #endif // FRAMEWORK
     return 0;
 }
 
 FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, const uint8_t* data, size_t length) // NOLINT(readability-make-member-function-const)
 {
+    reg &= static_cast<uint8_t>(~READ_BIT);
 #if defined(FRAMEWORK_RPI_PICO)
     reg &= ~READ_BIT; // NOLINT(hicpp-signed-bitwise)
 #if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
     _writeReadBuf[0] = reg;
     memcpy(&_writeReadBuf[1], data, length);
     std::array<uint8_t, 256> buf;
-    spi_write_read_blocking(_spi, &_writeReadBuf[0], &buf[0], length+1);
+    spi_write_read_blocking(_spi, &_writeReadBuf[0], &buf[0], length + 1);
 #else
     cs_select(*this);
     spi_write_blocking(_spi, &reg, 1);
@@ -910,7 +946,6 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, const uint8_t* data, size_
     cs_deselect(*this);
 #endif
 #elif defined(FRAMEWORK_ESPIDF)
-    reg &= ~READ_BIT; // NOLINT(hicpp-signed-bitwise)
     _writeReadBuf[0] = reg;
     memcpy(&_writeReadBuf[1], data, length);
     
@@ -924,6 +959,20 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, const uint8_t* data, size_
     esp_err_t ret = spi_device_transmit(_spi, &trans);
     assert(ret == ESP_OK && "SPI writeRegister data, len fail");
     //spi_device_release_bus(_spi);
+/* Alternative
+    spi_transaction_t trans {
+        .flags = 0,
+        .cmd = 0,
+        .addr = reg,
+        .length = BITS_PER_BYTE*length,
+        .rxlength = 0,
+        .user = nullptr,
+        .tx_buffer = data,
+        .rx_buffer = nullptr
+    };
+    spi_device_transmit(_spi, &trans);
+
+*/
     return ret;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     (void)reg;

@@ -11,7 +11,7 @@ Targets
     #define IMU_AXIS_ORDER      IMU_Base::XPOS_YPOS_ZPOS
     #define USE_IMU_LSM6DS3TR_C
     #define IMU_SPI_INDEX       BUS_INDEX_0
-    #define SPI_FREQUENCY       20000000 // 20 MHz
+    #define SPI_FREQUENCY_HZ    20000000 // 20 MHz
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
     #define IMU_SPI_PINS        spi_pins_t{.cs=17,.sck=18,.cipo=16,.copi=19,.irq=20}
 #else
@@ -26,7 +26,7 @@ Targets
     #define IMU_AXIS_ORDER      IMU_Base::XPOS_YPOS_ZPOS
     #define USE_IMU_LSM6DS3TR_C
     #define IMU_SPI_INDEX       BUS_INDEX_0
-    #define SPI_FREQUENCY       20000000 // 20 MHz
+    #define SPI_FREQUENCY_HZ    20000000 // 20 MHz
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
     #define IMU_SPI_PINS        spi_pins_t{.cs=17,.sck=18,.cipo=16,.copi=19,.irq=20}
     //#define IMU_SPI_PINS        spi_pins_t{.cs=13,.sck=14,.cipo=12,.copi=15,.irq=20}

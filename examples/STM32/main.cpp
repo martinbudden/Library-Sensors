@@ -36,7 +36,7 @@ void setup()
 
     // statically allocate the IMU object
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
-    static IMU_CLASS imuStatic(IMU_Base::XPOS_YPOS_ZPOS, SPI_FREQUENCY, BUS_SPI::IMU_SPI_INDEX, BUS_SPI::IMU_SPI_PINS);
+    static IMU_CLASS imuStatic(IMU_Base::XPOS_YPOS_ZPOS, SPI_FREQUENCY_HZ, BUS_SPI::IMU_SPI_INDEX, BUS_SPI::IMU_SPI_PINS);
 #else
     static IMU_CLASS imuStatic(IMU_Base::XPOS_YPOS_ZPOS, BUS_I2C::IMU_I2C_PINS);
 #endif

@@ -21,7 +21,7 @@ void setup()
 
     // statically allocate an LSM6DS3TR_C IMU object
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
-    static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, SPI_FREQUENCY, BUS_SPI::IMU_SPI_INDEX, BUS_SPI::IMU_SPI_PINS);
+    static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, SPI_FREQUENCY_HZ, BUS_SPI::IMU_SPI_INDEX, BUS_SPI::IMU_SPI_PINS);
 #else
     static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, BUS_I2C::IMU_I2C_PINS);
 #endif
