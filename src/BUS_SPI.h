@@ -30,6 +30,7 @@ typedef struct spi_inst spi_inst_t;
 
 class BUS_SPI : public BUS_BASE {
 public:
+    enum { BITS_PER_BYTE = 8 };
     struct spi_pins_t {
         uint8_t cs;
         uint8_t sck;

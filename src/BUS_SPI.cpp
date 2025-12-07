@@ -581,76 +581,6 @@ void BUS_SPI::setInterruptDriven(irq_level_e irqLevel) // NOLINT(readability-mak
 #endif
 }
 
-#if defined(FRAMEWORK_RPI_PICO)
-uint8_t __not_in_flash_func(BUS_SPI::readRegister)(uint8_t reg) const
-#else
-FAST_CODE uint8_t BUS_SPI::readRegister(uint8_t reg) const
-#endif
-{
-#if defined(FRAMEWORK_RPI_PICO)
-    cs_select(*this);
-    std::array<uint8_t, 2> outBuf = {{ static_cast<uint8_t>(reg | READ_BIT), 0 }};
-    std::array<uint8_t, 2> inBuf;
-    spi_write_read_blocking(_spi, &outBuf[0], &inBuf[0], 2);
-    cs_deselect(*this);
-    return inBuf[1];
-#elif defined(FRAMEWORK_ESPIDF)
-    std::array<uint8_t, 2> outBuf = {{ static_cast<uint8_t>(reg | READ_BIT), 0 }};
-    std::array<uint8_t, 2> inBuf;
-
-    spi_transaction_t trans {};
-    memset(&trans, 0, sizeof(trans));
-    trans.user = &_csPin;
-    trans.tx_buffer = &outBuf[0];
-    trans.rx_buffer = &inBuf[0];
-    enum { BITS_PER_BYTE = 8 };
-    trans.length = BITS_PER_BYTE*2;
-
-    //spi_device_acquire_bus(_spi, portMAX_DELAY);
-    esp_err_t ret = spi_device_transmit(_spi, &trans);
-#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
-    Serial.printf("read ret:%d(%d,%d)\r\n", ret, inBuf[0], inBuf[1]);
-#endif
-    assert(ret == ESP_OK && "SPI readRegister fail");
-    //spi_device_release_bus(_spi);
-
-    return inBuf[1];
-#elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
-    cs_select(*this);
-    std::array<uint8_t, 2> outBuf = {{ static_cast<uint8_t>(reg | READ_BIT), 0 }};
-    std::array<uint8_t, 2> inBuf;
-    HAL_SPI_TransmitReceive(&_spi, &outBuf[0], &inBuf[0], 2, HAL_MAX_DELAY);
-    cs_deselect(*this);
-    return inBuf[1];
-#elif defined(FRAMEWORK_TEST)
-    (void)reg;
-#else // defaults to FRAMEWORK_ARDUINO
-    _spi.beginTransaction(SPISettings(_frequencyHz, MSBFIRST, SPI_MODE0));
-    cs_select(*this);
-    _spi.transfer(reg | READ_BIT);
-    const uint8_t ret = _spi.transfer(0); // NOLINT(cppcoreguidelines-init-variables) false positive
-    cs_deselect(*this);
-    _spi.endTransaction();
-    return ret;
-#endif // FRAMEWORK
-    return 0;
-}
-
-FAST_CODE uint8_t BUS_SPI::readRegisterWithTimeout(uint8_t reg, uint32_t timeoutMs) const
-{
-#if defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
-    cs_select(*this);
-    std::array<uint8_t, 2> outBuf = {{ static_cast<uint8_t>(reg | READ_BIT), 0 }};
-    std::array<uint8_t, 2> inBuf;
-    HAL_SPI_TransmitReceive(&_spi, &outBuf[0], &inBuf[0], 2, timeoutMs); // note timeout is in milliseconds
-    cs_deselect(*this);
-    return inBuf[1];
-#else
-    (void)timeoutMs;
-    return readRegister(reg);
-#endif
-}
-
 /*!
 Read
 */
@@ -709,19 +639,106 @@ FAST_CODE bool BUS_SPI::readDeviceData()
 {
     enum { START = SPI_BUFFER_SIZE - 1 };
 #if defined(FRAMEWORK_RPI_PICO)
-    cs_select(*this);
     _readBuf[START] = _deviceDataRegister; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    cs_select(*this);
     spi_write_read_blocking(_spi, _readBuf + START, _readBuf + START, _readLength - START); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     cs_deselect(*this);
     return true;
+#elif defined(FRAMEWORK_ESPIDF)
+    // ESPIDF cannot use same memory for tx_buffer and rx_buffer
+    _writeReadBuf[0] = _deviceDataRegister;
+    spi_transaction_t trans {};
+    memset(&trans, 0, sizeof(trans));
+    trans.length = BITS_PER_BYTE*(_readLength - START);
+    trans.user = &_csPin;
+    trans.tx_buffer = &_writeReadBuf[0];
+    trans.rx_buffer = _readBuf + START; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+
+    spi_device_transmit(_spi, &trans);
+    return true;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
-    cs_select(*this);
     _readBuf[START] = _deviceDataRegister; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    cs_select(*this);
     HAL_SPI_TransmitReceive(&_spi, _readBuf + START, _readBuf + START, _readLength - START, HAL_MAX_DELAY); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     cs_deselect(*this);
     return true;
 #else
     return readRegister(_deviceDataRegister, _readBuf + SPI_BUFFER_SIZE, _readLength - SPI_BUFFER_SIZE); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+#endif
+}
+
+#if defined(FRAMEWORK_RPI_PICO)
+uint8_t __not_in_flash_func(BUS_SPI::readRegister)(uint8_t reg) const
+#else
+FAST_CODE uint8_t BUS_SPI::readRegister(uint8_t reg) const
+#endif
+{
+#if defined(FRAMEWORK_RPI_PICO)
+    std::array<uint8_t, 2> outBuf = {{ static_cast<uint8_t>(reg | READ_BIT), 0 }};
+    std::array<uint8_t, 2> inBuf;
+    cs_select(*this);
+    spi_write_read_blocking(_spi, &outBuf[0], &inBuf[0], 2);
+    cs_deselect(*this);
+    return inBuf[1];
+#elif defined(FRAMEWORK_ESPIDF)
+    spi_transaction_t trans {
+        .flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA,
+        .cmd = 0,
+        .addr = 0,
+        .length = BITS_PER_BYTE*2,
+        .rxlength = 0,
+        .user = &_csPin,
+        .tx_data = { static_cast<uint8_t>(reg | READ_BIT), 0, 0, 0 },
+        .rx_data = { 0, 0, 0, 0 }
+    };
+/*
+    memset(&trans, 0, sizeof(trans));
+    trans.flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA;
+    trans.length = BITS_PER_BYTE*2;
+    trans.user = &_csPin;
+    trans.tx_data[0] = static_cast<uint8_t>(reg | READ_BIT);
+*/
+    //spi_device_acquire_bus(_spi, portMAX_DELAY);
+    esp_err_t ret = spi_device_transmit(_spi, &trans);
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
+    Serial.printf("read ret:%d(%d,%d)\r\n", ret, trans.rx_data[0], trans.rx_data[1]);
+#endif
+    assert(ret == ESP_OK && "SPI readRegister fail");
+    //spi_device_release_bus(_spi);
+    return trans.rx_data[1];
+#elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
+    std::array<uint8_t, 2> outBuf = {{ static_cast<uint8_t>(reg | READ_BIT), 0 }};
+    std::array<uint8_t, 2> inBuf;
+    cs_select(*this);
+    HAL_SPI_TransmitReceive(&_spi, &outBuf[0], &inBuf[0], 2, HAL_MAX_DELAY);
+    cs_deselect(*this);
+    return inBuf[1];
+#elif defined(FRAMEWORK_TEST)
+    (void)reg;
+#else // defaults to FRAMEWORK_ARDUINO
+    _spi.beginTransaction(SPISettings(_frequencyHz, MSBFIRST, SPI_MODE0));
+    cs_select(*this);
+    _spi.transfer(reg | READ_BIT);
+    const uint8_t ret = _spi.transfer(0); // NOLINT(cppcoreguidelines-init-variables) false positive
+    cs_deselect(*this);
+    _spi.endTransaction();
+    return ret;
+#endif // FRAMEWORK
+    return 0;
+}
+
+FAST_CODE uint8_t BUS_SPI::readRegisterWithTimeout(uint8_t reg, uint32_t timeoutMs) const
+{
+#if defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
+    cs_select(*this);
+    std::array<uint8_t, 2> outBuf = {{ static_cast<uint8_t>(reg | READ_BIT), 0 }};
+    std::array<uint8_t, 2> inBuf;
+    HAL_SPI_TransmitReceive(&_spi, &outBuf[0], &inBuf[0], 2, timeoutMs); // note timeout is in milliseconds
+    cs_deselect(*this);
+    return inBuf[1];
+#else
+    (void)timeoutMs;
+    return readRegister(reg);
 #endif
 }
 
@@ -742,15 +759,14 @@ FAST_CODE bool BUS_SPI::readRegister(uint8_t reg, uint8_t* data, size_t length) 
 #endif
     return true;
 #elif defined(FRAMEWORK_ESPIDF)
-    _writeReadBuf[0] = reg | 0x80;
+    _writeReadBuf[0] = reg | READ_BIT;
 
     spi_transaction_t trans {};
     memset(&trans, 0, sizeof(trans));
+    trans.length = BITS_PER_BYTE*(length + 1);
     trans.user = &_csPin;
     trans.tx_buffer = &_writeReadBuf[0];
     trans.rx_buffer = &data[0]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    enum { BITS_PER_BYTE = 8 };
-    trans.length = BITS_PER_BYTE*(length + 1);
 
     //spi_device_acquire_bus(_spi, portMAX_DELAY);
     esp_err_t ret = spi_device_transmit(_spi, &trans);
@@ -801,16 +817,15 @@ FAST_CODE bool BUS_SPI::readBytes(uint8_t* data, size_t length) const // NOLINT(
 #elif defined(FRAMEWORK_ESPIDF)
     spi_transaction_t trans {};
     memset(&trans, 0, sizeof(trans));
+    trans.length = BITS_PER_BYTE*(length + 1);
     trans.user = &_csPin;
     trans.tx_buffer = nullptr;
     trans.rx_buffer = &data[0]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    enum { BITS_PER_BYTE = 8 };
-    trans.length = BITS_PER_BYTE*(length + 1);
 
-    spi_device_acquire_bus(_spi, portMAX_DELAY);
+    //spi_device_acquire_bus(_spi, portMAX_DELAY);
     esp_err_t ret = spi_device_transmit(_spi, &trans);
     assert(ret == ESP_OK && "SPI readBytes fail");
-    spi_device_release_bus(_spi);
+    //spi_device_release_bus(_spi);
 
     return ret;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
@@ -820,7 +835,6 @@ FAST_CODE bool BUS_SPI::readBytes(uint8_t* data, size_t length) const // NOLINT(
     *data = 0;
     (void)length;
 #else // defaults to FRAMEWORK_ARDUINO
-
     _spi.beginTransaction(SPISettings(_frequencyHz, MSBFIRST, SPI_MODE0));
     cs_select(*this);
     for (size_t ii = 0; ii < length; ++ii) {
@@ -855,7 +869,14 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, uint8_t data) // NOLINT(re
     spi_write_read_blocking(_spi, &outBuf[0], &inBuf[0], 2);
     cs_deselect(*this);
 #elif defined(FRAMEWORK_ESPIDF)
-    return writeRegister(reg, &data, 1);
+    spi_transaction_t trans {};
+    memset(&trans, 0, sizeof(trans));
+    trans.flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA;
+    trans.length = BITS_PER_BYTE*2;
+    trans.user = &_csPin;
+    trans.tx_data[0] = static_cast<uint8_t>(reg | READ_BIT);
+    trans.tx_data[1] = data;
+    spi_device_transmit(_spi, &trans);
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     return writeRegister(reg, &data, 1);
 #elif defined(FRAMEWORK_TEST)
@@ -889,25 +910,20 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, const uint8_t* data, size_
     cs_deselect(*this);
 #endif
 #elif defined(FRAMEWORK_ESPIDF)
-    cs_select(*this);
-    _writeReadBuf[0] = reg & 0b01111111;
+    reg &= ~READ_BIT; // NOLINT(hicpp-signed-bitwise)
+    _writeReadBuf[0] = reg;
     memcpy(&_writeReadBuf[1], data, length);
     
     spi_transaction_t trans {};
     memset(&trans, 0, sizeof(trans));
+    trans.length = BITS_PER_BYTE*(1 + length);
     trans.user = &_csPin;
     trans.tx_buffer = &_writeReadBuf[0];
     trans.rx_buffer = nullptr;
-    enum { BITS_PER_BYTE = 8 };
-    trans.length = BITS_PER_BYTE*(1 + length);
-    trans.rxlength = 0;
-
-    spi_device_acquire_bus(_spi, portMAX_DELAY);
+    //spi_device_acquire_bus(_spi, portMAX_DELAY);
     esp_err_t ret = spi_device_transmit(_spi, &trans);
     assert(ret == ESP_OK && "SPI writeRegister data, len fail");
-    spi_device_release_bus(_spi);
-    
-    cs_deselect(*this);
+    //spi_device_release_bus(_spi);
     return ret;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     (void)reg;
@@ -918,7 +934,6 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, const uint8_t* data, size_
     (void)data;
     (void)length;
 #else // defaults to FRAMEWORK_ARDUINO
-
     _spi.beginTransaction(SPISettings(_frequencyHz, MSBFIRST, SPI_MODE0));
     cs_select(*this);
     _spi.transfer(reg);
@@ -945,17 +960,16 @@ FAST_CODE uint8_t BUS_SPI::writeBytes(const uint8_t* data, size_t length) // NOL
 #elif defined(FRAMEWORK_ESPIDF)
     spi_transaction_t trans {};
     memset(&trans, 0, sizeof(trans));
+    trans.length = BITS_PER_BYTE*length;
     trans.user = &_csPin;
     trans.tx_buffer = data;
     trans.rx_buffer = nullptr;
-    enum { BITS_PER_BYTE = 8 };
-    trans.length = BITS_PER_BYTE*(1 + length);
     trans.rxlength = 0;
 
-    spi_device_acquire_bus(_spi, portMAX_DELAY);
+    //spi_device_acquire_bus(_spi, portMAX_DELAY);
     esp_err_t ret = spi_device_transmit(_spi, &trans);
     assert(ret == ESP_OK && "SPI writeBytes fail");
-    spi_device_release_bus(_spi);
+    //spi_device_release_bus(_spi);
     
     return ret;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)

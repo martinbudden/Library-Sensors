@@ -9,6 +9,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 #include <freertos/semphr.h>
+#include <freertos/task.h>
 #else
 #if defined(FRAMEWORK_ARDUINO_STM32)
 #include <STM32FreeRTOS.h>
@@ -16,6 +17,7 @@
 #include <FreeRTOS.h>
 #include <queue.h>
 #include <semphr.h>
+#include <task.h>
 #endif
 #endif
 

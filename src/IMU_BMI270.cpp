@@ -215,6 +215,14 @@ int IMU_BMI270::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSen
     _bus.setDeviceDataRegister(REG_ACC_X_L, reinterpret_cast<uint8_t*>(&_spiAccGyroData), sizeof(_spiAccGyroData));
 
     // Initialization sequence, see page 17 and following from BMI270 Datasheet
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
+    // toggle CS pin to put device into SPI mode
+    BUS_SPI::cs_select(_bus);
+    delayMs(1);
+    BUS_SPI::cs_deselect(_bus);
+    delayMs(10);
+#endif
+
     _bus.readRegister(REG_CHIP_ID); // dummy read, required for SPI mode
     const uint8_t chipID = _bus.readRegisterWithTimeout(REG_CHIP_ID, 100);
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
@@ -228,8 +236,17 @@ int IMU_BMI270::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSen
     //}
     delayMs(1);
 
-    //_bus.writeRegister(REG_CMD, 0xB6); // Soft reset
-    //delayMs(100);
+    _bus.writeRegister(REG_CMD, 0xB6); // Soft reset
+    delayMs(1);
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
+    // soft reset put the device back into I2C mode, so
+    // toggle CS pin to put device into SPI mode
+    BUS_SPI::cs_select(_bus);
+    delayMs(1);
+    BUS_SPI::cs_deselect(_bus);
+    delayMs(10);
+#endif
+    delayMs(100);
     _bus.writeRegister(REG_PWR_CONF, 0x00); // Power save disabled
     delayMs(1); // 450us is minimum delay required
 
