@@ -34,6 +34,12 @@
 
 BUS_SPI* BUS_SPI::self {nullptr}; // copy of this for use in ISRs
 
+/*!
+NOTE: the RPI Pico cannot do hardware control of CS during multibyte transactions, since the embedded hardware
+toggles CS for each byte output. To do this PIO is required, see
+https://github.com/raspberrypi/pico-examples/blob/33854562cd08398c4b48bb1ed7fa022c2177076d/pio/spi/spi.pio#L75
+for an example.
+*/
 void BUS_SPI::cs_select([[maybe_unused]]const BUS_SPI& bus)
 {
 #if !defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
@@ -47,10 +53,8 @@ void BUS_SPI::cs_select([[maybe_unused]]const BUS_SPI& bus)
     HAL_GPIO_WritePin(gpioPort(bus._pins.cs), gpioPin(bus._pins.cs), GPIO_PIN_RESET);
 #elif defined(FRAMEWORK_TEST)
 #else // defaults to FRAMEWORK_ARDUINO
-
     //*bus._csOut &= ~bus._csBit; // set _csOut low
     digitalWrite(bus._pins.cs.pin, LOW);
-
 #endif // FRAMEWORK
 #endif // LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT
 }
@@ -772,17 +776,10 @@ FAST_CODE bool BUS_SPI::readRegister(uint8_t reg, uint8_t* data, size_t length) 
 {
     reg |= READ_BIT;
 #if defined(FRAMEWORK_RPI_PICO)
-#if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
-    _writeReadBuf[0] = reg;
-    std::array<uint8_t, 256> buf;
-    spi_write_read_blocking(_spi, &_writeReadBuf[0], &buf[0], length + 1);
-    memcpy(data, &buf[1], length);
-#else
     cs_select(*this);
     spi_write_blocking(_spi, &reg, 1);
     spi_read_blocking(_spi, 0, data, length); // 0 is the value written as SPI is being read
     cs_deselect(*this);
-#endif
     return true;
 #elif defined(FRAMEWORK_ESPIDF)
     _writeReadBuf[0] = reg | READ_BIT;
@@ -828,13 +825,9 @@ FAST_CODE bool BUS_SPI::readRegister(uint8_t reg, uint8_t* data, size_t length) 
 FAST_CODE bool BUS_SPI::readBytes(uint8_t* data, size_t length) const // NOLINT(readability-non-const-parameter)
 {
 #if defined(FRAMEWORK_RPI_PICO)
-#if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
-    spi_write_read_blocking(_spi, &_writeReadBuf[0], data, length);
-#else
     cs_select(*this);
     spi_read_blocking(_spi, 0, data, length);
     cs_deselect(*this);
-#endif
     return true;
 #elif defined(FRAMEWORK_ESPIDF)
     spi_transaction_t trans {};
@@ -934,17 +927,10 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, const uint8_t* data, size_
     reg &= static_cast<uint8_t>(~READ_BIT);
 #if defined(FRAMEWORK_RPI_PICO)
     reg &= ~READ_BIT; // NOLINT(hicpp-signed-bitwise)
-#if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
-    _writeReadBuf[0] = reg;
-    memcpy(&_writeReadBuf[1], data, length);
-    std::array<uint8_t, 256> buf;
-    spi_write_read_blocking(_spi, &_writeReadBuf[0], &buf[0], length + 1);
-#else
     cs_select(*this);
     spi_write_blocking(_spi, &reg, 1);
     spi_write_blocking(_spi, data, length);
     cs_deselect(*this);
-#endif
 #elif defined(FRAMEWORK_ESPIDF)
     _writeReadBuf[0] = reg;
     memcpy(&_writeReadBuf[1], data, length);
@@ -999,13 +985,9 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, const uint8_t* data, size_
 FAST_CODE uint8_t BUS_SPI::writeBytes(const uint8_t* data, size_t length) // NOLINT(readability-make-member-function-const)
 {
 #if defined(FRAMEWORK_RPI_PICO)
-#if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
-    spi_write_read_blocking(_spi, data, &_writeReadBuf[0], length);
-#else
     cs_select(*this);
     spi_write_blocking(_spi, data, length);
     cs_deselect(*this);
-#endif
 #elif defined(FRAMEWORK_ESPIDF)
     spi_transaction_t trans {};
     memset(&trans, 0, sizeof(trans));

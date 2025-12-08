@@ -290,7 +290,8 @@ xyz_t IMU_MPU6000::readAcc()
 FAST_CODE IMU_Base::accGyroRPS_t IMU_MPU6000::readAccGyroRPS()
 {
     i2cSemaphoreTake(_i2cMutex);
-    _bus.readDeviceData();
+    _bus.readRegister(REG_ACCEL_XOUT_H, &_spiAccGyroData.accGyro.data[0], sizeof(_spiAccGyroData.accGyro));
+    //_bus.readDeviceData();
     i2cSemaphoreGive(_i2cMutex);
 
     return accGyroRPSFromRaw(_spiAccGyroData.accGyro.value);

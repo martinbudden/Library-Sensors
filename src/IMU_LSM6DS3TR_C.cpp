@@ -376,7 +376,8 @@ IMU_Base::xyz_int32_t IMU_LSM6DS3TR_C::readAccRaw()
 FAST_CODE IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::readAccGyroRPS()
 {
     i2cSemaphoreTake();
-    _bus.readDeviceData();
+    //_bus.readDeviceData();
+    _bus.readDeviceDataDMA();
     //_bus.readRegister(REG_OUTX_L_G, &_spiAccGyroData.accGyro.data[0], sizeof(_spiAccGyroData.accGyro));
     i2cSemaphoreGive();
 
