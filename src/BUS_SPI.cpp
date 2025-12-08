@@ -1085,8 +1085,6 @@ uint16_t BUS_SPI::calculateClockDivider(uint32_t frequencyHz)
 #endif
 }
 
-
-
 // Return the SPI clock based on the given divisor
 uint32_t BUS_SPI::calculateClock(uint16_t clockDivisor)
 {

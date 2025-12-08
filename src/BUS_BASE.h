@@ -77,6 +77,7 @@ STM32 bus index is one-based so, for SPI, BUS_INDEX_0 corresponds to SPI1
 class BUS_BASE {
 public:
     enum bus_index_e : uint8_t { BUS_INDEX_0, BUS_INDEX_1, BUS_INDEX_2, BUS_INDEX_3, BUS_INDEX_4, BUS_INDEX_5, BUS_INDEX_6, BUS_INDEX_7 };
+    static constexpr uint8_t READ_BIT = 0x80U;
     enum { SPI_PRE_READ_BUFFER_SIZE = 4 }; // to reserve space for the transmit instruction that occurs before a read
     enum { SPI_PRE_READ_BUFFER_OFFSET = SPI_PRE_READ_BUFFER_SIZE - 1 };
     enum { IRQ_NOT_SET = 0xFF };
@@ -92,7 +93,7 @@ public:
     This can be used, in particular, to simplify DMA on some architectures.
     */
     void setDeviceDataRegister(uint8_t deviceDataRegister, uint8_t* readBuf, size_t readLength) {
-        _deviceDataRegister = deviceDataRegister;
+        _deviceDataRegister = deviceDataRegister | READ_BIT;
         _deviceReadBuf = readBuf + SPI_PRE_READ_BUFFER_OFFSET;
         *_deviceReadBuf = _deviceDataRegister;
         _deviceReadLength = readLength - SPI_PRE_READ_BUFFER_OFFSET;

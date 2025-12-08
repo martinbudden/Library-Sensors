@@ -61,7 +61,6 @@ public:
         bool negateCS; // Should CS be negated at the end of this segment
         bus_status_e (*callbackFn)(uint32_t arg);
     };
-    static constexpr uint8_t READ_BIT = 0x80U;
 public:
     virtual ~BUS_SPI();
     BUS_SPI(uint32_t frequency, bus_index_e SPI_index, const stm32_spi_pins_t& pins);

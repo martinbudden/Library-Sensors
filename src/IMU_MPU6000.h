@@ -60,12 +60,12 @@ public:
             uint8_t gyro_z_l;
         } value;
     };
+#pragma pack(pop)
     struct spi_acc_gyro_data_t {
         std::array<uint8_t, BUS_BASE::SPI_PRE_READ_BUFFER_SIZE> preReadBuffer; // buffer for the transmit byte sent as part of a read
         acc_temperature_gyro_data_t accGyro;
     };
     static_assert(sizeof(spi_acc_gyro_data_t) == sizeof(acc_temperature_gyro_data_t) + BUS_BASE::SPI_PRE_READ_BUFFER_SIZE);
-#pragma pack(pop)
 public:
     virtual void setInterruptDriven() override;
 

@@ -201,7 +201,7 @@ int IMU_LSM6DS3TR_C::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gy
     _gyroIdMSP = 18;
     _accIdMSP = 19;
 
-    _bus.setDeviceDataRegister(REG_OUTX_L_G, reinterpret_cast<uint8_t*>(&_spiAccGyroData), sizeof(_spiAccGyroData));
+    _bus.setDeviceDataRegister(REG_OUTX_L_G, &_spiAccGyroData.preReadBuffer[0], sizeof(_spiAccGyroData));
 
     _bus.writeRegister(REG_CTRL3_C, SW_RESET); // software reset
     delayMs(100);
@@ -376,8 +376,8 @@ IMU_Base::xyz_int32_t IMU_LSM6DS3TR_C::readAccRaw()
 FAST_CODE IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::readAccGyroRPS()
 {
     i2cSemaphoreTake();
-    //_bus.readRegister(REG_OUTX_L_G, &_spiAccGyroData.accGyro.data[0], sizeof(_spiAccGyroData.accGyro));
     _bus.readDeviceData();
+    //_bus.readRegister(REG_OUTX_L_G, &_spiAccGyroData.accGyro.data[0], sizeof(_spiAccGyroData.accGyro));
     i2cSemaphoreGive();
 
     return accGyroRPSFromRaw(_spiAccGyroData.accGyro.value);

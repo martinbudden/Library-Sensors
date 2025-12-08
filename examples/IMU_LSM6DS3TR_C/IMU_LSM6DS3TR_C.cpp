@@ -1,4 +1,5 @@
 #include <Arduino.h>
+
 #include <IMU_LSM6DS3TR_C.h>
 #if defined(M5_UNIFIED)
 #include <M5Unified.h>
@@ -22,10 +23,10 @@ void setup()
 
     // create an LSM6DS3TR_C IMU object
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
-    static constexpr uint32_t spiFrequency = 20000000; // 20 MHz
+    static constexpr uint32_t spiFrequencyHz = 20000000; // 20 MHz
     //static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, spiFrequency, BUS_SPI::IMU_SPI_INDEX, BUS_SPI::IMU_SPI_PINS);
     //IMU_LSM6DS3TR_C(axis_order_e axisOrder, uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::spi_pins_t& pins);
-    static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, spiFrequency, BUS_SPI::IMU_SPI_INDEX, BUS_SPI::IMU_SPI_PINS);
+    static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, spiFrequencyHz, BUS_SPI::IMU_SPI_INDEX, BUS_SPI::IMU_SPI_PINS);
 #else
 #if defined(LIBRARY_SENSORS_IMU_USE_I2C_WIRE_1)
     static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, Wire1, BUS_I2C::stm32_i2c_pins_t{.sda=IMU_I2C_SDA_PIN, .scl=IMU_I2C_SCL_PIN, .irq=BUS_SPI::IRQ_NOT_SET}, IMU_LSM6DS3TR_C::I2C_ADDRESS);
@@ -35,13 +36,14 @@ void setup()
 #endif
     imu = &imuStatic;
 
-    delay(1000);
+    delay(2000);
     Serial.println("\r\n****Ready****\r\n");
 
     // initialize the IMU
     ret = imu->init();
-    Serial.print("imuInit:");
+    Serial.print("imuInit gyroSampleRateHz:");
     Serial.println(ret);
+    Serial.println();
 }
 
 void loop()
@@ -52,8 +54,6 @@ void loop()
     // convert the gyro radians per second value to degrees per second
     const xyz_t gyroDPS = accGyroRPS.gyroRPS * IMU_Base::RADIANS_TO_DEGREES;
 
-    Serial.print("imuInit:");
-    Serial.println(ret);
     Serial.println();
     Serial.print("gyroX:");
     Serial.print(gyroDPS.x, 1);

@@ -1,0 +1,37 @@
+[env:adafruit_feather_f405_arduino]
+platform = ststm32
+board = adafruit_feather_f405
+framework = arduino
+;framework = stm32cube
+upload_protocol = stlink
+lib_deps =
+    ${env.lib_deps}
+    stm32duino/STM32duino FreeRTOS
+build_flags =
+    ${env.build_flags}
+    -D TARGET_ADAFRUIT_FEATHER_F405
+    -D SERIAL_RX_BUFFER_SIZE=256
+    -D SERIAL_TX_BUFFER_SIZE=256
+    -Wno-cast-align
+    -Wno-conversion
+    -Wno-cpp
+    -Wno-double-promotion
+    -Wno-float-conversion
+    -Wno-missing-declarations
+    -Wno-missing-noreturn
+    ;-Wno-pedantic
+    -Wno-redundant-decls
+    -Wno-shadow
+    -Wno-unsafe-loop-optimizations
+    -Wno-unused-parameter
+    ;-D FRAMEWORK_USE_FREERTOS
+    ;-D PIO_FRAMEWORK_ARDUINO_ENABLE_FREERTOS
+    ;-D FRAMEWORK_ARDUINO
+    ;-D FRAMEWORK_ARDUINO_STM32
+    -D FRAMEWORK_STM32_CUBE
+    -D FRAMEWORK_STM32_CUBE_F4
+    -D LIBRARY_SENSORS_IMU_USE_SPI_BUS
+    -D PIO_FRAMEWORK_ARDUINO_ENABLE_CDC
+    -D IMU_SPI_INDEX=BUS_INDEX_0
+    -D IMU_SPI_PINS=stm32_spi_pins_t{.cs={PB,11},.sck={PB,14},.cipo={PB,14},.copi={PB,15},.irq={PB,10}}
+
