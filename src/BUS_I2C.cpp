@@ -337,7 +337,7 @@ FAST_CODE uint8_t BUS_I2C::readRegisterWithTimeout(uint8_t reg, uint32_t timeout
 
 FAST_CODE bool BUS_I2C::readDeviceData()
 {
-    return readRegister(_deviceDataRegister, _readBuf + SPI_BUFFER_SIZE, _readLength - SPI_BUFFER_SIZE); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    return readRegister(_deviceDataRegister, _deviceReadBuf, _deviceReadLength);
 }
 
 FAST_CODE bool BUS_I2C::readRegister(uint8_t reg, uint8_t* data, size_t length) const // NOLINT(readability-non-const-parameter)

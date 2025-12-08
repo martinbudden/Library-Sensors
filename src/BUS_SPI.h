@@ -5,7 +5,7 @@
 //#define LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT //!!TODO: make this based on member data, not build flag
 
 #if defined(FRAMEWORK_RPI_PICO)
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_DMA)
+#if defined(LIBRARY_SENSORS_USE_SPI_DMA)
 #include "hardware/dma.h"
 #endif
 typedef struct spi_inst spi_inst_t;
@@ -116,7 +116,6 @@ private:
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     mutable SPI_HandleTypeDef _spi {};
 #elif defined(FRAMEWORK_TEST)
-    static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
 #else // defaults to FRAMEWORK_ARDUINO
     FAST_CODE static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
     mutable volatile uint32_t* _csOut {};

@@ -50,9 +50,10 @@ public:
         } value;
     };
     struct spi_acc_gyro_data_t {
-        std::array<uint8_t, BUS_BASE::SPI_BUFFER_SIZE> spiBuffer; // buffer for use when reading gyro by SPI
+        std::array<uint8_t, BUS_BASE::SPI_PRE_READ_BUFFER_SIZE> preReadBuffer; // buffer for the transmit byte sent as part of a read
         acc_gyro_data_t accGyro;
     };
+    static_assert(sizeof(spi_acc_gyro_data_t) == sizeof(acc_gyro_data_t) + BUS_BASE::SPI_PRE_READ_BUFFER_SIZE);
 #pragma pack(pop)
 public:
     virtual void setInterruptDriven() override;

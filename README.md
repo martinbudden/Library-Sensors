@@ -60,8 +60,8 @@ and a reference to either `BUS_I2C` or `BUS_SPI` in the class itself.
 classDiagram
     class BUS_BASE {
         _deviceRegister uint8_t
-        _readBuf uint8_t*
-        _readLength size_t
+        _deviceReadBuf uint8_t*
+        _deviceReadLength size_t
         WAIT_DATA_READY() int32_t
         WAIT_DATA_READY(uint32_t ticksToWait) int32_t
         SIGNAL_DATA_READY_FROM_ISR()

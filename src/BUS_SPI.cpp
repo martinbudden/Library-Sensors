@@ -89,6 +89,62 @@ FAST_CODE static void spi_post_transaction_callback(spi_transaction_t* trans)
 #endif
 
 /*!
+Read device data using DMA.
+This is essentially the same code as in dataReadyISR which allows it to be tested without the extra complication of using interrupts.s
+*/
+FAST_CODE bool BUS_SPI::readDeviceDataDMA() // NOLINT(readability-make-member-function-const)
+{
+//dma_channel_set_irq0_enabled(channel, enabled);
+//dma_channel_acknowledge_irq0(channel)
+//dma_channel_get_irq0_status (uint channel)
+//dma_channel_set_read_addr
+//dma_channel_set_write_addr
+//dma_channel_set_trans_count
+#if defined(FRAMEWORK_RPI_PICO)
+    //gpio_put(PICO_DEFAULT_LED_PIN, 1);
+    *_deviceReadBuf = _deviceDataRegister;
+    dma_channel_set_trans_count(_dmaTxChannel, _deviceReadLength, DONT_START_YET);
+    dma_channel_set_trans_count(_dmaRxChannel, _deviceReadLength, DONT_START_YET);
+    dma_channel_set_write_addr(_dmaRxChannel, _deviceReadBuf, DONT_START_YET);
+#if 0
+    *_deviceReadBuf = _deviceDataRegister;
+    dma_channel_configure(_dmaTxChannel, &dmaTxChannelConfig,
+                          &spi_get_hw(_spi)->dr, // destination, write data to SPI data register
+                          &_deviceRegister, // source, send the value of the IMU register we want to read
+                          _deviceReadLength, // number of bytes to read (each element is DMA_SIZE_8, ie 8 bits)
+                          DONT_START_YET);
+    dma_channel_configure(_dmaRxChannel, &dmaRxChannelConfig,
+                          _deviceReadBuf, // destination, write SPI data to data
+                          &spi_get_hw(_spi)->dr, // source, read data from SPI
+                          _deviceReadLength, // element count (each element is 8 bits)
+                          DONT_START_YET);
+#endif
+    cs_select(*this);
+    dma_start_channel_mask((1U << _dmaTxChannel) | (1U << _dmaRxChannel));
+    // wait for rx to complete
+    dma_channel_wait_for_finish_blocking(_dmaRxChannel);
+    cs_deselect(*this);
+    return true;
+
+#elif defined(FRAMEWORK_ESPIDF)
+    return true;
+#elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
+    cs_select(*this);
+    *_deviceReadBuf = _deviceDataRegister;
+    HAL_SPI_TransmitReceive_DMA(&_spi, _deviceReadBuf, _deviceReadBuf, _deviceReadLength);
+    return true;
+#elif defined(FRAMEWORK_TEST)
+    return true;
+#else // defaults to FRAMEWORK_ARDUINO
+
+    return readDeviceData();
+
+#endif // FRAMEWORK
+    return false;
+}
+
+
+/*!
 IMU Data Ready interrupt service routine (ISR)
 Called when IMU interrupt pin signals an interrupt.
 Currently support only one interrupt, but could index action off gpio pin
@@ -103,10 +159,10 @@ void __not_in_flash_func(BUS_SPI::dataReadyISR)(unsigned int gpio, uint32_t even
     //gpio_put(PICO_DEFAULT_LED_PIN, 1);
 #if defined(LIBRARY_SENSORS_USE_SPI_DMA_IN_ISR)
     // data ready signalled in dmaRxCompleteISR
-    const int start = SPI_BUFFER_SIZE - 1;
-    dma_channel_set_trans_count(self->_dmaTxChannel, self->_readLength - start, DONT_START_YET);
-    dma_channel_set_trans_count(self->_dmaRxChannel, self->_readLength - start, DONT_START_YET);
-    dma_channel_set_write_addr(self->_dmaRxChannel, self->_readBuf + start, DONT_START_YET); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    *self->_deviceReadBuf = self->_deviceDataRegister;
+    dma_channel_set_trans_count(self->_dmaTxChannel, self->_deviceReadLength, DONT_START_YET);
+    dma_channel_set_trans_count(self->_dmaRxChannel, self->_deviceReadLength, DONT_START_YET);
+    dma_channel_set_write_addr(self->_dmaRxChannel, self->_deviceReadBuf, DONT_START_YET);
     cs_select(*self);
     // start DMA
     dma_start_channel_mask((1U << self->_dmaTxChannel) | (1U << self->_dmaRxChannel));
@@ -146,8 +202,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 #else
     BUS_SPI::self->readDeviceData();
     BUS_SPI::self->SIGNAL_DATA_READY_FROM_ISR();
-}
 #endif
+}
 /*!
 Receive Complete Callback ISR
 */
@@ -159,12 +215,14 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef* hspi)
     BUS_SPI::self->SIGNAL_DATA_READY_FROM_ISR();
 }
 
-#else
+#elif defined(FRAMEWORK_TEST)
+
+#else // defaults to FRAMEWORK_ARDUINO
 
 FAST_CODE void BUS_SPI::dataReadyISR()
 {
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_DMA)
-    static_assert(false); // assert false until this is implemented
+#if defined(LIBRARY_SENSORS_USE_SPI_DMA)
+    static_assert(false); // assert false until this is implemented in FRAMEWORK_ARDUINO
 #else
     // for the moment, just read the predefined register into the predefined read buffer
     self->readDeviceData();
@@ -175,7 +233,7 @@ FAST_CODE void BUS_SPI::dataReadyISR()
 
 BUS_SPI::~BUS_SPI() // NOLINT(hicpp-use-equals-default,modernize-use-equals-default)
 {
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_DMA)
+#if defined(LIBRARY_SENSORS_USE_SPI_DMA)
 #if defined(FRAMEWORK_RPI_PICO)
     dma_channel_unclaim(_dmaRxChannel);
     dma_channel_cleanup(_dmaRxChannel);
@@ -267,9 +325,6 @@ void BUS_SPI::init()
     bi_decl(bi_3pins_with_func(_pins.cipo.pin, _pins.copi.pin, _pins.sck.pin, GPIO_FUNC_SPI));
     bi_decl(bi_1pin_with_name(_pins.cs.pin, "SPI CS"));
 #endif
-#if !defined(FRAMEWORK_USE_FREERTOS)
-    mutex_init(&_dataReadyMutex);
-#endif
 
 #elif defined(FRAMEWORK_ESPIDF)
     const gpio_config_t cs_config = {
@@ -344,7 +399,7 @@ void BUS_SPI::init()
         .post_cb = spi_post_transaction_callback, // calls cs_deselect
 #endif
     };
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_DMA)
+#if defined(LIBRARY_SENSORS_USE_SPI_DMA)
     const spi_dma_chan_t spiDMA = SPI_DMA_CH_AUTO;
 #else
     //const spi_dma_chan_t spiDMA = SPI_DMA_DISABLED;
@@ -494,11 +549,9 @@ void BUS_SPI::init()
 
 void BUS_SPI::configureDMA()
 {
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_DMA)
+#if defined(LIBRARY_SENSORS_USE_SPI_DMA)
 
 #if defined(FRAMEWORK_RPI_PICO)
-    const int start = SPI_BUFFER_SIZE - 1;
-
     // DMA transmit channel, writes value of IMU register to SPI
     _dmaTxChannel = dma_claim_unused_channel(true);
     dma_channel_config dmaTxChannelConfig = dma_channel_get_default_config(_dmaTxChannel);
@@ -509,11 +562,11 @@ void BUS_SPI::configureDMA()
     channel_config_set_irq_quiet(&dmaTxChannelConfig, true); // no IRQs on transmit channel
     dma_channel_configure(_dmaTxChannel, &dmaTxChannelConfig,
                         &spi_get_hw(_spi)->dr, // destination, write data to SPI data register
-                        &_deviceDataRegister, // source, send the value of the IMU register we want to read
-                        _readLength - start, // number of bytes to read (each element is DMA_SIZE_8, ie 8 bits)
-                        DONT_START_YET); // don't start yet
+                        &_deviceDataRegister, // source, send the value of the device data register we want to read
+                        _deviceReadLength, // number of bytes to read (each element is DMA_SIZE_8, ie 8 bits)
+                        DONT_START_YET);
 
-    // DMA receive channel, reads from SPI to _readBuf
+    // DMA receive channel, reads from SPI to _deviceReadBuf
     _dmaRxChannel = dma_claim_unused_channel(true);
     dma_channel_config dmaRxChannelConfig = dma_channel_get_default_config(_dmaRxChannel);
     channel_config_set_dreq(&dmaRxChannelConfig, spi_get_dreq(_spi, false));
@@ -521,31 +574,33 @@ void BUS_SPI::configureDMA()
     channel_config_set_write_increment(&dmaRxChannelConfig, true);
     channel_config_set_read_increment(&dmaRxChannelConfig, false); // always read from SPI data register
 #if defined(LIBRARY_SENSORS_USE_SPI_DMA_IN_ISR)
+    // set it up so that an interrupt goes off when the DMA completes and this interrupt is handled by dmaRxCompleteISR
     channel_config_set_irq_quiet(&dmaRxChannelConfig, false);
     dma_channel_set_irq0_enabled(_dmaRxChannel, true);
     irq_set_exclusive_handler(_dmaInterruptNumber, dmaRxCompleteISR);
     irq_set_enabled(_dmaInterruptNumber, true);
 #else
+    // no interrupt when DMA completes
     channel_config_set_irq_quiet(&dmaRxChannelConfig, true);
 #endif
     dma_channel_configure(_dmaRxChannel, &dmaRxChannelConfig,
-                        _readBuf + start, // destination, write data to readBuf NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+                        _deviceReadBuf,
                         &spi_get_hw(_spi)->dr, // source, read data from SPI data register
-                        _readLength - start, // number of bytes to read (each element is DMA_SIZE_8, ie 8 bits)
-                        DONT_START_YET); // don't start yet
+                        _deviceReadLength, // number of bytes to read (each element is DMA_SIZE_8, ie 8 bits)
+                        DONT_START_YET);
 #elif defined(FRAMEWORK_ESPIDF)
 
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
 #endif // FRAMEWORK
 
-#endif // LIBRARY_SENSORS_IMU_USE_SPI_DMA
+#endif // LIBRARY_SENSORS_USE_SPI_DMA
 }
 
 /*!
 Set this bus so reads are interrupt driven.
-When the IMU interrupt pin indicates data ready, the dataReadyISR is called and the data is read in the ISR.
+When the IMU interrupt pin indicates data ready, the dataReady ISR is called and the data is read in the ISR.
 
-This routine sets the GPIO IRQ pin to input and attaches the dataReadyISR to be triggered by that pin.
+This routine sets the GPIO IRQ pin to input and attaches the dataReady ISR to be triggered by that pin.
 */
 void BUS_SPI::setInterruptDriven(irq_level_e irqLevel) // NOLINT(readability-make-member-function-const)
 {
@@ -590,67 +645,12 @@ void BUS_SPI::setInterruptDriven(irq_level_e irqLevel) // NOLINT(readability-mak
 #endif
 }
 
-/*!
-Read
-*/
-FAST_CODE bool BUS_SPI::readDeviceDataDMA() // NOLINT(readability-make-member-function-const)
-{
-    enum { START = SPI_BUFFER_SIZE - 1 };
-//dma_channel_set_irq0_enabled(channel, enabled);
-//dma_channel_acknowledge_irq0(channel)
-//dma_channel_get_irq0_status (uint channel)
-//dma_channel_set_read_addr
-//dma_channel_set_write_addr
-//dma_channel_set_trans_count
-#if defined(FRAMEWORK_RPI_PICO)
-    //gpio_put(PICO_DEFAULT_LED_PIN, 1);
-    const int start = SPI_BUFFER_SIZE - 1;
-    dma_channel_set_trans_count(_dmaTxChannel, _readLength - start, DONT_START_YET);
-    dma_channel_set_trans_count(_dmaRxChannel, _readLength - start, DONT_START_YET);
-    dma_channel_set_write_addr(_dmaRxChannel, _readBuf + start, DONT_START_YET); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-#if 0
-    dma_channel_configure(_dmaTxChannel, &dmaTxChannelConfig,
-                          &spi_get_hw(_spi)->dr, // destination, write data to SPI data register
-                          &_deviceRegister, // source, send the value of the IMU register we want to read
-                          _readLength - start, // number of bytes to read (each element is DMA_SIZE_8, ie 8 bits)
-                          DONT_START_YET);
-    dma_channel_configure(_dmaRxChannel, &dmaRxChannelConfig,
-                          _readBuf + start, // destination, write SPI data to data
-                          &spi_get_hw(_spi)->dr, // source, read data from SPI
-                          _readLength - start, // element count (each element is 8 bits)
-                          DONT_START_YET);
-#endif
-    cs_select(*this);
-    dma_start_channel_mask((1U << _dmaTxChannel) | (1U << _dmaRxChannel));
-    // wait for rx to complete
-    dma_channel_wait_for_finish_blocking(_dmaRxChannel);
-    cs_deselect(*this);
-    return true;
-
-#elif defined(FRAMEWORK_ESPIDF)
-    return true;
-#elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
-    cs_select(*this);
-    _readBuf[START] = _deviceDataRegister; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    HAL_SPI_TransmitReceive_DMA(&_spi, _readBuf + START, _readBuf + START, _readLength - START); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    return true;
-#elif defined(FRAMEWORK_TEST)
-    return true;
-#else // defaults to FRAMEWORK_ARDUINO
-
-    return readDeviceData();
-
-#endif // FRAMEWORK
-    return false;
-}
-
 FAST_CODE bool BUS_SPI::readDeviceData()
 {
-    enum { START = SPI_BUFFER_SIZE - 1 };
 #if defined(FRAMEWORK_RPI_PICO)
-    _readBuf[START] = _deviceDataRegister; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    *_deviceReadBuf = _deviceDataRegister;
     cs_select(*this);
-    spi_write_read_blocking(_spi, _readBuf + START, _readBuf + START, _readLength - START); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    spi_write_read_blocking(_spi, _deviceReadBuf, _deviceReadBuf, _deviceReadLength);
     cs_deselect(*this);
     return true;
 #elif defined(FRAMEWORK_ESPIDF)
@@ -658,21 +658,21 @@ FAST_CODE bool BUS_SPI::readDeviceData()
     _writeReadBuf[0] = _deviceDataRegister;
     spi_transaction_t trans {};
     memset(&trans, 0, sizeof(trans));
-    trans.length = BITS_PER_BYTE*(_readLength - START);
+    trans.length = BITS_PER_BYTE*(_deviceReadLength);
     trans.user = &_csPin;
     trans.tx_buffer = &_writeReadBuf[0];
-    trans.rx_buffer = _readBuf + START; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    trans.rx_buffer = _deviceReadBuf;
 
     spi_device_transmit(_spi, &trans);
     return true;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
-    _readBuf[START] = _deviceDataRegister; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    *_deviceReadBuf = _deviceDataRegister;
     cs_select(*this);
-    HAL_SPI_TransmitReceive(&_spi, _readBuf + START, _readBuf + START, _readLength - START, HAL_MAX_DELAY); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    HAL_SPI_TransmitReceive(&_spi, _deviceReadBuf, _deviceReadBuf, _deviceReadLength, HAL_MAX_DELAY);
     cs_deselect(*this);
     return true;
 #else
-    return readRegister(_deviceDataRegister, _readBuf + SPI_BUFFER_SIZE, _readLength - SPI_BUFFER_SIZE); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    return readRegister(_deviceDataRegister, _deviceReadBuf, _deviceReadLength);
 #endif
 }
 
