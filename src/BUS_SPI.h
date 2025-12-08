@@ -108,7 +108,7 @@ private:
     enum { START_NOW = true, DONT_START_YET = false };
     static void dataReadyISR(unsigned int gpio, uint32_t events);
     static void dmaRxCompleteISR();
-#elif defined(FRAMEWORK_ESPIDF)
+#elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
     FAST_CODE static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
     spi_device_handle_t _spi {}; // set by spi_bus_add_device in init()
     mutable spi_transaction_t _spiTransaction {};
@@ -121,7 +121,7 @@ private:
     uint32_t _csBit {};
     SPIClass& _spi;
 #endif // FRAMEWORK
-#if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT) || defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
+#if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
     mutable std::array<uint8_t, 256> _writeReadBuf {};
 #endif
 };

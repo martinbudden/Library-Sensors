@@ -24,7 +24,7 @@ void setup()
 
     // create an LSM6DS3TR_C IMU object
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
-    static constexpr uint32_t spiFrequencyHz = 20000000; // 20 MHz
+    static constexpr uint32_t spiFrequencyHz = 10000000; // 10 MHz
     //static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, spiFrequency, BUS_SPI::IMU_SPI_INDEX, BUS_SPI::IMU_SPI_PINS);
     //IMU_LSM6DS3TR_C(axis_order_e axisOrder, uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::spi_pins_t& pins);
     static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, spiFrequencyHz, BUS_SPI::IMU_SPI_INDEX, BUS_SPI::IMU_SPI_PINS);

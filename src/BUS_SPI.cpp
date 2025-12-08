@@ -361,7 +361,7 @@ void BUS_SPI::init()
         .data5_io_num = -1,
         .data6_io_num = -1,
         .data7_io_num = -1,
-        .max_transfer_sz = sizeof(_writeReadBuf),
+        .max_transfer_sz = 256,
         .flags = 0,       // Abilities of bus to be checked by the driver. Or-ed value of ``SPICOMMON_BUSFLAG_*`` flags.
         .intr_flags = 0   // Interrupt flag for the bus to set the priority, and IRAM attribute
     };
