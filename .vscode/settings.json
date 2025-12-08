@@ -25,6 +25,7 @@
         "CXXFLAGS",
         "DELT",
         "DELTSQR",
+        "devkitm",
         "DHCX",
         "DLPF",
         "DRDY",

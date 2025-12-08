@@ -70,14 +70,14 @@ constexpr uint8_t REG_PWR_MGMT0             = 0x4E;
     constexpr uint8_t PWR_ACCEL_LOW_NOISE   = 0b00000011;
 
 constexpr uint8_t REG_GYRO_CONFIG0          = 0x4F;
-    constexpr uint8_t GYRO_RANGE_15p625_DPS = 0b00000000;
-    constexpr uint8_t GYRO_RANGE_31p25_DPS  = 0b00100000;
-    constexpr uint8_t GYRO_RANGE_62p5_DPS   = 0b01000000;
-    constexpr uint8_t GYRO_RANGE_125_DPS    = 0b01100000;
-    constexpr uint8_t GYRO_RANGE_250_DPS    = 0b10000000;
-    constexpr uint8_t GYRO_RANGE_500_DPS    = 0b10100000;
-    constexpr uint8_t GYRO_RANGE_1000_DPS   = 0b11000000;
-    constexpr uint8_t GYRO_RANGE_2000_DPS   = 0b11100000;
+    constexpr uint8_t GYRO_RANGE_2000_DPS   = 0b00000000;
+    constexpr uint8_t GYRO_RANGE_1000_DPS   = 0b00100000;
+    constexpr uint8_t GYRO_RANGE_500_DPS    = 0b01000000;
+    constexpr uint8_t GYRO_RANGE_250_DPS    = 0b01100000;
+    constexpr uint8_t GYRO_RANGE_125_DPS    = 0b10000000;
+    constexpr uint8_t GYRO_RANGE_62p5_DPS   = 0b10100000;
+    constexpr uint8_t GYRO_RANGE_31p25_DPS  = 0b11000000;
+    constexpr uint8_t GYRO_RANGE_15p625_DPS = 0b11100000;
 
     constexpr uint8_t GYRO_ODR_32000_HZ   = 0b00000001;
     constexpr uint8_t GYRO_ODR_16000_HZ   = 0b00000010;
@@ -243,8 +243,18 @@ int IMU_ICM426xx::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroS
     _bus.writeRegister(REG_PWR_MGMT0, PWR_OFF);
 
     _bus.writeRegister(REG_DEVICE_CONFIG, DEVICE_CONFIG_DEFAULT); // default reset configuration
+    delayMs(1);
 
+    const uint8_t chipID = _bus.readRegisterWithTimeout(REG_WHO_AM_I, 100);
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
+    Serial.print("IMU init, chipID:0x");
+    Serial.println(chipID, HEX);
+#endif
+    if (chipID != WHO_AM_I_RESPONSE_ICM42605 && chipID != WHO_AM_I_RESPONSE_ICM42688P) {
+        return NOT_DETECTED;
+    }
 // NOLINTBEGIN(hicpp-signed-bitwise)
+    delayMs(1);
 
     // set AntiAlias filter, see pages 28ff of TDK ICM-42688-P Datasheet
     static constexpr uint8_t GYRO_AAF_DELT = 38;

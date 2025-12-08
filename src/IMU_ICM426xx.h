@@ -41,12 +41,12 @@ public:
         enum { DATA_SIZE = 12 };
         std::array<uint8_t, DATA_SIZE> data;
         struct value_t {
-            int16_t gyro_x;
-            int16_t gyro_y;
-            int16_t gyro_z;
             int16_t acc_x;
             int16_t acc_y;
             int16_t acc_z;
+            int16_t gyro_x;
+            int16_t gyro_y;
+            int16_t gyro_z;
         } value;
     };
 #pragma pack(pop)
