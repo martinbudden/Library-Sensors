@@ -39,6 +39,7 @@ void setup()
 
 #if defined(INTERRUPT_DRIVEN)
     imu->setInterruptDriven();
+    Serial.println("\r\n**** Interrupt Driven ****\r\n");
 #endif
 
     Serial.println("\r\n****Ready****\r\n");

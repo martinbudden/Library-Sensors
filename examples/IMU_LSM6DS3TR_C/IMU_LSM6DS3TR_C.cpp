@@ -5,8 +5,9 @@
 #include <M5Unified.h>
 #endif
 
+//#define INTERRUPT_DRIVEN
+
 static IMU_Base* imu;
-int ret;
 
 void setup()
 {
@@ -37,19 +38,30 @@ void setup()
     imu = &imuStatic;
 
     delay(2000);
-    Serial.println("\r\n****Ready****\r\n");
+    Serial.println("\r\n**** Ready ****\r\n");
 
     // initialize the IMU
-    ret = imu->init();
+    const int ret = imu->init();
     Serial.print("imuInit gyroSampleRateHz:");
     Serial.println(ret);
     Serial.println();
+#if defined(INTERRUPT_DRIVEN)
+    imu->setInterruptDriven();
+    Serial.println("\r\n**** Interrupt Driven ****\r\n");
+#endif
 }
 
 void loop()
 {
+#if defined(INTERRUPT_DRIVEN)
+    imu->WAIT_IMU_DATA_READY();
+#else
+    imu->SIGNAL_IMU_DATA_READY_FROM_ISR();
+    imu->WAIT_IMU_DATA_READY();
+    imu->readAccGyroRPS();
+#endif
     // take an IMU reading
-    const IMU_Base::accGyroRPS_t accGyroRPS = imu->readAccGyroRPS();
+    const IMU_Base::accGyroRPS_t accGyroRPS = imu->getAccGyroRPS();
 
     // convert the gyro radians per second value to degrees per second
     const xyz_t gyroDPS = accGyroRPS.gyroRPS * IMU_Base::RADIANS_TO_DEGREES;
