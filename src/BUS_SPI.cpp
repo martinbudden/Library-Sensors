@@ -78,7 +78,7 @@ void BUS_SPI::cs_deselect([[maybe_unused]]const BUS_SPI& bus)
 #endif // LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT
 }
 
-#if defined(FRAMEWORK_ESPIDF)
+#if defined(FRAMEWORK_ESPIDF) && false
 FAST_CODE static void spi_pre_transaction_callback(spi_transaction_t* trans)
 {
     gpio_num_t* csPin = static_cast<gpio_num_t *>(trans->user);
@@ -261,7 +261,6 @@ BUS_SPI::BUS_SPI(uint32_t frequencyHz, bus_index_e SPI_index, const spi_pins_t& 
     ,_spi(SPI_index == BUS_INDEX_1 ? spi1 : spi0)
     ,_dmaInterruptNumber(DMA_IRQ_0)
 #elif defined(FRAMEWORK_ESPIDF)
-    ,_csPin(static_cast<gpio_num_t>(pins.cs))
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
 #if defined(FRAMEWORK_STM32_CUBE_F1)
 #include <stm32f1xx_hal_spi.h>
@@ -288,7 +287,6 @@ BUS_SPI::BUS_SPI(uint32_t frequencyHz, bus_index_e SPI_index, const stm32_spi_pi
     ,_spi(SPI_index == BUS_INDEX_1 ? spi1 : spi0)
     ,_dmaInterruptNumber(DMA_IRQ_0)
 #elif defined(FRAMEWORK_ESPIDF)
-    ,_csPin(GPIO_NUM_NC)
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
 #elif defined(FRAMEWORK_TEST)
 #else // defaults to FRAMEWORK_ARDUINO
@@ -380,7 +378,7 @@ void BUS_SPI::init()
     }
     const spi_device_interface_config_t devcfg = {
         .command_bits = 0,
-        .address_bits = 0,
+        .address_bits = BITS_PER_BYTE,
         .dummy_bits = 0,
         .mode = 0,
         .duty_cycle_pos = 0,         ///< Duty cycle of positive clock, in 1/256th increments (128 = 50%/50% duty). Setting this to 0 (=not setting it) is equivalent to setting this to 128.
@@ -388,29 +386,14 @@ void BUS_SPI::init()
         .cs_ena_posttrans = 0,  // not used
         .clock_speed_hz = static_cast<int>(_frequencyHz),
         .input_delay_ns = 0, // if this is needed, it is better to reduce the clock speed
-#if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
         .spics_io_num = _pins.cs.pin,
-#else
-        .spics_io_num = -1,
-#endif
         .flags = 0,  // 0 not used
-        .queue_size = 10,
-#if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
+        .queue_size = 4,
         .pre_cb = nullptr,
         .post_cb = nullptr,
-#else
-        .pre_cb = spi_pre_transaction_callback, // calls cs_select
-        .post_cb = spi_post_transaction_callback, // calls cs_deselect
-#endif
     };
-#if defined(LIBRARY_SENSORS_USE_SPI_DMA)
-    const spi_dma_chan_t spiDMA = SPI_DMA_CH_AUTO;
-#else
-    //const spi_dma_chan_t spiDMA = SPI_DMA_DISABLED;
-    const spi_dma_chan_t spiDMA = SPI_DMA_CH_AUTO;
-#endif
     static const char *TAG = "BUS_SPI::init";
-    const esp_err_t err = spi_bus_initialize(spiHostDevice, &buscfg, spiDMA);
+    const esp_err_t err = spi_bus_initialize(spiHostDevice, &buscfg, SPI_DMA_CH_AUTO);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize SPI bus: %s", esp_err_to_name(err));
         return;
@@ -659,15 +642,13 @@ FAST_CODE bool BUS_SPI::readDeviceData()
     return true;
 #elif defined(FRAMEWORK_ESPIDF)
     // ESPIDF cannot use same memory for tx_buffer and rx_buffer
-    _writeReadBuf[0] = _deviceDataRegister;
-    spi_transaction_t trans {};
-    memset(&trans, 0, sizeof(trans));
-    trans.length = BITS_PER_BYTE*(_deviceReadLength);
-    trans.user = &_csPin;
-    trans.tx_buffer = &_writeReadBuf[0];
-    trans.rx_buffer = _deviceReadBuf;
-
-    spi_device_transmit(_spi, &trans);
+    _spiTransaction.flags = 0;
+    _spiTransaction.addr = _deviceDataRegister,
+    _spiTransaction.length = BITS_PER_BYTE*(_deviceReadLength);
+    _spiTransaction.rxlength = BITS_PER_BYTE*(_deviceReadLength);
+    _spiTransaction.tx_buffer = nullptr;
+    _spiTransaction.rx_buffer = _deviceReadBuf;
+    spi_device_transmit(_spi, &_spiTransaction);
     return true;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     *_deviceReadBuf = _deviceDataRegister;
@@ -695,47 +676,21 @@ FAST_CODE uint8_t BUS_SPI::readRegister(uint8_t reg) const
     cs_deselect(*this);
     return inBuf[1];
 #elif defined(FRAMEWORK_ESPIDF)
-    spi_transaction_t trans {
-        .flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA,
-        .cmd = 0,
-        .addr = 0,
-        .length = BITS_PER_BYTE*2,
-        .rxlength = 0,
-        .user = &_csPin,
-        .tx_data = { static_cast<uint8_t>(reg | READ_BIT), 0, 0, 0 },
-        .rx_data = { 0, 0, 0, 0 }
-    };
-/* Alternative
-see https://github.com/krzychb/esp-lis35de/blob/master/components/lis35de/lis35de.c
-    set .address_bits = 8 in spi_device_interface_config_t and do
-    spi_transaction_t trans {
-        .flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA,
-        .cmd = 0,
-        .addr = static_cast<uint8_t>(reg | READ_BIT),
-        .length = BITS_PER_BYTE*1,
-        .rxlength = BITS_PER_BYTE*1,
-        .user = nullptr,
-        .tx_data = { 0xFF, 0xFF, 0xFF, 0xFF},
-        .rx_data = {}
-    };
-    spi_device_transmit(_spi, &trans);
-    return trans.rx_data[0];
-*/
-/*
-    memset(&trans, 0, sizeof(trans));
-    trans.flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA;
-    trans.length = BITS_PER_BYTE*2;
-    trans.user = &_csPin;
-    trans.tx_data[0] = static_cast<uint8_t>(reg | READ_BIT);
-*/
+// see https://github.com/krzychb/esp-lis35de/blob/master/components/lis35de/lis35de.c
+    _spiTransaction.flags = SPI_TRANS_USE_RXDATA;
+    _spiTransaction.addr = reg,
+    _spiTransaction.length = BITS_PER_BYTE;
+    _spiTransaction.rxlength = BITS_PER_BYTE;
+    _spiTransaction.tx_buffer = nullptr;
+    //_spiTransaction.rx_data[0] = 0;
     //spi_device_acquire_bus(_spi, portMAX_DELAY);
-    esp_err_t ret = spi_device_transmit(_spi, &trans);
+    esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
-    Serial.printf("read ret:%d(%d)\r\n", ret, trans.rx_data[0]);
+    Serial.printf("read ret:%d(%d)\r\n", ret, _spiTransaction.rx_data[0]);
 #endif
     assert(ret == ESP_OK && "SPI readRegister fail");
     //spi_device_release_bus(_spi);
-    return trans.rx_data[0];
+    return _spiTransaction.rx_data[0];
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     std::array<uint8_t, 2> outBuf = {{ reg, 0 }};
     std::array<uint8_t, 2> inBuf;
@@ -782,22 +737,16 @@ FAST_CODE bool BUS_SPI::readRegister(uint8_t reg, uint8_t* data, size_t length) 
     cs_deselect(*this);
     return true;
 #elif defined(FRAMEWORK_ESPIDF)
-    _writeReadBuf[0] = reg | READ_BIT;
-
-    spi_transaction_t trans {};
-    memset(&trans, 0, sizeof(trans));
-    trans.length = BITS_PER_BYTE*(length + 1);
-    trans.user = &_csPin;
-    trans.tx_buffer = &_writeReadBuf[0];
-    trans.rx_buffer = &data[0]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-
+    _spiTransaction.flags = 0;
+    _spiTransaction.addr = reg,
+    _spiTransaction.length = BITS_PER_BYTE * length;
+    _spiTransaction.rxlength = BITS_PER_BYTE * length;
+    _spiTransaction.tx_buffer = nullptr;
+    _spiTransaction.rx_buffer = &data[0]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     //spi_device_acquire_bus(_spi, portMAX_DELAY);
-    esp_err_t ret = spi_device_transmit(_spi, &trans);
+    esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
     assert(ret == ESP_OK && "SPI readRegister data, len fail");
     //spi_device_release_bus(_spi);
-    for (size_t ii = 0; ii < length; ++ii) {
-        data[ii] = data[ii + 1]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    }
     return ret;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     cs_select(*this);
@@ -830,16 +779,15 @@ FAST_CODE bool BUS_SPI::readBytes(uint8_t* data, size_t length) const // NOLINT(
     cs_deselect(*this);
     return true;
 #elif defined(FRAMEWORK_ESPIDF)
-    spi_transaction_t trans {};
-    memset(&trans, 0, sizeof(trans));
-    trans.length = BITS_PER_BYTE*length;
-    trans.user = &_csPin;
-    trans.tx_buffer = nullptr;
-    trans.rx_buffer = &data[0]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-
+    _spiTransaction.flags = 0;
+    _spiTransaction.addr = *data,
+    _spiTransaction.length = BITS_PER_BYTE*length;
+    _spiTransaction.rxlength = BITS_PER_BYTE*length;
+    _spiTransaction.tx_buffer = nullptr;
+    _spiTransaction.rx_buffer = &data[0]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     //spi_device_acquire_bus(_spi, portMAX_DELAY);
-    esp_err_t ret = spi_device_transmit(_spi, &trans);
-    assert(ret == ESP_OK && "SPI readBytes fail");
+    esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
+    assert(ret == ESP_OK && "SPI readBytes data, len fail");
     //spi_device_release_bus(_spi);
     return ret;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
@@ -883,30 +831,16 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, uint8_t data) // NOLINT(re
     spi_write_read_blocking(_spi, &outBuf[0], &inBuf[0], 2);
     cs_deselect(*this);
 #elif defined(FRAMEWORK_ESPIDF)
-    spi_transaction_t trans {};
-    memset(&trans, 0, sizeof(trans));
-    trans.flags = SPI_TRANS_USE_TXDATA;
-    trans.length = BITS_PER_BYTE*2;
-    trans.user = &_csPin;
-    trans.tx_data[0] = reg;
-    trans.tx_data[1] = data;
-    spi_device_transmit(_spi, &trans);
-/* Alternative
-see https://github.com/krzychb/esp-lis35de/blob/master/components/lis35de/lis35de.c
-    set .address_bits = 8 in spi_device_interface_config_t and do
-    reg &= ~READ_BIT; // NOLINT(hicpp-signed-bitwise)
-    spi_transaction_t trans {
-        .flags = SPI_TRANS_USE_TXDATA,
-        .cmd = 0,
-        .addr = reg,
-        .length = BITS_PER_BYTE*1,
-        .rxlength = 0,
-        .user = nullptr,
-        .tx_data = { data },
-        .rx_data = {}
-    };
-    spi_device_transmit(_spi, &trans);
-*/
+    _spiTransaction.flags = SPI_TRANS_USE_TXDATA;
+    _spiTransaction.addr = reg,
+    _spiTransaction.length = BITS_PER_BYTE;
+    _spiTransaction.rxlength = 0;
+    _spiTransaction.tx_data[0] = data;
+    _spiTransaction.rx_buffer = nullptr;
+    //spi_device_acquire_bus(_spi, portMAX_DELAY);
+    esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
+    assert(ret == ESP_OK && "SPI writeRegister data, len fail");
+    //spi_device_release_bus(_spi);
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     return writeRegister(reg, &data, 1);
 #elif defined(FRAMEWORK_TEST)
@@ -932,33 +866,16 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, const uint8_t* data, size_
     spi_write_blocking(_spi, data, length);
     cs_deselect(*this);
 #elif defined(FRAMEWORK_ESPIDF)
-    _writeReadBuf[0] = reg;
-    memcpy(&_writeReadBuf[1], data, length);
-    
-    spi_transaction_t trans {};
-    memset(&trans, 0, sizeof(trans));
-    trans.length = BITS_PER_BYTE*(1 + length);
-    trans.user = &_csPin;
-    trans.tx_buffer = &_writeReadBuf[0];
-    trans.rx_buffer = nullptr;
+    _spiTransaction.flags = 0;
+    _spiTransaction.addr = reg,
+    _spiTransaction.length = BITS_PER_BYTE*length;
+    _spiTransaction.rxlength = 0;
+    _spiTransaction.tx_buffer = data;
+    _spiTransaction.rx_buffer = nullptr;
     //spi_device_acquire_bus(_spi, portMAX_DELAY);
-    esp_err_t ret = spi_device_transmit(_spi, &trans);
+    esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
     assert(ret == ESP_OK && "SPI writeRegister data, len fail");
     //spi_device_release_bus(_spi);
-/* Alternative
-    spi_transaction_t trans {
-        .flags = 0,
-        .cmd = 0,
-        .addr = reg,
-        .length = BITS_PER_BYTE*length,
-        .rxlength = 0,
-        .user = nullptr,
-        .tx_buffer = data,
-        .rx_buffer = nullptr
-    };
-    spi_device_transmit(_spi, &trans);
-
-*/
     return ret;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     (void)reg;
@@ -989,19 +906,16 @@ FAST_CODE uint8_t BUS_SPI::writeBytes(const uint8_t* data, size_t length) // NOL
     spi_write_blocking(_spi, data, length);
     cs_deselect(*this);
 #elif defined(FRAMEWORK_ESPIDF)
-    spi_transaction_t trans {};
-    memset(&trans, 0, sizeof(trans));
-    trans.length = BITS_PER_BYTE*length;
-    trans.user = &_csPin;
-    trans.tx_buffer = data;
-    trans.rx_buffer = nullptr;
-    trans.rxlength = 0;
-
+    _spiTransaction.flags = 0;
+    _spiTransaction.addr = *data,
+    _spiTransaction.length = BITS_PER_BYTE*(length - 1);
+    _spiTransaction.rxlength = 0;
+    _spiTransaction.tx_buffer = data + 1;
+    _spiTransaction.rx_buffer = nullptr;
     //spi_device_acquire_bus(_spi, portMAX_DELAY);
-    esp_err_t ret = spi_device_transmit(_spi, &trans);
-    assert(ret == ESP_OK && "SPI writeBytes fail");
+    esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
+    assert(ret == ESP_OK && "SPI writeBytes data, len fail");
     //spi_device_release_bus(_spi);
-    
     return ret;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     (void)data;

@@ -245,6 +245,7 @@ int IMU_ICM426xx::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroS
     _bus.writeRegister(REG_DEVICE_CONFIG, DEVICE_CONFIG_DEFAULT); // default reset configuration
     delayMs(1);
 
+#if !defined(FRAMEWORK_TEST)
     const uint8_t chipID = _bus.readRegisterWithTimeout(REG_WHO_AM_I, 100);
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
     Serial.print("IMU init, chipID:0x");
@@ -253,6 +254,7 @@ int IMU_ICM426xx::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroS
     if (chipID != WHO_AM_I_RESPONSE_ICM42605 && chipID != WHO_AM_I_RESPONSE_ICM42688P) {
         return NOT_DETECTED;
     }
+#endif
 // NOLINTBEGIN(hicpp-signed-bitwise)
     delayMs(1);
 

@@ -111,7 +111,7 @@ private:
 #elif defined(FRAMEWORK_ESPIDF)
     FAST_CODE static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
     spi_device_handle_t _spi {}; // set by spi_bus_add_device in init()
-    mutable gpio_num_t _csPin {};  // used by pre- and post- transaction callbacks
+    mutable spi_transaction_t _spiTransaction {};
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     mutable SPI_HandleTypeDef _spi {};
 #elif defined(FRAMEWORK_TEST)
