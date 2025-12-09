@@ -4,7 +4,7 @@
 
 #if defined(FRAMEWORK_RPI_PICO)
 #include <pico/time.h>
-#elif defined(FRAMEWORK_ESPIDF)
+#elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
 #elif defined(FRAMEWORK_STM32_CUBE)
 #elif defined(FRAMEWORK_TEST)
 #else // defaults to FRAMEWORK_ARDUINO
@@ -60,7 +60,7 @@ void IMU_Base::delayMs(int ms)
 {
 #if defined(FRAMEWORK_RPI_PICO)
     sleep_ms(ms);
-#elif defined(FRAMEWORK_ESPIDF)
+#elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
     vTaskDelay(pdMS_TO_TICKS(ms));
 #elif defined(FRAMEWORK_STM32_CUBE)
 #if defined(FRAMEWORK_USE_FREERTOS)

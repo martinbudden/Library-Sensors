@@ -9,7 +9,7 @@
 #include "hardware/dma.h"
 #endif
 typedef struct spi_inst spi_inst_t;
-#elif defined(FRAMEWORK_ESPIDF)
+#elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
 #include <driver/gpio.h>
 #include <driver/spi_master.h>
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)

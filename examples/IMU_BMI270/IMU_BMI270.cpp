@@ -28,7 +28,7 @@ void setup()
     delay(1000); // delay to allow serial port to initialize before first print
 
     // we need to deselect the optical flow chip, which is on the same SPI bus as the IMU.
-#if defined(FRAMEWORK_ESPIDF) 
+#if defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
     const BUS_SPI::spi_pins_t opticalFlowPins = BUS_SPI::OPTICAL_FLOW_PINS;
     const gpio_config_t opticalFlowConfig = {
         .pin_bit_mask = (1ULL << opticalFlowPins.cs),
