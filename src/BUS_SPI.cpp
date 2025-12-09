@@ -313,8 +313,7 @@ void BUS_SPI::init()
     gpio_put(_pins.cs.pin, 1);
 
     spi_init(_spi, _frequencyHz);
-
-    spi_set_format(_spi, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_LSB_FIRST); // channel, bits per transfer, polarity, phase, order
+    spi_set_format(_spi, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST); // channel, bits per transfer, polarity, phase, order
     gpio_set_function(_pins.cipo.pin, GPIO_FUNC_SPI);
     gpio_set_function(_pins.sck.pin, GPIO_FUNC_SPI);
     gpio_set_function(_pins.copi.pin, GPIO_FUNC_SPI);
@@ -348,9 +347,9 @@ void BUS_SPI::init()
     }
 #else
     gpio_config(&cs_config);
+    // chip select is active-low, so we initialise it to high
     gpio_set_level(static_cast<gpio_num_t>(_pins.cs.pin), 1);
 #endif
-    // chip select is active-low, so we initialise it to high
     const spi_bus_config_t buscfg = {
         .mosi_io_num = _pins.copi.pin,
         .miso_io_num = _pins.cipo.pin,
