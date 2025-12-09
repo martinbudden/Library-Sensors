@@ -9,24 +9,33 @@ This library implements drivers various sensors, including:
 
 The following IMUs are currently implemented:
 
-| IMU                                                                                  | ID          |
-| -------------------------------------------------------------------------------------| ----------- |
-| Bosch [BMI270](https://www.bosch-sensortec.com/products/motion-sensors/imus/bmi270/) | BMI270      |
-| CEVA [BNO085](https://www.ceva-ip.com/product/bno-9-axis-imu/)                       | BNO085      |
-| ST [LSM6DS3TR-C](https://www.st.com/en/mems-and-sensors/lsm6ds3tr-c.html)            | LSM6DS3TR_C |
-| ST [ISM330DHCX](https://www.st.com/en/mems-and-sensors/ism330dhcx.html)              | ISM330DHCX  |
-| ST [LSM6DSOX](https://www.st.com/en/mems-and-sensors/lsm6dsox.html)                  | LSM6DSOX    |
-| InvenSense MPU-6886                                                                  | MPU6886     |
+| IMU                                                                                        | ID          | SPI      | I2C      |
+| -------------------------------------------------------------------------------------------| ----------- | ---------| -------- |
+| Bosch [BMI270](https://www.bosch-sensortec.com/products/motion-sensors/imus/bmi270/)       | BMI270      | untested | working  |
+| CEVA [BNO085](https://www.ceva-ip.com/product/bno-9-axis-imu/)                             | BNO085      | untested | working  |
+| TDK [ICM-20602](https://invensense.tdk.com/products/motion-tracking/6-axis/icm-20602/)     | ICM420602   | untested | untested |
+| TDK [ICM-42605](https://invensense.tdk.com/products/motion-tracking/6-axis/icm-42605/)     | ICM426xx    | untested | untested |
+| TDK [ICM-42688-P](https://invensense.tdk.com/products/motion-tracking/6-axis/icm-42688-p/) | ICM426xx    | working  | untested |
+| TDK [MPU-6000](https://product.tdk.com/en/search/sensor/mortion-inertial/imu/info?part_no=MPU-6000) | MPU6000 | untested | untested |
+| ST [ISM330DHCX](https://www.st.com/en/mems-and-sensors/ism330dhcx.html)                    | ISM330DHCX  | working  | working  |
+| ST [LSM6DS3TR-C](https://www.st.com/en/mems-and-sensors/lsm6ds3tr-c.html)                  | LSM6DS3TR_C | working  | working  |
+| ST [LSM6DSOX](https://www.st.com/en/mems-and-sensors/lsm6dsox.html)                        | LSM6DSOX    | working  | working  |
+| InvenSense MPU-6886                                                                        | MPU6886     | untested | working  |
+| M5Stack Unified                                                                            | N/A         | N/A      | working  |
+
+The ICM-42605 and ICM-42688 are broadly compatible and share the same driver.
 
 The LSM6DS3TR-C, ISM330DHCX, and LSM6DSOX are broadly compatible and share the same driver.
+
+The MPU-6886 is an IMU that is used by M5Stack devices, it does not seem to be used anywhere else.
 
 ## Barometers
 
 The following barometers are currently implemented:
 
-| Barometers                                                                                                     | ID          |
-| ---------------------------------------------------------------------------------------------------------------| ----------- |
-| Bosch [BMP280](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp280-ds001.pdf) | BMP280      |
+| Barometers                                                                                                     | ID          | SPI      | I2C      |
+| ---------------------------------------------------------------------------------------------------------------| ----------- | ---------| -------- |
+| Bosch [BMP280](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp280-ds001.pdf) | BMP280      | untested | untested |
 
 ## SPI Build Flags
 
