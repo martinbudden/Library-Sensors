@@ -45,6 +45,10 @@ By default the drivers are configured to us I2C. To use SPI, define the `LIBRARY
 
 The Arduino Framework and the Raspberry Pi Pico SDK Framework are supported.
 
+The ESPIDF Framework is currently supported for SPI but not I2C.
+
+Support for the STM32 Framework is under development.
+
 ## Dependencies
 
 This library uses the [VectorQuaternionMatrix library](https://github.com/martinbudden/Library-VectorQuaternionMatrix)
