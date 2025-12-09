@@ -185,10 +185,10 @@ public:
     static constexpr float RADIANS_TO_DEGREES = static_cast<float>(180.0 / 3.14159265358979323846);
 public:
     static void delayMs(int ms);
-    virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* i2cMutex) = 0;
-    virtual int init(uint32_t targetOutputDataRateHz, void* i2cMutex) final;
+    virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex) = 0;
+    virtual int init(uint32_t targetOutputDataRateHz, void* busMutex) final;
     virtual int init(uint32_t targetOutputDataRateHz) final;
-    virtual int init(void* i2cMutex) final;
+    virtual int init(void* busMutex) final;
     virtual int init() final;
 
     float getGyroResolutionDPS() const { return _gyroResolutionDPS; }
@@ -232,23 +232,23 @@ public:
 
     inline uint32_t getFlags() const { return _flags; }
 #if defined(FRAMEWORK_USE_FREERTOS)
-#if defined(LIBRARY_SENSORS_IMU_I2C_MUTEX_REQUIRED)
-    inline void i2cSemaphoreTake() const { xSemaphoreTake(_i2cMutex, portMAX_DELAY); }
-    inline void i2cSemaphoreGive() const { xSemaphoreGive(_i2cMutex); }
+#if defined(LIBRARY_SENSORS_IMU_BUS_MUTEX_REQUIRED)
+    inline void busSemaphoreTake() const { xSemaphoreTake(_busMutex, portMAX_DELAY); }
+    inline void busSemaphoreGive() const { xSemaphoreGive(_busMutex); }
 #else
-    inline void i2cSemaphoreTake() const {}
-    inline void i2cSemaphoreGive() const {}
+    inline void busSemaphoreTake() const {}
+    inline void busSemaphoreGive() const {}
 #endif
     // functions to allow an IMU implementation to do run time checking if a mutex is required. Used by M5Stack implementations.
-    inline void i2cSemaphoreTake(SemaphoreHandle_t i2cMutex) const { if (i2cMutex) {xSemaphoreTake(i2cMutex, portMAX_DELAY);}  }
-    inline void i2cSemaphoreGive(SemaphoreHandle_t i2cMutex) const { if (i2cMutex) {xSemaphoreGive(i2cMutex);} }
-    SemaphoreHandle_t _i2cMutex {};
+    inline void busSemaphoreTake(SemaphoreHandle_t busMutex) const { if (busMutex) {xSemaphoreTake(busMutex, portMAX_DELAY);}  }
+    inline void busSemaphoreGive(SemaphoreHandle_t busMutex) const { if (busMutex) {xSemaphoreGive(busMutex);} }
+    SemaphoreHandle_t _busMutex {};
 #else
-    inline void i2cSemaphoreTake() const {}
-    inline void i2cSemaphoreGive() const {}
-    inline void i2cSemaphoreTake(void* i2cMutex) const { (void)i2cMutex; }
-    inline void i2cSemaphoreGive(void* i2cMutex) const { (void)i2cMutex; }
-    void* _i2cMutex {};
+    inline void busSemaphoreTake() const {}
+    inline void busSemaphoreGive() const {}
+    inline void busSemaphoreTake(void* busMutex) const { (void)busMutex; }
+    inline void busSemaphoreGive(void* busMutex) const { (void)busMutex; }
+    void* _busMutex {};
 #endif // FRAMEWORK_USE_FREERTOS
 protected:
     axis_order_e _axisOrder;

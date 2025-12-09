@@ -70,7 +70,7 @@ IMU_BNO085::IMU_BNO085(axis_order_e axisOrder, BUS_BASE::bus_index_e I2C_index, 
 }
 #endif
 
-int IMU_BNO085::init(uint32_t outputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* i2cMutex)
+int IMU_BNO085::init(uint32_t outputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex)
 {
     assert(outputDataRateHz <= 400);
     (void)gyroSensitivity;
@@ -82,10 +82,10 @@ int IMU_BNO085::init(uint32_t outputDataRateHz, gyro_sensitivity_e gyroSensitivi
 
     _gyroSampleRateHz = outputDataRateHz;
     _accSampleRateHz = outputDataRateHz;
-#if defined(LIBRARY_SENSORS_IMU_I2C_MUTEX_REQUIRED)
-    _i2cMutex = static_cast<SemaphoreHandle_t>(i2cMutex);
+#if defined(LIBRARY_SENSORS_IMU_BUS_MUTEX_REQUIRED)
+    _busMutex = static_cast<SemaphoreHandle_t>(busMutex);
 #else
-    (void)i2cMutex;
+    (void)busMutex;
 #endif
 
     // transmit reset byte on channel 1

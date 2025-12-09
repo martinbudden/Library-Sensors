@@ -36,9 +36,9 @@ IMU_Base::IMU_Base(axis_order_e axisOrder) :
 {
 }
 
-int IMU_Base::init(uint32_t outputDataRateHz, void* i2cMutex)
+int IMU_Base::init(uint32_t outputDataRateHz, void* busMutex)
 {
-    return init(outputDataRateHz, GYRO_FULL_SCALE_MAX, ACC_FULL_SCALE_MAX, i2cMutex);
+    return init(outputDataRateHz, GYRO_FULL_SCALE_MAX, ACC_FULL_SCALE_MAX, busMutex);
 }
 
 int IMU_Base::init(uint32_t outputDataRateHz)
@@ -46,9 +46,9 @@ int IMU_Base::init(uint32_t outputDataRateHz)
     return init(outputDataRateHz, nullptr);
 }
 
-int IMU_Base::init(void* i2cMutex)
+int IMU_Base::init(void* busMutex)
 {
-    return init(TARGET_OUTPUT_DATA_RATE_MAX, GYRO_FULL_SCALE_MAX, ACC_FULL_SCALE_MAX, i2cMutex);
+    return init(TARGET_OUTPUT_DATA_RATE_MAX, GYRO_FULL_SCALE_MAX, ACC_FULL_SCALE_MAX, busMutex);
 }
 
 int IMU_Base::init()

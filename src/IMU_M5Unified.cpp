@@ -9,7 +9,7 @@ IMU_M5_UNIFIED::IMU_M5_UNIFIED(axis_order_e axisOrder) :
 {
 }
 
-int IMU_M5_UNIFIED::init(uint32_t outputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* i2cMutex)
+int IMU_M5_UNIFIED::init(uint32_t outputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex)
 {
     (void)outputDataRateHz;
     (void)gyroSensitivity;
@@ -23,9 +23,9 @@ int IMU_M5_UNIFIED::init(uint32_t outputDataRateHz, gyro_sensitivity_e gyroSensi
     _accSampleRateHz = 500;
 
 #if defined(FRAMEWORK_USE_FREERTOS)
-    _i2cMutex = static_cast<SemaphoreHandle_t>(i2cMutex);
+    _busMutex = static_cast<SemaphoreHandle_t>(busMutex);
 #else
-    _i2cMutex = i2cMutex;
+    _busMutex = busMutex;
 #endif
 
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
@@ -144,9 +144,9 @@ IMU_Base::xyz_int32_t IMU_M5_UNIFIED::readAccRaw()
 xyz_t IMU_M5_UNIFIED::readAcc()
 {
     // This is very slow on the M5 Atom.
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
     [[maybe_unused]] const auto imu_update = M5.Imu.update();
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
 
     const m5::IMU_Class::imu_data_t& data = M5.Imu.getImuData();
     const xyz_t acc = {
@@ -169,9 +169,9 @@ IMU_Base::xyz_int32_t IMU_M5_UNIFIED::readGyroRaw()
 xyz_t IMU_M5_UNIFIED::readGyroRPS()
 {
     // This is very slow on the M5 Atom.
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
     [[maybe_unused]] const auto imu_update = M5.Imu.update();
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
 
     const m5::IMU_Class::imu_data_t& data = M5.Imu.getImuData();
     const xyz_t gyroRPS {
@@ -187,9 +187,9 @@ xyz_t IMU_M5_UNIFIED::readGyroRPS()
 xyz_t IMU_M5_UNIFIED::readGyroDPS()
 {
     // This is very slow on the M5 Atom.
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
     [[maybe_unused]] const auto imu_update = M5.Imu.update();
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
 
     const m5::IMU_Class::imu_data_t& data = M5.Imu.getImuData();
     const xyz_t gyroDPS {
@@ -205,9 +205,9 @@ xyz_t IMU_M5_UNIFIED::readGyroDPS()
 FAST_CODE IMU_Base::accGyroRPS_t IMU_M5_UNIFIED::readAccGyroRPS()
 {
     // This is very slow on the M5 Atom.
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
     [[maybe_unused]] const auto imu_update = M5.Imu.update();
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
 
     const m5::IMU_Class::imu_data_t& data = M5.Imu.getImuData();
     return accGyroRPS_t {

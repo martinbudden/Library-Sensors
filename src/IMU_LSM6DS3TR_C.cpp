@@ -184,15 +184,15 @@ IMU_LSM6DS3TR_C::IMU_LSM6DS3TR_C(axis_order_e axisOrder, TwoWire& wire, const BU
 #endif
 #endif
 
-int IMU_LSM6DS3TR_C::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* i2cMutex) // NOLINT(readability-function-cognitive-complexity)
+int IMU_LSM6DS3TR_C::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex) // NOLINT(readability-function-cognitive-complexity)
 {
     static_assert(sizeof(mems_sensor_data_t) == mems_sensor_data_t::DATA_SIZE);
     static_assert(sizeof(acc_gyro_data_t) == acc_gyro_data_t::DATA_SIZE);
 
-#if defined(LIBRARY_SENSORS_IMU_I2C_MUTEX_REQUIRED)
-    _i2cMutex = static_cast<SemaphoreHandle_t>(i2cMutex);
+#if defined(LIBRARY_SENSORS_IMU_BUS_MUTEX_REQUIRED)
+    _busMutex = static_cast<SemaphoreHandle_t>(busMutex);
 #else
-    (void)i2cMutex;
+    (void)busMutex;
 #endif
     static_assert(sizeof(mems_sensor_data_t) == mems_sensor_data_t::DATA_SIZE);
     static_assert(sizeof(acc_gyro_data_t) == acc_gyro_data_t::DATA_SIZE);
@@ -347,9 +347,9 @@ IMU_Base::xyz_int32_t IMU_LSM6DS3TR_C::readGyroRaw()
 {
     mems_sensor_data_t gyro; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
-    i2cSemaphoreTake();
+    busSemaphoreTake();
     _bus.readRegister(REG_OUTX_L_G, &gyro.data[0], sizeof(gyro));
-    i2cSemaphoreGive();
+    busSemaphoreGive();
 
     return xyz_int32_t {
         .x = gyro.value.x,
@@ -362,9 +362,9 @@ IMU_Base::xyz_int32_t IMU_LSM6DS3TR_C::readAccRaw()
 {
     mems_sensor_data_t acc; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
-    i2cSemaphoreTake();
+    busSemaphoreTake();
     _bus.readRegister(REG_OUTX_L_ACC, &acc.data[0], sizeof(acc));
-    i2cSemaphoreGive();
+    busSemaphoreGive();
 
     return xyz_int32_t {
         .x = acc.value.x,
@@ -375,11 +375,11 @@ IMU_Base::xyz_int32_t IMU_LSM6DS3TR_C::readAccRaw()
 
 FAST_CODE IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::readAccGyroRPS()
 {
-    i2cSemaphoreTake();
+    busSemaphoreTake();
     _bus.readDeviceData();
     //_bus.readDeviceDataDMA(); // for testing
     //_bus.readRegister(REG_OUTX_L_G, &_spiAccGyroData.accGyro.data[0], sizeof(_spiAccGyroData.accGyro));
-    i2cSemaphoreGive();
+    busSemaphoreGive();
 
     return accGyroRPSFromRaw(_spiAccGyroData.accGyro.value);
 }

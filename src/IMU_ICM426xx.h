@@ -23,7 +23,7 @@ public:
     IMU_ICM426xx(axis_order_e axisOrder, TwoWire& wire, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address);
 #endif
 #endif
-    virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* i2cMutex) override;
+    virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex) override;
 public:
     static constexpr uint8_t I2C_ADDRESS = 0x6A;
     static constexpr uint8_t I2C_ADDRESS_ALTERNATIVE = 0x6B;

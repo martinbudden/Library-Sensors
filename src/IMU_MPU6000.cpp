@@ -112,12 +112,12 @@ IMU_MPU6000::IMU_MPU6000(axis_order_e axisOrder, TwoWire& wire, const BUS_I2C::i
 #endif
 #endif
 
-int IMU_MPU6000::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* i2cMutex) // NOLINT(readability-function-cognitive-complexity)
+int IMU_MPU6000::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex) // NOLINT(readability-function-cognitive-complexity)
 {
-#if defined(LIBRARY_SENSORS_IMU_I2C_MUTEX_REQUIRED)
-    _i2cMutex = static_cast<SemaphoreHandle_t>(i2cMutex);
+#if defined(LIBRARY_SENSORS_IMU_BUS_MUTEX_REQUIRED)
+    _busMutex = static_cast<SemaphoreHandle_t>(busMutex);
 #else
-    (void)i2cMutex;
+    (void)busMutex;
 #endif
     static_assert(sizeof(mems_sensor_data_t) == mems_sensor_data_t::DATA_SIZE);
     static_assert(sizeof(acc_temperature_gyro_data_t) == acc_temperature_gyro_data_t::DATA_SIZE);
@@ -234,9 +234,9 @@ IMU_Base::xyz_int32_t IMU_MPU6000::readGyroRaw()
 {
     mems_sensor_data_t gyro; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
-    i2cSemaphoreTake();
+    busSemaphoreTake();
     _bus.readRegister(REG_ACCEL_XOUT_H, &gyro.data[0], sizeof(gyro));
-    i2cSemaphoreGive();
+    busSemaphoreGive();
 
     return xyz_int32_t {
         .x = static_cast<int16_t>((gyro.value.x_h << 8U) | gyro.value.x_l), // static cast to int16_t to sign extend the 8 bit values
@@ -249,9 +249,9 @@ IMU_Base::xyz_int32_t IMU_MPU6000::readAccRaw()
 {
     mems_sensor_data_t acc; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
-    i2cSemaphoreTake();
+    busSemaphoreTake();
     _bus.readRegister(REG_ACCEL_XOUT_H, &acc.data[0], sizeof(acc));
-    i2cSemaphoreGive();
+    busSemaphoreGive();
 
     return xyz_int32_t {
         .x = static_cast<int16_t>((acc.value.x_h << 8U) | acc.value.x_l), // static cast to int16_t to sign extend the 8 bit values
@@ -264,9 +264,9 @@ xyz_t IMU_MPU6000::readGyroRPS()
 {
     mems_sensor_data_t gyro; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
     _bus.readRegister(REG_GYRO_XOUT_H, &gyro.data[0], sizeof(gyro));
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
 
     return gyroRPS_FromRaw(gyro.value);
 }
@@ -280,19 +280,19 @@ xyz_t IMU_MPU6000::readAcc()
 {
     mems_sensor_data_t acc; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
     _bus.readRegister(REG_ACCEL_XOUT_H, &acc.data[0], sizeof(acc));
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
 
     return accFromRaw(acc.value);
 }
 
 FAST_CODE IMU_Base::accGyroRPS_t IMU_MPU6000::readAccGyroRPS()
 {
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
     _bus.readRegister(REG_ACCEL_XOUT_H, &_spiAccGyroData.accGyro.data[0], sizeof(_spiAccGyroData.accGyro));
     //_bus.readDeviceData();
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
 
     return accGyroRPSFromRaw(_spiAccGyroData.accGyro.value);
 }

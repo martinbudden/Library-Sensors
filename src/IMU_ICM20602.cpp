@@ -114,7 +114,7 @@ IMU_ICM20602::IMU_ICM20602(axis_order_e axisOrder, BUS_BASE::bus_index_e I2C_ind
 }
 #endif
 
-int IMU_ICM20602::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* i2cMutex)
+int IMU_ICM20602::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex)
 {
     (void)targetOutputDataRateHz;
     (void)gyroSensitivity;
@@ -124,9 +124,9 @@ int IMU_ICM20602::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroS
     static_assert(sizeof(acc_temperature_gyro_data_t) == acc_temperature_gyro_data_t::DATA_SIZE);
 
 #if defined(FRAMEWORK_USE_FREERTOS)
-    _i2cMutex = static_cast<SemaphoreHandle_t>(i2cMutex);
+    _busMutex = static_cast<SemaphoreHandle_t>(busMutex);
 #else
-    _i2cMutex = i2cMutex;
+    _busMutex = busMutex;
 #endif
 
     // MSP compatible gyro and acc identifiers, use defaults, since no MSP value for MPU6886
@@ -135,7 +135,7 @@ int IMU_ICM20602::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroS
 
     _bus.setDeviceDataRegister(REG_GYRO_XOUT_H, reinterpret_cast<uint8_t*>(&_spiAccTemperatureGyroData), sizeof(_spiAccTemperatureGyroData));
 
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
 
     const uint8_t chipID = _bus.readRegister(REG_WHO_AM_I);
     delayMs(1);
@@ -198,7 +198,7 @@ int IMU_ICM20602::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroS
 
     _bus.writeRegister(REG_USER_CTRL, 0x00);
 
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
     delayMs(1);
 
     // return the gyro sample rate actually set
@@ -215,9 +215,9 @@ IMU_Base::xyz_int32_t IMU_ICM20602::readGyroRaw()
 {
     mems_sensor_data_t gyro; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
     _bus.readRegister(REG_GYRO_XOUT_H, &gyro.data[0], sizeof(gyro));
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
 
     xyz_int32_t ret {
         .x = static_cast<int16_t>((gyro.value.x_h << 8U) | gyro.value.x_l), // static cast to int16_t to sign extend the 8 bit values
@@ -231,9 +231,9 @@ IMU_Base::xyz_int32_t IMU_ICM20602::readAccRaw()
 {
     mems_sensor_data_t acc; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
     _bus.readRegister(REG_ACCEL_XOUT_H, &acc.data[0], sizeof(acc));
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
 
      return xyz_int32_t {
         .x = static_cast<int16_t>((acc.value.x_h << 8U) | acc.value.x_l), // static cast to int16_t to sign extend the 8 bit values
@@ -246,9 +246,9 @@ xyz_t IMU_ICM20602::readGyroRPS()
 {
     mems_sensor_data_t gyro; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
     _bus.readRegister(REG_GYRO_XOUT_H, &gyro.data[0], sizeof(gyro));
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
 
     return gyroRPS_FromRaw(gyro.value);
 }
@@ -262,19 +262,19 @@ xyz_t IMU_ICM20602::readAcc()
 {
     mems_sensor_data_t acc; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
     _bus.readRegister(REG_ACCEL_XOUT_H, &acc.data[0], sizeof(acc));
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
 
     return accFromRaw(acc.value);
 }
 
 FAST_CODE IMU_Base::accGyroRPS_t IMU_ICM20602::readAccGyroRPS()
 {
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
     _bus.readRegister(REG_ACCEL_XOUT_H, &_spiAccTemperatureGyroData.accGyro.data[0], sizeof(_spiAccTemperatureGyroData.accGyro));
     //_bus.readDeviceData();
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
 
     return accGyroRPSFromRaw(_spiAccTemperatureGyroData.accGyro.value);
 }
@@ -291,9 +291,9 @@ int32_t IMU_ICM20602::readTemperatureRaw() const
 {
     std::array<uint8_t, 2> data;
 
-    i2cSemaphoreTake(_i2cMutex);
+    busSemaphoreTake(_busMutex);
     _bus.readRegister(REG_TEMP_OUT_H, &data[0], sizeof(data));
-    i2cSemaphoreGive(_i2cMutex);
+    busSemaphoreGive(_busMutex);
 
     const int32_t temperature = static_cast<int16_t>((data[0] << 8U) | data[1]); // NOLINT(hicpp-use-auto,modernize-use-auto)
     return temperature;
