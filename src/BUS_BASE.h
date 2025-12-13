@@ -102,6 +102,7 @@ public:
         *_deviceReadBuf = _deviceDataRegister;
         _deviceReadLength = readLength - SPI_PRE_READ_BUFFER_OFFSET;
     }
+    inline static void delayMs(int ms);
 #if defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     static inline GPIO_TypeDef* gpioPort(port_pin_t portPin) { return reinterpret_cast<GPIO_TypeDef*>(GPIOA_BASE + portPin.port*(GPIOB_BASE - GPIOA_BASE)); }
     static inline uint16_t gpioPin(port_pin_t portPin) { return static_cast<uint16_t>(1U << portPin.pin); }
@@ -111,19 +112,28 @@ protected:
     uint8_t* _deviceReadBuf {};
     size_t _deviceReadLength {};
 #if defined(FRAMEWORK_USE_FREERTOS)
-    mutable uint32_t _dataReadyQueueItem {}; // this is just a dummy item whose value is not used
+    uint32_t _dataReadyQueueItem {}; // this is just a dummy item whose value is not used
     enum { IMU_DATA_READY_QUEUE_LENGTH = 1 };
     std::array<uint8_t, IMU_DATA_READY_QUEUE_LENGTH * sizeof(_dataReadyQueueItem)> _dataReadyQueueStorageArea {};
     StaticQueue_t _dataReadyQueueStatic {};
     QueueHandle_t _dataReadyQueue {};
 public:
-    inline int32_t WAIT_DATA_READY() const { return xQueueReceive(_dataReadyQueue, &_dataReadyQueueItem, portMAX_DELAY); }
-    inline int32_t WAIT_DATA_READY(uint32_t ticksToWait) const { return xQueueReceive(_dataReadyQueue, &_dataReadyQueueItem, ticksToWait); } // returns pdPASS(1) if queue read, pdFAIL(0) if timeout
-    inline void SIGNAL_DATA_READY_FROM_ISR() const { xQueueSendFromISR(_dataReadyQueue, &_dataReadyQueueItem, nullptr); }
+    inline int32_t WAIT_DATA_READY() { return xQueueReceive(_dataReadyQueue, &_dataReadyQueueItem, portMAX_DELAY); }
+    inline int32_t WAIT_DATA_READY(uint32_t ticksToWait) { return xQueueReceive(_dataReadyQueue, &_dataReadyQueueItem, ticksToWait); } // returns pdPASS(1) if queue read, pdFAIL(0) if timeout
+    inline void SIGNAL_DATA_READY_FROM_ISR() { xQueueSendFromISR(_dataReadyQueue, &_dataReadyQueueItem, nullptr); }
 #else
 public:
-    inline int32_t WAIT_DATA_READY() const { return 0; }
-    inline int32_t WAIT_DATA_READY(uint32_t ticksToWait) const { (void)ticksToWait; return 0; }
-    inline void SIGNAL_DATA_READY_FROM_ISR() const {}
+    inline int32_t WAIT_DATA_READY() { return 0; }
+    inline int32_t WAIT_DATA_READY(uint32_t ticksToWait) { (void)ticksToWait; return 0; }
+    inline void SIGNAL_DATA_READY_FROM_ISR() {}
 #endif
 };
+
+inline void BUS_BASE::delayMs(int ms)
+{
+#if defined(FRAMEWORK_USE_FREERTOS)
+    vTaskDelay(pdMS_TO_TICKS(ms));
+#else
+    (void)ms;
+#endif
+}

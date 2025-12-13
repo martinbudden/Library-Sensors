@@ -19,15 +19,5 @@ BarometerBase::BarometerBase(BUS_BASE& busBase) :
 
 void BarometerBase::delayMs(int ms)
 {
-#if defined(FRAMEWORK_RPI_PICO)
-    sleep_ms(ms);
-#elif defined(FRAMEWORK_ESPIDF)
-    (void)ms;
-#elif defined(FRAMEWORK_STM32_CUBE)
-    (void)ms;
-#elif defined(FRAMEWORK_TEST)
-    (void)ms;
-#else // defaults to FRAMEWORK_ARDUINO
-    delay(ms);
-#endif
+    BUS_BASE::delayMs(ms);
 }

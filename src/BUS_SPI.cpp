@@ -301,6 +301,15 @@ void BUS_SPI::init()
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
     Serial.print("BUS_SPI::init\r\n");
 #endif
+
+#if defined(FRAMEWORK_USE_FREERTOS)
+    _dataReadyQueue = xQueueCreateStatic(IMU_DATA_READY_QUEUE_LENGTH, sizeof(_dataReadyQueueItem), &_dataReadyQueueStorageArea[0], &_dataReadyQueueStatic);
+    configASSERT(_dataReadyQueue);
+    const UBaseType_t messageCount = uxQueueMessagesWaiting(_dataReadyQueue);
+    assert(messageCount == 0);
+    (void)messageCount;
+#endif
+
 #if defined(FRAMEWORK_RPI_PICO)
     static_assert(static_cast<int>(IRQ_LEVEL_LOW) == GPIO_IRQ_LEVEL_LOW);
     static_assert(static_cast<int>(IRQ_LEVEL_HIGH) == GPIO_IRQ_LEVEL_HIGH);
@@ -328,28 +337,6 @@ void BUS_SPI::init()
 #endif
 
 #elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
-    const gpio_config_t cs_config = {
-        .pin_bit_mask = (1ULL << _pins.cs.pin),
-        .mode = GPIO_MODE_OUTPUT,
-        .pull_up_en = GPIO_PULLUP_DISABLE,
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_DISABLE
-    };
-#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
-    const esp_err_t gpioErr = gpio_config(&cs_config);
-    if (gpioErr != ESP_OK) {
-        Serial.printf("gpioErr:%d\r\n", gpioErr);
-    }
-    // chip select is active-low, so we initialise it to high
-    const esp_err_t setErr = gpio_set_level(static_cast<gpio_num_t>(_pins.cs.pin), 1);
-    if (setErr != ESP_OK) {
-        Serial.printf("setErr:%d\r\n", setErr);
-    }
-#else
-    gpio_config(&cs_config);
-    // chip select is active-low, so we initialise it to high
-    gpio_set_level(static_cast<gpio_num_t>(_pins.cs.pin), 1);
-#endif
     const spi_bus_config_t buscfg = {
         .mosi_io_num = _pins.copi.pin,
         .miso_io_num = _pins.cipo.pin,
@@ -360,8 +347,10 @@ void BUS_SPI::init()
         .data5_io_num = -1,
         .data6_io_num = -1,
         .data7_io_num = -1,
+        .data_io_default_level = 0,  ///< Output data IO default level when no transaction.
         .max_transfer_sz = 256,
         .flags = 0,       // Abilities of bus to be checked by the driver. Or-ed value of ``SPICOMMON_BUSFLAG_*`` flags.
+        .isr_cpu_id = ESP_INTR_CPU_AFFINITY_AUTO,    ///< Select cpu core to register SPI ISR.
         .intr_flags = 0   // Interrupt flag for the bus to set the priority, and IRAM attribute
     };
 
@@ -375,37 +364,56 @@ void BUS_SPI::init()
        spiHostDevice = SPI3_HOST;
 #endif
     }
+    static const char *TAG = "BUS_SPI::init";
+    esp_err_t err = spi_bus_initialize(spiHostDevice, &buscfg, SPI_DMA_CH_AUTO);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize SPI bus: %s", esp_err_to_name(err));
+        return;
+    }
+
+    const gpio_config_t cs_config = {
+        .pin_bit_mask = (1ULL << _pins.cs.pin),
+        .mode = GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE
+    };
+
+    const esp_err_t gpioErr = gpio_config(&cs_config);
+    if (gpioErr != ESP_OK) {
+        ESP_LOGE(TAG, "gpio_config fail: %s", esp_err_to_name(gpioErr));
+        //Serial.printf("gpioErr:%d\r\n", gpioErr);
+    }
+    // chip select is active-low, so we initialise it to high
+    const esp_err_t setErr = gpio_set_level(static_cast<gpio_num_t>(_pins.cs.pin), 1);
+    if (setErr != ESP_OK) {
+        ESP_LOGE(TAG, "gpio_set_level fail: %s", esp_err_to_name(gpioErr));
+        //Serial.printf("setErr:%d\r\n", setErr);
+    }
+
     const spi_device_interface_config_t devcfg = {
         .command_bits = 0,
         .address_bits = BITS_PER_BYTE,
         .dummy_bits = 0,
         .mode = 0,
+        .clock_source = SPI_CLK_SRC_DEFAULT,
         .duty_cycle_pos = 0,         ///< Duty cycle of positive clock, in 1/256th increments (128 = 50%/50% duty). Setting this to 0 (=not setting it) is equivalent to setting this to 128.
         .cs_ena_pretrans = 0, // not used
         .cs_ena_posttrans = 0,  // not used
         .clock_speed_hz = static_cast<int>(_frequencyHz),
         .input_delay_ns = 0, // if this is needed, it is better to reduce the clock speed
+        .sample_point = SPI_SAMPLING_POINT_PHASE_0, // default
         .spics_io_num = _pins.cs.pin,
         .flags = 0,  // 0 not used
         .queue_size = 4,
         .pre_cb = nullptr,
         .post_cb = nullptr,
     };
-    static const char *TAG = "BUS_SPI::init";
-    const esp_err_t err = spi_bus_initialize(spiHostDevice, &buscfg, SPI_DMA_CH_AUTO);
+    err = spi_bus_add_device(spiHostDevice, &devcfg, &_spi); // sets device handle _spi
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize SPI bus: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "Failed to add SPI device: %s", esp_err_to_name(err));
         return;
     }
-    //if(err != ESP_OK) { return err; }
-    (void)err;
-
-    const esp_err_t ret = spi_bus_add_device(spiHostDevice, &devcfg, &_spi); // sets device handle _spi
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to add SPI device: %s", esp_err_to_name(ret));
-        return;
-    }
-    (void)ret;
 
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
 
@@ -521,14 +529,6 @@ void BUS_SPI::init()
     _spi.begin();
 
 #endif // FRAMEWORK
-
-#if defined(FRAMEWORK_USE_FREERTOS)
-    _dataReadyQueue = xQueueCreateStatic(IMU_DATA_READY_QUEUE_LENGTH, sizeof(_dataReadyQueueItem), &_dataReadyQueueStorageArea[0], &_dataReadyQueueStatic);
-    configASSERT(_dataReadyQueue);
-    const UBaseType_t messageCount = uxQueueMessagesWaiting(_dataReadyQueue);
-    assert(messageCount == 0);
-    (void)messageCount;
-#endif
 
     configureDMA();
 }

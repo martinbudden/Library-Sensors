@@ -68,8 +68,8 @@ public:
     virtual xyz_t readGyroRPS() override;
     virtual xyz_t readGyroDPS() override;
     virtual xyz_t readAcc() override;
-    FAST_CODE virtual accGyroRPS_t readAccGyroRPS() override;
-    FAST_CODE virtual accGyroRPS_t getAccGyroRPS() const override;
+    virtual accGyroRPS_t readAccGyroRPS() override;
+    virtual accGyroRPS_t getAccGyroRPS() const override;
 
     float readTemperature() const;
     int32_t readTemperatureRaw() const;

@@ -184,7 +184,7 @@ public:
     static constexpr float DEGREES_TO_RADIANS = static_cast<float>(3.14159265358979323846 / 180.0);
     static constexpr float RADIANS_TO_DEGREES = static_cast<float>(180.0 / 3.14159265358979323846);
 public:
-    static void delayMs(int ms);
+    static void delayMs(int ms) { BUS_BASE::delayMs(ms); }
     virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex) = 0;
     virtual int init(uint32_t targetOutputDataRateHz, void* busMutex) final;
     virtual int init(uint32_t targetOutputDataRateHz) final;

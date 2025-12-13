@@ -60,15 +60,15 @@ public:
 public:
     void init();
     void setInterruptDriven(irq_level_e irqLevel);
-    FAST_CODE bool readDeviceData();
-    FAST_CODE uint8_t readRegister(uint8_t reg) const;
-    FAST_CODE uint8_t readRegisterWithTimeout(uint8_t reg, uint32_t timeoutMs) const;
-    FAST_CODE bool readRegister(uint8_t reg, uint8_t* data, size_t length) const;
-    FAST_CODE bool readBytes(uint8_t* data, size_t length) const;
-    FAST_CODE bool readBytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) const;
-    FAST_CODE uint8_t writeRegister(uint8_t reg, uint8_t data);
-    FAST_CODE uint8_t writeRegister(uint8_t reg, const uint8_t* data, size_t length);
-    FAST_CODE uint8_t writeBytes(const uint8_t* data, size_t length);
+    bool readDeviceData();
+    uint8_t readRegister(uint8_t reg) const;
+    uint8_t readRegisterWithTimeout(uint8_t reg, uint32_t timeoutMs) const;
+    bool readRegister(uint8_t reg, uint8_t* data, size_t length) const;
+    bool readBytes(uint8_t* data, size_t length) const;
+    bool readBytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) const;
+    uint8_t writeRegister(uint8_t reg, uint8_t data);
+    uint8_t writeRegister(uint8_t reg, const uint8_t* data, size_t length);
+    uint8_t writeBytes(const uint8_t* data, size_t length);
 private:
     static BUS_I2C* self; //!< alias of `this` to be used in interrupt service routine
     bus_index_e _I2C_index {};
@@ -76,19 +76,19 @@ private:
 #if defined(FRAMEWORK_RPI_PICO)
     enum { RETAIN_CONTROL_OF_BUS = true };
     enum { DONT_RETAIN_CONTROL_OF_BUS = false };
-    FAST_CODE static void dataReadyISR(unsigned int gpio, uint32_t events);
+    static void dataReadyISR(unsigned int gpio, uint32_t events);
     i2c_inst_t* _I2C {};
 #elif defined(FRAMEWORK_ESPIDF)
-    FAST_CODE static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
+    static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
     //i2c_master_bus_handle_t _bus_handle {};
     //i2c_master_dev_handle_t _dev_handle {};
 #elif defined(FRAMEWORK_STM32_CUBE)
-    FAST_CODE static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
+    static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
     mutable I2C_HandleTypeDef _I2C {};
 #elif defined(FRAMEWORK_TEST)
     static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
 #else // defaults to FRAMEWORK_ARDUINO
-    FAST_CODE static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
+    static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
     TwoWire& _wire;
 #endif
     uint8_t _I2C_address {};

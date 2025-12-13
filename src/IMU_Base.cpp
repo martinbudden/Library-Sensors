@@ -56,23 +56,6 @@ int IMU_Base::init()
     return init(nullptr);
 }
 
-void IMU_Base::delayMs(int ms)
-{
-#if defined(FRAMEWORK_RPI_PICO)
-    sleep_ms(ms);
-#elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
-    vTaskDelay(pdMS_TO_TICKS(ms));
-#elif defined(FRAMEWORK_STM32_CUBE)
-#if defined(FRAMEWORK_USE_FREERTOS)
-    vTaskDelay(pdMS_TO_TICKS(ms));
-#endif
-#elif defined(FRAMEWORK_TEST)
-    (void)ms;
-#else // defaults to FRAMEWORK_ARDUINO
-    delay(ms);
-#endif
-}
-
 void IMU_Base::setInterruptDriven()
 {
 }
