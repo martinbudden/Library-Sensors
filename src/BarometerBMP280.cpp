@@ -39,7 +39,7 @@ namespace { // use anonymous namespace to make items local to this translation u
         constexpr uint8_t TEMPERATURE_OSR = SAMPLING_X1;
         constexpr uint8_t PRESSURE_OSR = SAMPLING_X8;
         // note that useing MODE_FORCED means that REG_CONTROL must be set before each reading
-        constexpr uint8_t MEASUREMENT_MODE = (TEMPERATURE_OSR << 5) | (PRESSURE_OSR << 2) | MODE_FORCED;
+        constexpr uint8_t MEASUREMENT_MODE = (TEMPERATURE_OSR << 5) | (PRESSURE_OSR << 2) | MODE_FORCED; // NOLINT(hicpp-signed-bitwise)
     constexpr uint8_t REG_CONFIG        = 0xF5;
         // Filtering level
         constexpr uint8_t FILTER_OFF        = 0x00;
