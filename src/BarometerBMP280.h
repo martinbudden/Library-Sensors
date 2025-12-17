@@ -7,8 +7,8 @@
 
 class BarometerBMP280 : public BarometerBase {
 public:
-    static constexpr uint8_t I2C_ADDRESS = 0x77;
-    static constexpr uint8_t I2C_ADDRESS_ALTERNATIVE = 0x76;
+    static constexpr uint8_t I2C_ADDRESS = 0x76;
+    static constexpr uint8_t I2C_ADDRESS_ALTERNATIVE = 0x77;
     static constexpr uint8_t CHIP_ID = 0x58;
     enum { MAX_SPI_FREQUENCY_HZ = 10000000 };
 public:

@@ -20,49 +20,49 @@ namespace { // use anonymous namespace to make items local to this translation u
     constexpr uint8_t REG_DIG_P8        = 0x9C;
     constexpr uint8_t REG_DIG_P9        = 0x9E;
     constexpr uint8_t REG_CHIPID        = 0xD0;
+        constexpr uint8_t CHIPID_RESPONSE  = 0x58;
     constexpr uint8_t REG_VERSION       = 0xD1;
     constexpr uint8_t REG_SOFTRESET     = 0xE0;
     constexpr uint8_t REG_CAL26         = 0xE1; // R calibration = 0xE1-0xF0
     constexpr uint8_t REG_STATUS        = 0xF3;
     constexpr uint8_t REG_CONTROL       = 0xF4;
+        constexpr uint8_t SAMPLING_NONE     = 0x00;
+        constexpr uint8_t SAMPLING_X1       = 0x01;
+        constexpr uint8_t SAMPLING_X2       = 0x02; // 2x oversampling
+        constexpr uint8_t SAMPLING_X4       = 0x03; // 4x oversampling
+        constexpr uint8_t SAMPLING_X8       = 0x04; // 8x oversampling
+        constexpr uint8_t SAMPLING_X16      = 0x05; // 16x oversampling
+        constexpr uint8_t MODE_SLEEP        = 0x00;
+        constexpr uint8_t MODE_FORCED       = 0x01;
+        constexpr uint8_t MODE_NORMAL       = 0x03;
+        constexpr uint8_t MODE_SOFT_RESET_CODE = 0xB6;
+        constexpr uint8_t TEMPERATURE_OSR = SAMPLING_X1;
+        constexpr uint8_t PRESSURE_OSR = SAMPLING_X8;
+        // note that useing MODE_FORCED means that REG_CONTROL must be set before each reading
+        constexpr uint8_t MEASUREMENT_MODE = (TEMPERATURE_OSR << 5) | (PRESSURE_OSR << 2) | MODE_FORCED;
     constexpr uint8_t REG_CONFIG        = 0xF5;
+        // Filtering level
+        constexpr uint8_t FILTER_OFF        = 0x00;
+        constexpr uint8_t FILTER_X2         = 0x01;
+        constexpr uint8_t FILTER_X4         = 0x02;
+        constexpr uint8_t FILTER_X8         = 0x03;
+        constexpr uint8_t FILTER_X16        = 0x04;
+        // Standby duration in milliseconds
+        constexpr uint8_t STANDBY_MS_0p5    = 0x00; // 0.5ms
+        constexpr uint8_t STANDBY_MS_62p5   = 0x01; // 62.5ms
+        constexpr uint8_t STANDBY_MS_125    = 0x02;
+        constexpr uint8_t STANDBY_MS_250    = 0x03;
+        constexpr uint8_t STANDBY_MS_500    = 0x04;
+        constexpr uint8_t STANDBY_MS_1000   = 0x05;
+        constexpr uint8_t STANDBY_MS_2000   = 0x06;
+        constexpr uint8_t STANDBY_MS_4000   = 0x07;
+        constexpr uint8_t SPI_3WIRE_ENABLE  = 0x01;
     constexpr uint8_t REG_PRESSURE_MSB  = 0xF7;
     constexpr uint8_t REG_PRESSURE_LSB  = 0xF8;
     constexpr uint8_t REG_PRESSURE_XLSB = 0xF9;
     constexpr uint8_t REG_TEMPERATURE_MSB   = 0xFA;
     constexpr uint8_t REG_TEMPERATURE_LSB   = 0xFB;
     constexpr uint8_t REG_TEMPERATURE_XLSB  = 0xFC;
-
-    constexpr uint8_t SAMPLING_NONE     = 0x00;
-    constexpr uint8_t SAMPLING_X1       = 0x01;
-    constexpr uint8_t SAMPLING_X2       = 0x02; // 2x oversampling
-    constexpr uint8_t SAMPLING_X4       = 0x03; // 4x oversampling
-    constexpr uint8_t SAMPLING_X8       = 0x04; // 8x oversampling
-    constexpr uint8_t SAMPLING_X16      = 0x05; // 16x oversampling
-
-    constexpr uint8_t MODE_SLEEP        = 0x00;
-    constexpr uint8_t MODE_FORCED       = 0x01;
-    constexpr uint8_t MODE_NORMAL       = 0x03;
-    constexpr uint8_t MODE_SOFT_RESET_CODE = 0xB6;
-
-  // Filtering level
-    constexpr uint8_t FILTER_OFF        = 0x00;
-    constexpr uint8_t FILTER_X2         = 0x01;
-    constexpr uint8_t FILTER_X4         = 0x02;
-    constexpr uint8_t FILTER_X8         = 0x03;
-    constexpr uint8_t FILTER_X16        = 0x04;
-
-  // Standby duration in milliseconds
-    constexpr uint8_t STANDBY_MS_0p5    = 0x00; // 0.5ms
-    constexpr uint8_t STANDBY_MS_62p5   = 0x01; // 62.5ms
-    constexpr uint8_t STANDBY_MS_125    = 0x02;
-    constexpr uint8_t STANDBY_MS_250    = 0x03;
-    constexpr uint8_t STANDBY_MS_500    = 0x04;
-    constexpr uint8_t STANDBY_MS_1000   = 0x05;
-    constexpr uint8_t STANDBY_MS_2000   = 0x06;
-    constexpr uint8_t STANDBY_MS_4000   = 0x07;
-
-    constexpr uint8_t SPI_3WIRE_ENABLE  = 0x01;
 } // end namespace
 
 #if defined(LIBRARY_SENSORS_BAROMETER_USE_SPI_BUS)
@@ -86,6 +86,16 @@ BarometerBMP280::BarometerBMP280(BUS_BASE::bus_index_e I2C_index, const BUS_I2C:
 
 int BarometerBMP280::init()
 {
+#if !defined(FRAMEWORK_TEST)
+    const uint8_t chipID = _bus.readRegisterWithTimeout(REG_CHIPID, 100);
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
+    Serial.print("IMU init, chipID:0x");
+    Serial.println(chipID, HEX);
+#endif
+    if (chipID != CHIPID_RESPONSE) {
+        return NOT_DETECTED;
+    }
+#endif
     /*_calibrationData.value.dig_T1 = readRegister16_LE(REG_DIG_T1);
     _calibrationData.value.dig_T2 = readRegister16S_LE(REG_DIG_T2);
     _calibrationData.value.dig_T3 = readRegister16S_LE(REG_DIG_T3);
@@ -103,7 +113,6 @@ int BarometerBMP280::init()
     _bus.readRegister(REG_DIG_T1, &_calibrationData.data[0], sizeof(_calibrationData));
     delayMs(1);
 
-
     /*
     don't need to set REG_CONFIG, since default of 0 gives us what we need, namely:
     const uint8_t standbyMs = STANDBY_MS_0p5;
@@ -114,14 +123,10 @@ int BarometerBMP280::init()
     */
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,hicpp-signed-bitwise,readability-magic-numbers)
-    const uint8_t mode = MODE_FORCED;
-    const uint8_t TEMPERATURE_OSR = SAMPLING_X1;
-    const uint8_t PRESSURE_OSR = SAMPLING_X8;
-    _bus.writeRegister(REG_CONTROL, (TEMPERATURE_OSR << 5) | (PRESSURE_OSR << 2) | mode);
+    _bus.writeRegister(REG_CONTROL, MEASUREMENT_MODE);
     delayMs(1);
 
     _pressureAtReferenceAltitude = readPressurePascals();
-    delayMs(1);
     _referenceAltitude = 0.0F;
 
     enum { TIME_INIT_MAX = 20 }; // 20/16 = 1.25 ms
@@ -174,6 +179,7 @@ float BarometerBMP280::readPressurePascals()
     const auto P9 = static_cast<int64_t>(_calibrationData.value.dig_P9);
 
     // burst read of temperature and pressure data
+    _bus.writeRegister(REG_CONTROL, MEASUREMENT_MODE);
     // read together in burst so data is consistent, as specified in datasheet
     pressure_temperature_data_u pt; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
     _bus.readRegister(REG_PRESSURE_MSB, &pt.data[0], sizeof(pt));
@@ -182,7 +188,10 @@ float BarometerBMP280::readPressurePascals()
             (static_cast<uint32_t>(pt.value.temperature_lsb) << 8) |
             static_cast<uint32_t>(pt.value.temperature_xlsb)) >> 4
         );
-
+#if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
+    Serial.printf("temp:%x:%x:%x\r\n", pt.value.temperature_msb, pt.value.temperature_lsb, pt.value.temperature_xlsb);
+    Serial.printf("pres:%x:%x:%x\r\n", pt.value.pressure_msb, pt.value.pressure_lsb, pt.value.pressure_xlsb);
+#endif
     // set _temperatureFine.
     const int32_t vt1 = (((adcT >> 3) - (T1 << 1))) * T2;
     const int32_t vt2 = ((((adcT >> 4) - T1) * ((adcT >> 4) - T1)) >> 12) * T3;

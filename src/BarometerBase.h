@@ -32,7 +32,9 @@ public:
     virtual float calculateAltitudeMeters(float pressure) = 0;
 
     void setReferenceAltitude(float referenceAltitude) { _referenceAltitude = referenceAltitude; }
+    float getReferenceAltitude() const { return _referenceAltitude; };
     void setPressureAtReferenceAltitude(float pressureAtReferenceAltitude) { _pressureAtReferenceAltitude = pressureAtReferenceAltitude; }
+    float getPressureAtReferenceAltitude() const { return _pressureAtReferenceAltitude; };
 
     static void delayMs(int ms);
 protected:
