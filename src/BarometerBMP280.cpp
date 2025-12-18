@@ -126,7 +126,8 @@ int BarometerBMP280::init()
     _bus.writeRegister(REG_CONTROL, MEASUREMENT_MODE);
     delayMs(1);
 
-    _pressureAtReferenceAltitude = readPressurePascals();
+    readTemperatureAndPressure();
+    _pressureAtReferenceAltitude = _pressurePascals;
     _referenceAltitude = 0.0F;
 
     enum { TIME_INIT_MAX = 20 }; // 20/16 = 1.25 ms
@@ -139,30 +140,7 @@ int BarometerBMP280::init()
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,hicpp-signed-bitwise,readability-magic-numbers)
 }
 
-float BarometerBMP280::readTemperatureCelsius()
-{
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
-    const int32_t T1 = static_cast<int32_t>(_calibrationData.value.dig_T1);
-    const int32_t T2 = static_cast<int32_t>(_calibrationData.value.dig_T2);
-    const int32_t T3 = static_cast<int32_t>(_calibrationData.value.dig_T3);
-
-    pressure_temperature_data_u pt; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
-    _bus.readRegister(REG_TEMPERATURE_MSB, &pt.data[3], 3);
-    const auto adcT = static_cast<int32_t>(
-            ((static_cast<uint32_t>(pt.value.temperature_msb) << 16) |
-            (static_cast<uint32_t>(pt.value.temperature_lsb) << 8) |
-            static_cast<uint32_t>(pt.value.temperature_xlsb)) >> 4
-        );
-    const int32_t vt1 = (((adcT >> 3) - (T1 << 1))) * T2;
-    const int32_t vt2 = ((((adcT >> 4) - T1) * ((adcT >> 4) - T1)) >> 12) * T3;
-    _temperatureFine = (vt1 >> 11) + (vt2 >> 14);
-    _temperatureCelsius = static_cast<float>((_temperatureFine * 5 + 128) >> 8) / 100.0F;
-
-    return _temperatureCelsius;
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
-}
-
-float BarometerBMP280::readPressurePascals()
+void BarometerBMP280::readTemperatureAndPressure()
 {
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
     const auto T1 = static_cast<int32_t>(_calibrationData.value.dig_T1);
@@ -206,7 +184,7 @@ float BarometerBMP280::readPressurePascals()
     vp1 = ((((static_cast<int64_t>(1)) << 47) + vp1)) * P1 >> 33;
 
     if (vp1 == 0) {
-        return 0.0F; // avoid division by zero
+        return; // avoid division by zero
     }
     const auto adcP = static_cast<int32_t>(
             ((static_cast<uint32_t>(pt.value.pressure_msb) << 16) |
@@ -220,16 +198,11 @@ float BarometerBMP280::readPressurePascals()
 
     p = ((p + vp1 + vp2) >> 8) + (P7 << 4);
     _pressurePascals =  static_cast<float>(p) / 256.0F;
-    return _pressurePascals;
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
 }
 
-float BarometerBMP280::readAltitudeMeters()
+float BarometerBMP280::calculateAltitudeMeters(float pressure, float temperature)
 {
-    return calculateAltitudeMeters(readPressurePascals());
-}
-
-float BarometerBMP280::calculateAltitudeMeters(float pressure)
-{
+    (void)temperature;
     return 44330.0F * (1.0F - std::pow(pressure/_pressureAtReferenceAltitude, 0.1903F)); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 }

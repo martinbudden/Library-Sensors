@@ -60,10 +60,8 @@ public:
     explicit BarometerBMP280(const BUS_I2C::i2c_pins_t& pins) : BarometerBMP280(pins, I2C_ADDRESS) {}
 #endif
     virtual int init() override;
-    virtual float readTemperatureCelsius() override;
-    virtual float readPressurePascals() override;
-    virtual float readAltitudeMeters() override;
-    virtual float calculateAltitudeMeters(float pressure) override;
+    virtual void readTemperatureAndPressure() override;
+    virtual float calculateAltitudeMeters(float pressurePascals, float temperatureCelsius) override;
 private:
 #if defined(LIBRARY_SENSORS_BAROMETER_USE_SPI_BUS)
     BUS_SPI _bus; //!< SPI bus interface

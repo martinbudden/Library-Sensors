@@ -26,16 +26,14 @@ public:
     float getTemperatureCelsius() const { return _temperatureCelsius; }
     float getPressurePascals() const { return _pressurePascals; }
 
-    virtual float readTemperatureCelsius() = 0;
-    virtual float readPressurePascals() = 0;
-    virtual float readAltitudeMeters() = 0;
-    virtual float calculateAltitudeMeters(float pressure) = 0;
+    virtual void readTemperatureAndPressure() = 0;
+    virtual float calculateAltitudeMeters(float pressurePascals, float temperatureCelsius) = 0;
 
     void setReferenceAltitude(float referenceAltitude) { _referenceAltitude = referenceAltitude; }
     float getReferenceAltitude() const { return _referenceAltitude; };
     void setPressureAtReferenceAltitude(float pressureAtReferenceAltitude) { _pressureAtReferenceAltitude = pressureAtReferenceAltitude; }
     float getPressureAtReferenceAltitude() const { return _pressureAtReferenceAltitude; };
-
+protected:
     static void delayMs(int ms);
 protected:
     BUS_BASE* _busBase;
