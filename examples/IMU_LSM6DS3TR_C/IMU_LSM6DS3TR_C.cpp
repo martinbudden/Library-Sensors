@@ -61,7 +61,7 @@ void loop()
     imu->readAccGyroRPS();
 #endif
     // take an IMU reading
-    const IMU_Base::accGyroRPS_t accGyroRPS = imu->getAccGyroRPS();
+    const acc_gyro_rps_t accGyroRPS = imu->getAccGyroRPS();
 
     // convert the gyro radians per second value to degrees per second
     const xyz_t gyroDPS = accGyroRPS.gyroRPS * IMU_Base::RADIANS_TO_DEGREES;

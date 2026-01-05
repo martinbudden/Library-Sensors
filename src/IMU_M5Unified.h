@@ -14,7 +14,7 @@ public:
     virtual xyz_t readGyroRPS() override;
     virtual xyz_t readGyroDPS() override;
     virtual xyz_t readAcc() override;
-    virtual accGyroRPS_t readAccGyroRPS() override;
+    virtual acc_gyro_rps_t readAccGyroRPS() override;
 
     void setAxisOrder(axis_order_e axisOrder);
 };

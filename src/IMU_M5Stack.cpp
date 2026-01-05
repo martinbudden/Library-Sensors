@@ -125,9 +125,9 @@ xyz_t IMU_M5_STACK::readGyroDPS()
     return mapAxes(gyroDPS);
 }
 
-FAST_CODE IMU_Base::accGyroRPS_t IMU_M5_STACK::readAccGyroRPS()
+FAST_CODE acc_gyro_rps_t IMU_M5_STACK::readAccGyroRPS()
 {
-    const accGyroRPS_t gyroAcc {
+    const acc_gyro_rps_t gyroAcc {
         .gyroRPS = readGyroRPS(),
         .acc = readAcc()
     };
@@ -135,11 +135,11 @@ FAST_CODE IMU_Base::accGyroRPS_t IMU_M5_STACK::readAccGyroRPS()
     return gyroAcc;
 }
 
-IMU_Base::accGyroRPS_t IMU_M5_STACK::accGyroRPSFromRaw(const acc_temperature_gyro_data_t& data) const
+acc_gyro_rps_t IMU_M5_STACK::accGyroRPSFromRaw(const acc_temperature_gyro_data_t& data) const
 {
 // NOLINTBEGIN(hicpp-signed-bitwise)
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x =   static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x,
             .y =   static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.y,
@@ -152,7 +152,7 @@ IMU_Base::accGyroRPS_t IMU_M5_STACK::accGyroRPSFromRaw(const acc_temperature_gyr
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YPOS_XNEG_ZPOS)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x =   static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.y,
             .y = -(static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x),
@@ -165,7 +165,7 @@ IMU_Base::accGyroRPS_t IMU_M5_STACK::accGyroRPSFromRaw(const acc_temperature_gyr
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XNEG_YNEG_ZPOS)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x = -(static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x),
             .y = -(static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.y),
@@ -178,7 +178,7 @@ IMU_Base::accGyroRPS_t IMU_M5_STACK::accGyroRPSFromRaw(const acc_temperature_gyr
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x = -(static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.y),
             .y =   static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x,
@@ -191,7 +191,7 @@ IMU_Base::accGyroRPS_t IMU_M5_STACK::accGyroRPSFromRaw(const acc_temperature_gyr
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_ZPOS_YNEG)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x =   static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x,
             .y =   static_cast<float>(static_cast<int16_t>((data.gyro_z_h << 8) | data.gyro_z_l)) * _gyroResolutionRPS - _gyroOffset.z,
@@ -205,7 +205,7 @@ IMU_Base::accGyroRPS_t IMU_M5_STACK::accGyroRPSFromRaw(const acc_temperature_gyr
     };
 #else
     // Axis order mapping done at run-time
-    const accGyroRPS_t accGyroRPS {
+    const acc_gyro_rps_t accGyroRPS {
         .gyroRPS = {
             .x =   static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x,
             .y =   static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.y,
@@ -223,7 +223,7 @@ IMU_Base::accGyroRPS_t IMU_M5_STACK::accGyroRPSFromRaw(const acc_temperature_gyr
         return accGyroRPS;
         break;
     case YNEG_XPOS_ZPOS:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x = -accGyroRPS.gyroRPS.y,
                 .y =  accGyroRPS.gyroRPS.x,
@@ -237,7 +237,7 @@ IMU_Base::accGyroRPS_t IMU_M5_STACK::accGyroRPSFromRaw(const acc_temperature_gyr
         };
         break;
     case XNEG_YNEG_ZPOS:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x = -accGyroRPS.gyroRPS.x,
                 .y = -accGyroRPS.gyroRPS.y,
@@ -251,7 +251,7 @@ IMU_Base::accGyroRPS_t IMU_M5_STACK::accGyroRPSFromRaw(const acc_temperature_gyr
         };
         break;
     case YPOS_XNEG_ZPOS:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x =  accGyroRPS.gyroRPS.y,
                 .y = -accGyroRPS.gyroRPS.x,
@@ -265,7 +265,7 @@ IMU_Base::accGyroRPS_t IMU_M5_STACK::accGyroRPSFromRaw(const acc_temperature_gyr
         };
         break;
     case XPOS_ZPOS_YNEG:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x =  accGyroRPS.gyroRPS.x,
                 .y =  accGyroRPS.gyroRPS.z,
@@ -279,7 +279,7 @@ IMU_Base::accGyroRPS_t IMU_M5_STACK::accGyroRPSFromRaw(const acc_temperature_gyr
         };
         break;
     default:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = mapAxes(accGyroRPS.gyroRPS),
             .acc = mapAxes(accGyroRPS.acc)
         };

@@ -61,10 +61,10 @@ public:
     virtual xyz_int32_t readGyroRaw() override;
     virtual xyz_int32_t readAccRaw() override;
 
-    virtual accGyroRPS_t readAccGyroRPS() override;
-    virtual accGyroRPS_t getAccGyroRPS() const override;
+    virtual acc_gyro_rps_t readAccGyroRPS() override;
+    virtual acc_gyro_rps_t getAccGyroRPS() const override;
 private:
-    accGyroRPS_t accGyroRPSFromRaw(const acc_gyro_data_t::value_t& data) const;
+    acc_gyro_rps_t accGyroRPSFromRaw(const acc_gyro_data_t::value_t& data) const;
 private:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_LSM6DS3TR_C_USE_SPI_BUS)
     BUS_SPI _bus; //!< SPI bus interface

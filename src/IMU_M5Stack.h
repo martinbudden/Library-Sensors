@@ -14,7 +14,7 @@ public:
     virtual xyz_t readGyroRPS() override;
     virtual xyz_t readGyroDPS() override;
     virtual xyz_t readAcc() override;
-    virtual accGyroRPS_t readAccGyroRPS() override;
+    virtual acc_gyro_rps_t readAccGyroRPS() override;
 
 private:
     struct acc_temperature_gyro_data_t { // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
@@ -34,5 +34,5 @@ private:
         uint8_t gyro_z_h;
         uint8_t gyro_z_l;
     };
-    accGyroRPS_t accGyroRPSFromRaw(const acc_temperature_gyro_data_t& data) const;
+    acc_gyro_rps_t accGyroRPSFromRaw(const acc_temperature_gyro_data_t& data) const;
 };

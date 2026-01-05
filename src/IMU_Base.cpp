@@ -110,17 +110,17 @@ xyz_t IMU_Base::readAcc()
     });
 }
 
-IMU_Base::accGyroRPS_t IMU_Base::readAccGyroRPS()
+acc_gyro_rps_t IMU_Base::readAccGyroRPS()
 {
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = readGyroRPS(),
         .acc = readAcc()
     };
 }
 
-IMU_Base::accGyroRPS_t IMU_Base::getAccGyroRPS() const
+acc_gyro_rps_t IMU_Base::getAccGyroRPS() const
 {
-    return accGyroRPS_t {};
+    return acc_gyro_rps_t {};
 }
 
 Quaternion IMU_Base::readOrientation()

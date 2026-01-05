@@ -202,7 +202,7 @@ xyz_t IMU_M5_UNIFIED::readGyroDPS()
     return gyroDPS;
 }
 
-FAST_CODE IMU_Base::accGyroRPS_t IMU_M5_UNIFIED::readAccGyroRPS()
+FAST_CODE acc_gyro_rps_t IMU_M5_UNIFIED::readAccGyroRPS()
 {
     // This is very slow on the M5 Atom.
     busSemaphoreTake(_busMutex);
@@ -210,7 +210,7 @@ FAST_CODE IMU_Base::accGyroRPS_t IMU_M5_UNIFIED::readAccGyroRPS()
     busSemaphoreGive(_busMutex);
 
     const m5::IMU_Class::imu_data_t& data = M5.Imu.getImuData();
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
         .gyroRPS = {
             .x = data.gyro.x * DEGREES_TO_RADIANS,

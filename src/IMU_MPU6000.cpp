@@ -287,7 +287,7 @@ xyz_t IMU_MPU6000::readAcc()
     return accFromRaw(acc.value);
 }
 
-FAST_CODE IMU_Base::accGyroRPS_t IMU_MPU6000::readAccGyroRPS()
+FAST_CODE acc_gyro_rps_t IMU_MPU6000::readAccGyroRPS()
 {
     busSemaphoreTake(_busMutex);
     _bus.readRegister(REG_ACCEL_XOUT_H, &_spiAccGyroData.accGyro.data[0], sizeof(_spiAccGyroData.accGyro));
@@ -300,7 +300,7 @@ FAST_CODE IMU_Base::accGyroRPS_t IMU_MPU6000::readAccGyroRPS()
 /*!
 Return the gyroAcc data that was read in the ISR
 */
-FAST_CODE IMU_Base::accGyroRPS_t IMU_MPU6000::getAccGyroRPS() const
+FAST_CODE acc_gyro_rps_t IMU_MPU6000::getAccGyroRPS() const
 {
     return accGyroRPSFromRaw(_spiAccGyroData.accGyro.value);
 }
@@ -378,10 +378,10 @@ xyz_t IMU_MPU6000::accFromRaw(const mems_sensor_data_t::value_t& data) const
 #endif
 }
 
-IMU_Base::accGyroRPS_t IMU_MPU6000::accGyroRPSFromRaw(const acc_temperature_gyro_data_t::value_t& data) const
+acc_gyro_rps_t IMU_MPU6000::accGyroRPSFromRaw(const acc_temperature_gyro_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x =  static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8U) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x,
             .y =  static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8U) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.y,
@@ -394,7 +394,7 @@ IMU_Base::accGyroRPS_t IMU_MPU6000::accGyroRPSFromRaw(const acc_temperature_gyro
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YPOS_XNEG_ZPOS)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x =  static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8U) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.y,
             .y = -static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8U) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x,
@@ -407,7 +407,7 @@ IMU_Base::accGyroRPS_t IMU_MPU6000::accGyroRPSFromRaw(const acc_temperature_gyro
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XNEG_YNEG_ZPOS)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x = -static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8U) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x,
             .y = -static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8U) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.y,
@@ -420,7 +420,7 @@ IMU_Base::accGyroRPS_t IMU_MPU6000::accGyroRPSFromRaw(const acc_temperature_gyro
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x = -static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8U) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.y,
             .y =  static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8U) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x,
@@ -433,7 +433,7 @@ IMU_Base::accGyroRPS_t IMU_MPU6000::accGyroRPSFromRaw(const acc_temperature_gyro
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_ZPOS_YNEG)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x =  static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8U) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x,
             .y =  static_cast<float>(static_cast<int16_t>((data.gyro_z_h << 8U) | data.gyro_z_l)) * _gyroResolutionRPS - _gyroOffset.z,
@@ -451,7 +451,7 @@ IMU_Base::accGyroRPS_t IMU_MPU6000::accGyroRPSFromRaw(const acc_temperature_gyro
     // speed optimization is more important than size optimization here
     switch (_axisOrder) {
     case XPOS_YPOS_ZPOS: // NOLINT(bugprone-branch-clone)
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x =  static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8U) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x,
                 .y =  static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8U) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.y,
@@ -464,7 +464,7 @@ IMU_Base::accGyroRPS_t IMU_MPU6000::accGyroRPSFromRaw(const acc_temperature_gyro
             }
         };
     case YNEG_XPOS_ZPOS:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x = -static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8U) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.x,
                 .y =  static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8U) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.y,
@@ -477,7 +477,7 @@ IMU_Base::accGyroRPS_t IMU_MPU6000::accGyroRPSFromRaw(const acc_temperature_gyro
             }
         };
     case XNEG_YNEG_ZPOS:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x = -static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8U) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x,
                 .y = -static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8U) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.y,
@@ -490,7 +490,7 @@ IMU_Base::accGyroRPS_t IMU_MPU6000::accGyroRPSFromRaw(const acc_temperature_gyro
             }
         };
     case YPOS_XNEG_ZPOS:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x =  static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8U) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.x,
                 .y = -static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8U) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.y,
@@ -503,7 +503,7 @@ IMU_Base::accGyroRPS_t IMU_MPU6000::accGyroRPSFromRaw(const acc_temperature_gyro
             }
         };
     case XPOS_ZPOS_YNEG:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x =  static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8U) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x,
                 .y =  static_cast<float>(static_cast<int16_t>((data.gyro_z_h << 8U) | data.gyro_z_l)) * _gyroResolutionRPS - _gyroOffset.y,
@@ -516,7 +516,7 @@ IMU_Base::accGyroRPS_t IMU_MPU6000::accGyroRPSFromRaw(const acc_temperature_gyro
             }
         };
     default:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = mapAxes({
                 .x =  static_cast<float>(static_cast<int16_t>((data.gyro_x_h << 8U) | data.gyro_x_l)) * _gyroResolutionRPS - _gyroOffset.x,
                 .y =  static_cast<float>(static_cast<int16_t>((data.gyro_y_h << 8U) | data.gyro_y_l)) * _gyroResolutionRPS - _gyroOffset.y,

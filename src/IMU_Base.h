@@ -177,10 +177,6 @@ public:
         int32_t y;
         int32_t z;
     };
-    struct accGyroRPS_t {
-        xyz_t gyroRPS;
-        xyz_t acc;
-    };
     static constexpr float DEGREES_TO_RADIANS = static_cast<float>(3.14159265358979323846 / 180.0);
     static constexpr float RADIANS_TO_DEGREES = static_cast<float>(180.0 / 3.14159265358979323846);
 public:
@@ -217,8 +213,8 @@ public:
     virtual xyz_t readGyroRPS();
     virtual xyz_t readGyroDPS();
     virtual xyz_t readAcc();
-    virtual accGyroRPS_t readAccGyroRPS();
-    virtual accGyroRPS_t getAccGyroRPS() const;
+    virtual acc_gyro_rps_t readAccGyroRPS();
+    virtual acc_gyro_rps_t getAccGyroRPS() const;
 
     virtual Quaternion readOrientation();
 

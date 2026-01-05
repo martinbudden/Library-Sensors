@@ -47,7 +47,7 @@ void loop()
     Serial.println();
 
     // get the gyro data read in the Interrupt Service Routine
-    const IMU_Base::accGyroRPS_t accGyroRPS =  imu->getAccGyroRPS();
+    const acc_gyro_rps_t accGyroRPS =  imu->getAccGyroRPS();
 
     // convert the gyro data from radians per second to degrees per second
     const xyz_t gyroDPS =  accGyroRPS.gyroRPS * IMU_Base::RADIANS_TO_DEGREES;

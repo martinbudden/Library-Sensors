@@ -373,7 +373,7 @@ IMU_Base::xyz_int32_t IMU_LSM6DS3TR_C::readAccRaw()
     };
 }
 
-FAST_CODE IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::readAccGyroRPS()
+FAST_CODE acc_gyro_rps_t IMU_LSM6DS3TR_C::readAccGyroRPS()
 {
     busSemaphoreTake();
     _bus.readDeviceData();
@@ -387,15 +387,15 @@ FAST_CODE IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::readAccGyroRPS()
 /*!
 Return the gyroAcc data that was read in the ISR
 */
-FAST_CODE IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::getAccGyroRPS() const
+FAST_CODE acc_gyro_rps_t IMU_LSM6DS3TR_C::getAccGyroRPS() const
 {
     return accGyroRPSFromRaw(_spiAccGyroData.accGyro.value);
 }
 
-IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t::value_t& data) const
+acc_gyro_rps_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
             .y =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
@@ -408,7 +408,7 @@ IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t:
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YPOS_XNEG_ZPOS)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
             .y = -(static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x),
@@ -421,7 +421,7 @@ IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t:
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XNEG_YNEG_ZPOS)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x = -(static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x),
             .y = -(static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y),
@@ -434,7 +434,7 @@ IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t:
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x = -(static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y),
             .y =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
@@ -447,7 +447,7 @@ IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t:
         }
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_ZPOS_YNEG)
-    return accGyroRPS_t {
+    return acc_gyro_rps_t {
         .gyroRPS = {
             .x =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
             .y =   static_cast<float>(data.gyro_z) * _gyroResolutionRPS - _gyroOffset.z,
@@ -465,7 +465,7 @@ IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t:
     // speed optimization is more important than size optimization here
     switch (_axisOrder) {
     case XPOS_YPOS_ZPOS: // NOLINT(bugprone-branch-clone)
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
                 .y =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
@@ -478,7 +478,7 @@ IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t:
             }
         };
     case YPOS_XNEG_ZPOS:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
                 .y = -(static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x),
@@ -491,7 +491,7 @@ IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t:
             }
         };
     case XNEG_YNEG_ZPOS:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x = -(static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x),
                 .y = -(static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y),
@@ -504,7 +504,7 @@ IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t:
             }
         };
     case YNEG_XPOS_ZPOS:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x = -(static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y),
                 .y =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
@@ -517,7 +517,7 @@ IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t:
             }
         };
     case XPOS_YNEG_ZNEG:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
                 .y = -(static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y),
@@ -530,7 +530,7 @@ IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t:
             }
         };
     case YPOS_XPOS_ZNEG:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
                 .y =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
@@ -543,7 +543,7 @@ IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t:
             }
         };
     case XNEG_YPOS_ZNEG:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x = -(static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x),
                 .y =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
@@ -556,7 +556,7 @@ IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t:
             }
         };
     case YNEG_XNEG_ZNEG:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = {
                 .x = -(static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y),
                 .y = -(static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x),
@@ -569,7 +569,7 @@ IMU_Base::accGyroRPS_t IMU_LSM6DS3TR_C::accGyroRPSFromRaw(const acc_gyro_data_t:
             }
         };
     default:
-        return accGyroRPS_t {
+        return acc_gyro_rps_t {
             .gyroRPS = mapAxes({
                 .x =   static_cast<float>(data.gyro_x) * _gyroResolutionRPS - _gyroOffset.x,
                 .y =   static_cast<float>(data.gyro_y) * _gyroResolutionRPS - _gyroOffset.y,
