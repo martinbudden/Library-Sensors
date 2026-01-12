@@ -298,6 +298,7 @@ BUS_SPI::BUS_SPI(uint32_t frequencyHz, bus_index_e SPI_index, const stm32_spi_pi
 
 void BUS_SPI::init()
 {
+#if !defined(LIBRARY_SENSORS_USE_NO_SPI_INIT)
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
     Serial.print("BUS_SPI::init\r\n");
 #endif
@@ -347,10 +348,10 @@ void BUS_SPI::init()
         .data5_io_num = -1,
         .data6_io_num = -1,
         .data7_io_num = -1,
-        .data_io_default_level = 0,  ///< Output data IO default level when no transaction.
+        .data_io_default_level = 0,  //< Output data IO default level when no transaction.
         .max_transfer_sz = 256,
         .flags = 0,       // Abilities of bus to be checked by the driver. Or-ed value of ``SPICOMMON_BUSFLAG_*`` flags.
-        .isr_cpu_id = ESP_INTR_CPU_AFFINITY_AUTO,    ///< Select cpu core to register SPI ISR.
+        .isr_cpu_id = ESP_INTR_CPU_AFFINITY_AUTO,    //< Select cpu core to register SPI ISR.
         .intr_flags = 0   // Interrupt flag for the bus to set the priority, and IRAM attribute
     };
 
@@ -531,6 +532,8 @@ void BUS_SPI::init()
 #endif // FRAMEWORK
 
     configureDMA();
+
+#endif // LIBRARY_SENSORS_USE_NO_SPI_INIT
 }
 
 void BUS_SPI::configureDMA()
