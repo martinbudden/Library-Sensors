@@ -151,17 +151,17 @@ public:
     bool sendCommandCalibrateMotionEngine();
     bool sendCommandSaveDynamicCalibrationData();
     // for unit testing
-    inline gyro_integrated_rotation_vector_t getGyroIntegratedRotationVectorData() const { return _gyroIntegratedRotationVector; }
-    inline rotation_vector_t getRotationVectorData() const { return _rotationVector; }
-    inline sensor_output_t getAccData() const { return _acc; }
-    inline sensor_output_t getAccLinearData() const { return _accLinear; }
-    inline sensor_output_t getGyroRPS_Data() const { return _gyroRPS; }
-    inline sensor_output_t getMagData() const { return _mag; }
-    inline sensor_output_t getGravityData() const { return _gravity; }
-    inline sensor_output_t getAccRawData() const { return _accRaw; }
-    inline sensor_output_t getGyroRawData() const { return _gyroRaw; }
-    inline sensor_output_t getMagRawData() const { return _magRaw; }
-    inline sensor_output_uncalibrated_gyro_t getGyroUncalibratedRPS_Data() const { return _gyroUncalibratedRPS; }
+    gyro_integrated_rotation_vector_t getGyroIntegratedRotationVectorData() const { return _gyroIntegratedRotationVector; }
+    rotation_vector_t getRotationVectorData() const { return _rotationVector; }
+    sensor_output_t getAccData() const { return _acc; }
+    sensor_output_t getAccLinearData() const { return _accLinear; }
+    sensor_output_t getGyroRPS_Data() const { return _gyroRPS; }
+    sensor_output_t getMagData() const { return _mag; }
+    sensor_output_t getGravityData() const { return _gravity; }
+    sensor_output_t getAccRawData() const { return _accRaw; }
+    sensor_output_t getGyroRawData() const { return _gyroRaw; }
+    sensor_output_t getMagRawData() const { return _magRaw; }
+    sensor_output_uncalibrated_gyro_t getGyroUncalibratedRPS_Data() const { return _gyroUncalibratedRPS; }
 private:
     bool readPacketAndParse();
     bool readPacket();

@@ -19,7 +19,7 @@ public:
 
 public:
     virtual ~BarometerBase() = default;
-    explicit BarometerBase(BUS_BASE& busBase);
+    explicit BarometerBase(BUS_BASE& busBase) : _busBase(&busBase) {}
     virtual int init() = 0;
 
     uint32_t getSampleRateHz() const { return _sampleRateHz; }
@@ -34,7 +34,7 @@ public:
     void setPressureAtReferenceAltitude(float pressureAtReferenceAltitude) { _pressureAtReferenceAltitude = pressureAtReferenceAltitude; }
     float getPressureAtReferenceAltitude() const { return _pressureAtReferenceAltitude; };
 protected:
-    static void delayMs(int ms);
+    static void delayMs(int ms) { BUS_BASE::delayMs(ms); }
 protected:
     BUS_BASE* _busBase;
     uint32_t _sampleRateHz {};

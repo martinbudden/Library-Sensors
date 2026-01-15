@@ -18,7 +18,7 @@
 typedef struct i2c_inst i2c_inst_t;
 #elif defined(FRAMEWORK_ESPIDF)
 #include <driver/i2c.h>
-//#include <driver/i2c_master.h>
+#include <driver/i2c_master.h>
 #elif defined(FRAMEWORK_STM32_CUBE)
 #elif defined(FRAMEWORK_TEST)
 #else // defaults to FRAMEWORK_ARDUINO

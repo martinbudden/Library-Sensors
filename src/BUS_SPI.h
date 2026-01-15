@@ -92,7 +92,7 @@ public:
     uint8_t writeBytes(const uint8_t* data, size_t length);
     static void cs_select(const BUS_SPI& bus);
     static void cs_deselect(const BUS_SPI& bus);
-    inline uint16_t getIrqPin() const { return _pins.irq.pin; }
+    uint16_t getIrqPin() const { return _pins.irq.pin; }
 public:
     static BUS_SPI* self; //!< alias of `this` to be used in interrupt service routine
 private:

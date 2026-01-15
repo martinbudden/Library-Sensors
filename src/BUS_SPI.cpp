@@ -878,7 +878,7 @@ FAST_CODE uint8_t BUS_SPI::writeRegister(uint8_t reg, const uint8_t* data, size_
     esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
     assert(ret == ESP_OK && "SPI writeRegister data, len fail");
     //spi_device_release_bus(_spi);
-    return ret;
+    return static_cast<uint8_t>(ret);
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     (void)reg;
     (void)data;
@@ -918,7 +918,7 @@ FAST_CODE uint8_t BUS_SPI::writeBytes(const uint8_t* data, size_t length) // NOL
     esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
     assert(ret == ESP_OK && "SPI writeBytes data, len fail");
     //spi_device_release_bus(_spi);
-    return ret;
+    return static_cast<uint8_t>(ret);
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     (void)data;
     (void)length;

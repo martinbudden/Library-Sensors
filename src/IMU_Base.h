@@ -218,32 +218,32 @@ public:
 
     virtual Quaternion readOrientation();
 
-    inline axis_order_e getAxisOrder() const { return _axisOrder; }
-    inline void setAxisOrder(axis_order_e axisOrder) { _axisOrder = axisOrder; }
+    axis_order_e getAxisOrder() const { return _axisOrder; }
+    void setAxisOrder(axis_order_e axisOrder) { _axisOrder = axisOrder; }
     static xyz_t mapAxes(const xyz_t& data, axis_order_e axisOrder);
-    inline xyz_t mapAxes(const xyz_t& data) const { return mapAxes(data, _axisOrder); }
+    xyz_t mapAxes(const xyz_t& data) const { return mapAxes(data, _axisOrder); }
     static axis_order_e axisOrderInverse(axis_order_e axisOrder);
     static xyz_alignment_t alignmentFromAxisOrder(axis_order_e axisOrder);
     static axis_order_e axisOrderFromAlignment(const xyz_alignment_t& alignment);
 
-    inline uint32_t getFlags() const { return _flags; }
+    uint32_t getFlags() const { return _flags; }
 #if defined(FRAMEWORK_USE_FREERTOS)
 #if defined(LIBRARY_SENSORS_IMU_BUS_MUTEX_REQUIRED)
-    inline void busSemaphoreTake() const { xSemaphoreTake(_busMutex, portMAX_DELAY); }
-    inline void busSemaphoreGive() const { xSemaphoreGive(_busMutex); }
+    void busSemaphoreTake() const { xSemaphoreTake(_busMutex, portMAX_DELAY); }
+    void busSemaphoreGive() const { xSemaphoreGive(_busMutex); }
 #else
-    inline void busSemaphoreTake() const {}
-    inline void busSemaphoreGive() const {}
+    void busSemaphoreTake() const {}
+    void busSemaphoreGive() const {}
 #endif
     // functions to allow an IMU implementation to do run time checking if a mutex is required. Used by M5Stack implementations.
-    inline void busSemaphoreTake(SemaphoreHandle_t busMutex) const { if (busMutex) {xSemaphoreTake(busMutex, portMAX_DELAY);}  }
-    inline void busSemaphoreGive(SemaphoreHandle_t busMutex) const { if (busMutex) {xSemaphoreGive(busMutex);} }
+    void busSemaphoreTake(SemaphoreHandle_t busMutex) const { if (busMutex) {xSemaphoreTake(busMutex, portMAX_DELAY);}  }
+    void busSemaphoreGive(SemaphoreHandle_t busMutex) const { if (busMutex) {xSemaphoreGive(busMutex);} }
     SemaphoreHandle_t _busMutex {};
 #else
-    inline void busSemaphoreTake() const {}
-    inline void busSemaphoreGive() const {}
-    inline void busSemaphoreTake(void* busMutex) const { (void)busMutex; }
-    inline void busSemaphoreGive(void* busMutex) const { (void)busMutex; }
+    void busSemaphoreTake() const {}
+    void busSemaphoreGive() const {}
+    void busSemaphoreTake(void* busMutex) const { (void)busMutex; }
+    void busSemaphoreGive(void* busMutex) const { (void)busMutex; }
     void* _busMutex {};
 #endif // FRAMEWORK_USE_FREERTOS
 protected:
