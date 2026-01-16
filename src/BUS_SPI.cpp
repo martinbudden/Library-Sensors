@@ -250,7 +250,7 @@ BUS_SPI::~BUS_SPI() // NOLINT(hicpp-use-equals-default,modernize-use-equals-defa
 BUS_SPI::BUS_SPI(uint32_t frequencyHz, bus_index_e SPI_index, const spi_pins_t& pins) :
     _frequencyHz(frequencyHz)
     ,_SPI_index(SPI_index)
-    ,_pins { 
+    ,_pins {
         .cs =   {0,pins.cs},
         .sck =  {0,pins.sck},
         .cipo = {0,pins.cipo},
@@ -954,7 +954,7 @@ uint16_t BUS_SPI::calculateClockDivider(uint32_t frequencyHz)
     uint32_t spiClock = clock_get_hz(clk_peri);
     // Find smallest prescale value which puts output frequency in range of
     // post-divide. Prescale is an even number from 2 to 254 inclusive.
-    uint32_t prescale = 2; 
+    uint32_t prescale = 2;
     while (prescale <= 254) {
         if (spiClock < prescale * 256 * static_cast<uint64_t>(frequencyHz)) {
             break;

@@ -22,7 +22,7 @@ Targets
     // function-pin-marking on board
     // I2C1 SDA-PB7-SCL SCL-PB6-SDA
     #define IMU_I2C_INDEX       BUS_INDEX_0
-    //                                      SDA         SCL 
+    //                                      SDA         SCL
     #define IMU_I2C_PINS        stm32_i2c_pins_t{.sda={PB,7},.scl={PB,6},.irq={0,0xFF}}
 #endif
 
@@ -48,7 +48,7 @@ Targets
     //                                      D5         D6         D9         D10
     #define MOTOR_PINS          port_pins_t{.br={PC,7},.fr={PC,6},.bl={PB,8},.fl={PB,9}}
 
-    #define GPIO_LED_0          port_pin_t{PC,1} 
+    #define GPIO_LED_0          port_pin_t{PC,1}
 #endif
 
 
@@ -77,8 +77,8 @@ Targets
     #define USE_MOTOR_MIXER_QUAD_X_PWM
     #define MOTOR_PINS          port_pins_t{.br={PA,8},.fr={PA,11},.bl={PB,6},.fl={PB,7}}
 
-    #define GPIO_LED_0          port_pin_t{PB,4} 
-    #define GPIO_LED_1          port_pin_t{PB,3} 
+    #define GPIO_LED_0          port_pin_t{PB,4}
+    #define GPIO_LED_1          port_pin_t{PB,3}
 
     #define GPIO_RC_CH1         port_pin_t{PA,0} // T2C1
     #define GPIO_RC_CH2         port_pin_t{PA,1} // T2C2

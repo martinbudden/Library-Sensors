@@ -228,12 +228,12 @@ int IMU_ICM426xx::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroS
 
     /*
     Turn off ACC and GYRO so they can be configured.
-    
+
     From section 12.9, REGISTER VALUES MODIFICATION, in ICM-42688-P datasheet:
 
     The only register settings that user can modify during sensor operation are for ODR selection, FSR selection, and sensor mode changes
-    (register parameters GYRO_ODR, ACCEL_ODR, GYRO_FS_SEL, ACCEL_FS_SEL, GYRO_MODE, ACCEL_MODE). 
-    User MUST NOT modify any other register values during sensor operation. 
+    (register parameters GYRO_ODR, ACCEL_ODR, GYRO_FS_SEL, ACCEL_FS_SEL, GYRO_MODE, ACCEL_MODE).
+    User MUST NOT modify any other register values during sensor operation.
     The following procedure must be used for other register values modification:
         1. Turn Accel and Gyro Off
         2. Modify register values

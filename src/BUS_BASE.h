@@ -123,7 +123,7 @@ public:
     int32_t WAIT_DATA_READY(uint32_t ticksToWait) { return xQueueReceive(_dataReadyQueue, &_dataReadyQueueItem, ticksToWait); } // returns pdPASS(1) if queue read, pdFAIL(0) if timeout
     void SIGNAL_DATA_READY_FROM_ISR() {
         _dataReadyQueueHigherPriorityTaskWoken = pdFALSE;
-        xQueueOverwriteFromISR(_dataReadyQueue, &_dataReadyQueueItem, &_dataReadyQueueHigherPriorityTaskWoken); 
+        xQueueOverwriteFromISR(_dataReadyQueue, &_dataReadyQueueItem, &_dataReadyQueueHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(_dataReadyQueueHigherPriorityTaskWoken); // or portEND_SWITCHING_ISR() depending on the port.
     }
 #else

@@ -167,7 +167,7 @@ void BarometerQMP6988::readTemperatureAndPressure()
     _pressurePascals    = static_cast<float>(pressure) / 16.0F;
 }
 
-int16_t BarometerQMP6988::convertTemperature(int32_t dt) const 
+int16_t BarometerQMP6988::convertTemperature(int32_t dt) const
 {
     const int64_t dt64 = dt;
     // wk1: 60Q4 // bit size
