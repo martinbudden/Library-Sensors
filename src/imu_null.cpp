@@ -1,4 +1,4 @@
-#include "imu_Null.h"
+#include "imu_null.h"
 
 
 int IMU_Null::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)

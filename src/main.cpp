@@ -1,6 +1,6 @@
 #if defined (LIBRARY_SENSORS_USE_EMPTY_MAIN)
 
-#include "imu_LSM6DS3TR_C.h"
+#include "imu_lsm6ds3tr_c.h"
 static void setupIMU()
 {
     enum {PA=0, PB=1, PC=2, PD=3, PE=4, PF=5, PG=6, PH=7};
