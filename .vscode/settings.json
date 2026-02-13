@@ -119,6 +119,7 @@
         "RTTI",
         "RXDATA",
         "rxlength",
+        "sdkconfig",
         "seeed",
         "SENSORTIME",
         "shtp",
