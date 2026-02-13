@@ -162,8 +162,8 @@ public:
     }};
 public:
     virtual ~IMU_Base() = default;
-    IMU_Base(axis_order_e axisOrder, BUS_BASE& busBase, uint32_t flags);
-    IMU_Base(axis_order_e axisOrder, BUS_BASE& busBase);
+    IMU_Base(axis_order_e axisOrder, BusBase& busBase, uint32_t flags);
+    IMU_Base(axis_order_e axisOrder, BusBase& busBase);
     IMU_Base(axis_order_e axisOrder, uint32_t flags);
     explicit IMU_Base(axis_order_e axisOrder);
 public:
@@ -180,7 +180,7 @@ public:
     static constexpr float DEGREES_TO_RADIANS = static_cast<float>(3.14159265358979323846 / 180.0);
     static constexpr float RADIANS_TO_DEGREES = static_cast<float>(180.0 / 3.14159265358979323846);
 public:
-    static void delayMs(int ms) { BUS_BASE::delayMs(ms); }
+    static void delayMs(int ms) { BusBase::delayMs(ms); }
     virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex) = 0;
     virtual int init(uint32_t targetOutputDataRateHz, void* busMutex) final;
     virtual int init(uint32_t targetOutputDataRateHz) final;
@@ -248,7 +248,7 @@ public:
 #endif // FRAMEWORK_USE_FREERTOS
 protected:
     axis_order_e _axisOrder;
-    BUS_BASE* _busBase;
+    BusBase* _busBase;
     const uint32_t _flags; //!< Flags for describing IMU characteristics
     float _gyroResolutionRPS {};
     float _gyroResolutionDPS {};

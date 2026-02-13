@@ -28,7 +28,7 @@ typedef struct spi_inst spi_inst_t;
 #endif // FRAMEWORK
 
 
-class BUS_SPI : public BUS_BASE {
+class BusSpi : public BusBase {
 public:
     enum { BITS_PER_BYTE = 8 };
     struct spi_pins_t {
@@ -53,7 +53,7 @@ public:
                 uint8_t* rxData; // Receive buffer
             } buffers;
             struct {
-                const BUS_SPI* dev; // Link to the device associated with the next transfer
+                const BusSpi* dev; // Link to the device associated with the next transfer
                 volatile segment_t* segments; // Segments to process in the next transfer.
             } link;
         } u;
@@ -62,9 +62,9 @@ public:
         bus_status_e (*callbackFn)(uint32_t arg);
     };
 public:
-    virtual ~BUS_SPI();
-    BUS_SPI(uint32_t frequency, bus_index_e SPI_index, const stm32_spi_pins_t& pins);
-    BUS_SPI(uint32_t frequency, bus_index_e SPI_index, const spi_pins_t& pins);
+    virtual ~BusSpi();
+    BusSpi(uint32_t frequency, bus_index_e SPI_index, const stm32_spi_pins_t& pins);
+    BusSpi(uint32_t frequency, bus_index_e SPI_index, const spi_pins_t& pins);
 public:
     void init();
     void configureDMA();
@@ -90,11 +90,11 @@ public:
     uint8_t writeRegister(uint8_t reg, uint8_t data);
     uint8_t writeRegister(uint8_t reg, const uint8_t* data, size_t length);
     uint8_t writeBytes(const uint8_t* data, size_t length);
-    static void cs_select(const BUS_SPI& bus);
-    static void cs_deselect(const BUS_SPI& bus);
+    static void cs_select(const BusSpi& bus);
+    static void cs_deselect(const BusSpi& bus);
     uint16_t getIrqPin() const { return _pins.irq.pin; }
 public:
-    static BUS_SPI* self; //!< alias of `this` to be used in interrupt service routine
+    static BusSpi* self; //!< alias of `this` to be used in interrupt service routine
 private:
     uint32_t _clockDivider {1};
     uint32_t _frequencyHz;

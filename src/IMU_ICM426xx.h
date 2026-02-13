@@ -8,19 +8,19 @@ class IMU_ICM426xx : public IMU_Base {
 public:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_ICM426XX_USE_SPI_BUS)
     // SPI constructor
-    IMU_ICM426xx(axis_order_e axisOrder, uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::stm32_spi_pins_t& pins);
-    IMU_ICM426xx(axis_order_e axisOrder, uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::spi_pins_t& pins);
+    IMU_ICM426xx(axis_order_e axisOrder, uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::stm32_spi_pins_t& pins);
+    IMU_ICM426xx(axis_order_e axisOrder, uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    IMU_ICM426xx(axis_order_e axisOrder, BUS_BASE::bus_index_e I2C_index, const BUS_I2C::stm32_i2c_pins_t& pins, uint8_t I2C_address);
-    IMU_ICM426xx(axis_order_e axisOrder, const BUS_I2C::stm32_i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axisOrder, BUS_BASE::BUS_INDEX_0, pins, I2C_address) {}
-    IMU_ICM426xx(axis_order_e axisOrder, const BUS_I2C::stm32_i2c_pins_t& pins) : IMU_ICM426xx(axisOrder, pins, I2C_ADDRESS) {}
+    IMU_ICM426xx(axis_order_e axisOrder, BusBase::bus_index_e I2C_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
+    IMU_ICM426xx(axis_order_e axisOrder, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axisOrder, BusBase::BUS_INDEX_0, pins, I2C_address) {}
+    IMU_ICM426xx(axis_order_e axisOrder, const BusI2c::stm32_i2c_pins_t& pins) : IMU_ICM426xx(axisOrder, pins, I2C_ADDRESS) {}
 
-    IMU_ICM426xx(axis_order_e axisOrder, BUS_BASE::bus_index_e I2C_index, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address);
-    IMU_ICM426xx(axis_order_e axisOrder, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axisOrder, BUS_BASE::BUS_INDEX_0, pins, I2C_address) {}
-    IMU_ICM426xx(axis_order_e axisOrder, const BUS_I2C::i2c_pins_t& pins) : IMU_ICM426xx(axisOrder, pins, I2C_ADDRESS) {}
+    IMU_ICM426xx(axis_order_e axisOrder, BusBase::bus_index_e I2C_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    IMU_ICM426xx(axis_order_e axisOrder, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axisOrder, BusBase::BUS_INDEX_0, pins, I2C_address) {}
+    IMU_ICM426xx(axis_order_e axisOrder, const BusI2c::i2c_pins_t& pins) : IMU_ICM426xx(axisOrder, pins, I2C_ADDRESS) {}
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-    IMU_ICM426xx(axis_order_e axisOrder, TwoWire& wire, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address);
+    IMU_ICM426xx(axis_order_e axisOrder, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
 #endif
 #endif
     virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex) override;
@@ -51,10 +51,10 @@ public:
     };
 #pragma pack(pop)
     struct spi_acc_gyro_data_t {
-        std::array<uint8_t, BUS_BASE::SPI_PRE_READ_BUFFER_SIZE> preReadBuffer; // buffer for the transmit byte sent as part of a read
+        std::array<uint8_t, BusBase::SPI_PRE_READ_BUFFER_SIZE> preReadBuffer; // buffer for the transmit byte sent as part of a read
         acc_gyro_data_t accGyro;
     };
-    static_assert(sizeof(spi_acc_gyro_data_t) == sizeof(acc_gyro_data_t) + BUS_BASE::SPI_PRE_READ_BUFFER_SIZE);
+    static_assert(sizeof(spi_acc_gyro_data_t) == sizeof(acc_gyro_data_t) + BusBase::SPI_PRE_READ_BUFFER_SIZE);
 public:
     virtual void setInterruptDriven() override;
 
@@ -72,9 +72,9 @@ private:
     acc_gyro_rps_t accGyroRPSFromRaw(const acc_gyro_data_t::value_t& data) const;
 private:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_ICM426XX_USE_SPI_BUS)
-    BUS_SPI _bus; //!< SPI bus interface
+    BusSpi _bus; //!< SPI bus interface
 #else
-    BUS_I2C _bus; //!< I2C bus interface
+    BusI2c _bus; //!< I2C bus interface
 #endif
     spi_acc_gyro_data_t _spiAccGyroData {};
 };

@@ -47,26 +47,26 @@ public:
 public:
 #if defined(LIBRARY_SENSORS_BAROMETER_USE_SPI_BUS)
     // SPI constructors
-    BarometerBMP280(uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::stm32_spi_pins_t& pins);
-    BarometerBMP280(uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::spi_pins_t& pins);
+    BarometerBMP280(uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::stm32_spi_pins_t& pins);
+    BarometerBMP280(uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    BarometerBMP280(BUS_BASE::bus_index_e I2C_index, const BUS_I2C::stm32_i2c_pins_t& pins, uint8_t I2C_address);
-    BarometerBMP280(const BUS_I2C::stm32_i2c_pins_t& pins, uint8_t I2C_address) : BarometerBMP280(BUS_I2C::BUS_INDEX_0, pins, I2C_address) {}
-    explicit BarometerBMP280(const BUS_I2C::stm32_i2c_pins_t& pins) : BarometerBMP280(pins, I2C_ADDRESS) {}
+    BarometerBMP280(BusBase::bus_index_e I2C_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
+    BarometerBMP280(const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : BarometerBMP280(BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    explicit BarometerBMP280(const BusI2c::stm32_i2c_pins_t& pins) : BarometerBMP280(pins, I2C_ADDRESS) {}
 
-    BarometerBMP280(BUS_BASE::bus_index_e I2C_index, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address);
-    BarometerBMP280(const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address) : BarometerBMP280(BUS_I2C::BUS_INDEX_0, pins, I2C_address) {}
-    explicit BarometerBMP280(const BUS_I2C::i2c_pins_t& pins) : BarometerBMP280(pins, I2C_ADDRESS) {}
+    BarometerBMP280(BusBase::bus_index_e I2C_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    BarometerBMP280(const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : BarometerBMP280(BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    explicit BarometerBMP280(const BusI2c::i2c_pins_t& pins) : BarometerBMP280(pins, I2C_ADDRESS) {}
 #endif
     virtual int init() override;
     virtual void readTemperatureAndPressure() override;
     virtual float calculateAltitudeMeters(float pressurePascals, float temperatureCelsius) override;
 private:
 #if defined(LIBRARY_SENSORS_BAROMETER_USE_SPI_BUS)
-    BUS_SPI _bus; //!< SPI bus interface
+    BusSpi _bus; //!< SPI bus interface
 #else
-    BUS_I2C _bus; //!< I2C bus interface
+    BusI2c _bus; //!< I2C bus interface
 #endif
     int32_t _temperatureFine {};
     calibration_data_u _calibrationData {};

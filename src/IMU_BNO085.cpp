@@ -49,20 +49,20 @@ enum {
 // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_BNO085_USE_SPI_BUS)
-IMU_BNO085::IMU_BNO085(axis_order_e axisOrder, uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::stm32_spi_pins_t& pins) :
+IMU_BNO085::IMU_BNO085(axis_order_e axisOrder, uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::stm32_spi_pins_t& pins) :
     IMU_Base(axisOrder, _bus, IMU_AUTO_CALIBRATES | IMU_PERFORMS_SENSOR_FUSION),
     _bus(frequency, SPI_index, pins),
     _axisOrderQuaternion(axisOrientations[axisOrder])
 {
 }
-IMU_BNO085::IMU_BNO085(axis_order_e axisOrder, uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::spi_pins_t& pins) :
+IMU_BNO085::IMU_BNO085(axis_order_e axisOrder, uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::spi_pins_t& pins) :
     IMU_Base(axisOrder, _bus, IMU_AUTO_CALIBRATES | IMU_PERFORMS_SENSOR_FUSION),
     _bus(frequency, SPI_index, pins),
     _axisOrderQuaternion(axisOrientations[axisOrder])
 {
 }
 #else
-IMU_BNO085::IMU_BNO085(axis_order_e axisOrder, BUS_BASE::bus_index_e I2C_index, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address) :
+IMU_BNO085::IMU_BNO085(axis_order_e axisOrder, BusBase::bus_index_e I2C_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
     IMU_Base(axisOrder, _bus, IMU_AUTO_CALIBRATES | IMU_PERFORMS_SENSOR_FUSION),
     _bus(I2C_address, I2C_index, pins),
     _axisOrderQuaternion(axisOrientations[axisOrder])

@@ -34,7 +34,7 @@ typedef struct i2c_inst i2c_inst_t;
 #endif
 
 
-class BUS_I2C  : public BUS_BASE {
+class BusI2c  : public BusBase {
 public:
     struct i2c_pins_t {
         uint8_t sda;
@@ -47,15 +47,15 @@ public:
         port_pin_t irq;
     };
 public:
-    BUS_I2C(uint8_t I2C_address, bus_index_e I2C_index);
-    explicit BUS_I2C(uint8_t I2C_address) : BUS_I2C(I2C_address, BUS_INDEX_0) {}
-    BUS_I2C(uint8_t I2C_address, bus_index_e I2C_index, const i2c_pins_t& pins);
-    BUS_I2C(uint8_t I2C_address, const i2c_pins_t& pins) : BUS_I2C(I2C_address, BUS_INDEX_0, pins) {}
+    BusI2c(uint8_t I2C_address, bus_index_e I2C_index);
+    explicit BusI2c(uint8_t I2C_address) : BusI2c(I2C_address, BUS_INDEX_0) {}
+    BusI2c(uint8_t I2C_address, bus_index_e I2C_index, const i2c_pins_t& pins);
+    BusI2c(uint8_t I2C_address, const i2c_pins_t& pins) : BusI2c(I2C_address, BUS_INDEX_0, pins) {}
 
-    BUS_I2C(uint8_t I2C_address, bus_index_e I2C_index, const stm32_i2c_pins_t& pins);
-    BUS_I2C(uint8_t I2C_address, const stm32_i2c_pins_t& pins) : BUS_I2C(I2C_address, BUS_INDEX_0, pins) {}
+    BusI2c(uint8_t I2C_address, bus_index_e I2C_index, const stm32_i2c_pins_t& pins);
+    BusI2c(uint8_t I2C_address, const stm32_i2c_pins_t& pins) : BusI2c(I2C_address, BUS_INDEX_0, pins) {}
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-    BUS_I2C(uint8_t I2C_address, TwoWire& wire, const i2c_pins_t& pins);
+    BusI2c(uint8_t I2C_address, TwoWire& wire, const i2c_pins_t& pins);
 #endif
 public:
     void init();
@@ -70,7 +70,7 @@ public:
     uint8_t writeRegister(uint8_t reg, const uint8_t* data, size_t length);
     uint8_t writeBytes(const uint8_t* data, size_t length);
 private:
-    static BUS_I2C* self; //!< alias of `this` to be used in interrupt service routine
+    static BusI2c* self; //!< alias of `this` to be used in interrupt service routine
     bus_index_e _I2C_index {};
     stm32_i2c_pins_t _pins {};
 #if defined(FRAMEWORK_RPI_PICO)

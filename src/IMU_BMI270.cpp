@@ -168,23 +168,23 @@ extern const std::array<uint8_t, 8192> imu_bmi270_config_data;
 Gyroscope data rates up to 6.4 kHz, accelerometer up to 1.6 kHz
 */
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_BMI270_USE_SPI_BUS)
-IMU_BMI270::IMU_BMI270(axis_order_e axisOrder, uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::stm32_spi_pins_t& pins) :
+IMU_BMI270::IMU_BMI270(axis_order_e axisOrder, uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::stm32_spi_pins_t& pins) :
     IMU_Base(axisOrder, _bus),
     _bus(frequency, SPI_index, pins)
 {
 }
-IMU_BMI270::IMU_BMI270(axis_order_e axisOrder, uint32_t frequency, BUS_BASE::bus_index_e SPI_index, const BUS_SPI::spi_pins_t& pins) :
+IMU_BMI270::IMU_BMI270(axis_order_e axisOrder, uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::spi_pins_t& pins) :
     IMU_Base(axisOrder, _bus),
     _bus(frequency, SPI_index, pins)
 {
 }
 #else
-IMU_BMI270::IMU_BMI270(axis_order_e axisOrder, BUS_BASE::bus_index_e I2C_index, const BUS_I2C::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
+IMU_BMI270::IMU_BMI270(axis_order_e axisOrder, BusBase::bus_index_e I2C_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
     IMU_Base(axisOrder, _bus),
     _bus(I2C_address, I2C_index, pins)
 {
 }
-IMU_BMI270::IMU_BMI270(axis_order_e axisOrder, BUS_BASE::bus_index_e I2C_index, const BUS_I2C::i2c_pins_t& pins, uint8_t I2C_address) :
+IMU_BMI270::IMU_BMI270(axis_order_e axisOrder, BusBase::bus_index_e I2C_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
     IMU_Base(axisOrder, _bus),
     _bus(I2C_address, I2C_index, pins)
 {
@@ -217,9 +217,9 @@ int IMU_BMI270::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSen
     // Initialization sequence, see page 17 and following from BMI270 Datasheet
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
     // toggle CS pin to put device into SPI mode
-    BUS_SPI::cs_select(_bus);
+    BusSpi::cs_select(_bus);
     delayMs(1);
-    BUS_SPI::cs_deselect(_bus);
+    BusSpi::cs_deselect(_bus);
     delayMs(10);
 #endif
 
@@ -241,9 +241,9 @@ int IMU_BMI270::init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSen
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
     // soft reset put the device back into I2C mode, so
     // toggle CS pin to put device into SPI mode
-    BUS_SPI::cs_select(_bus);
+    BusSpi::cs_select(_bus);
     delayMs(1);
-    BUS_SPI::cs_deselect(_bus);
+    BusSpi::cs_deselect(_bus);
     delayMs(10);
 #endif
     delayMs(100);
@@ -397,7 +397,7 @@ void IMU_BMI270::loadConfigurationData()
 void IMU_BMI270::setInterruptDriven()
 {
     // set interrupt level as configured in init()
-    _bus.setInterruptDriven(BUS_BASE::IRQ_LEVEL_HIGH);
+    _bus.setInterruptDriven(BusBase::IRQ_LEVEL_HIGH);
 }
 
 IMU_Base::xyz_int32_t IMU_BMI270::readGyroRaw()

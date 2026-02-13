@@ -31,7 +31,7 @@ Targets
     #define IMU_SPI_PINS        spi_pins_t{.cs=17,.sck=18,.cipo=16,.copi=19,.irq=20}
     //#define IMU_SPI_PINS        spi_pins_t{.cs=13,.sck=14,.cipo=12,.copi=15,.irq=20}
 #else
-    #define IMU_I2C_PINS        i2c_pins_t{.sda=07,.scl=27,.irq=BUS_I2C::IRQ_NOT_SET}
+    #define IMU_I2C_PINS        i2c_pins_t{.sda=07,.scl=27,.irq=BusI2c::IRQ_NOT_SET}
     //#define IMU_I2C_PINS        i2c_pins_t{.sda=4,.scl=5,.irq=6}
 #endif
 #endif

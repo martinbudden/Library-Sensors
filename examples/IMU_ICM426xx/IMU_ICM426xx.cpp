@@ -25,12 +25,12 @@ void setup()
     // create an LSM6DS3TR_C IMU object
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
     static constexpr uint32_t spiFrequencyHz = 10000000; // 10 MHz
-    static IMU_ICM426xx imuStatic(IMU_Base::XPOS_YPOS_ZPOS, spiFrequencyHz, BUS_SPI::IMU_SPI_INDEX, BUS_SPI::IMU_SPI_PINS);
+    static IMU_ICM426xx imuStatic(IMU_Base::XPOS_YPOS_ZPOS, spiFrequencyHz, BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
 #else
 #if defined(LIBRARY_SENSORS_IMU_USE_I2C_WIRE_1)
-    static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, Wire1, BUS_I2C::stm32_i2c_pins_t{.sda=IMU_I2C_SDA_PIN, .scl=IMU_I2C_SCL_PIN, .irq=BUS_SPI::IRQ_NOT_SET}, IMU_LSM6DS3TR_C::I2C_ADDRESS);
+    static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, Wire1, BusI2c::stm32_i2c_pins_t{.sda=IMU_I2C_SDA_PIN, .scl=IMU_I2C_SCL_PIN, .irq=BusSpi::IRQ_NOT_SET}, IMU_LSM6DS3TR_C::I2C_ADDRESS);
 #else
-    static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, BUS_I2C::IMU_I2C_PINS);
+    static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, BusI2c::IMU_I2C_PINS);
 #endif
 #endif
     imu = &imuStatic;

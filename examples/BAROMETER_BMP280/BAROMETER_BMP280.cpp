@@ -3,8 +3,8 @@
 #include <Filters.h>
 
 //#if defined(TARGET_M5STACK_STAMPS3_FLY)
-static constexpr BUS_BASE::bus_index_e i2cBusIndex = BUS_BASE::BUS_INDEX_0;
-static constexpr BUS_I2C::i2c_pins_t i2cPins {.sda=3,.scl=4,.irq=BUS_I2C::IRQ_NOT_SET};
+static constexpr BusBase::bus_index_e i2cBusIndex = BusBase::BUS_INDEX_0;
+static constexpr BusI2c::i2c_pins_t i2cPins {.sda=3,.scl=4,.irq=BusI2c::IRQ_NOT_SET};
 //#endif
 
 

@@ -22,14 +22,14 @@ void setup()
     delay(400); // delay to allow serial port to initialize before first print
 
     // statically allocate a BMI270 IMU object
-    static IMU_BMI270 imuSensor(IMU_AXIS_ORDER, BUS_I2C::IMU_I2C_PINS);
+    static IMU_BMI270 imuSensor(IMU_AXIS_ORDER, BusI2c::IMU_I2C_PINS);
 #else
     Serial.begin(115200);
     delay(1000); // delay to allow serial port to initialize before first print
 
     // we need to deselect the optical flow chip, which is on the same SPI bus as the IMU.
 #if defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
-    const BUS_SPI::spi_pins_t opticalFlowPins = BUS_SPI::OPTICAL_FLOW_PINS;
+    const BusSpi::spi_pins_t opticalFlowPins = BusSpi::OPTICAL_FLOW_PINS;
     const gpio_config_t opticalFlowConfig = {
         .pin_bit_mask = (1ULL << opticalFlowPins.cs),
         .mode = GPIO_MODE_OUTPUT,
@@ -46,16 +46,16 @@ void setup()
         Serial.printf("setErr:%d\r\n", setErr);
     }
 #else
-    //const BUS_SPI::spi_pins_t spiPins = BUS_SPI::IMU_SPI_PINS;
+    //const BusSpi::spi_pins_t spiPins = BusSpi::IMU_SPI_PINS;
     //SPI.begin(spiPins.sck, spiPins.cipo, spiPins.copi, spiPins.cs);
-    //const BUS_SPI::spi_pins_t opticalFlowPins = BUS_SPI::OPTICAL_FLOW_PINS;
-    const BUS_SPI::spi_pins_t opticalFlowPins = BUS_SPI::spi_pins_t{.cs=12,.sck=44,.cipo=43,.copi=14,.irq=0xFF};
+    //const BusSpi::spi_pins_t opticalFlowPins = BusSpi::OPTICAL_FLOW_PINS;
+    const BusSpi::spi_pins_t opticalFlowPins = BusSpi::spi_pins_t{.cs=12,.sck=44,.cipo=43,.copi=14,.irq=0xFF};
     pinMode(opticalFlowPins.cs, OUTPUT);
     digitalWrite(opticalFlowPins.cs, 1);
 #endif
 
     enum { SPI_8_MEGAHERTZ = 8000000, SPI_10_MEGAHERTZ = 10000000, SPI_20_MEGAHERTZ = 20000000 };
-    static IMU_BMI270 imuSensor(IMU_AXIS_ORDER, SPI_8_MEGAHERTZ,  BUS_SPI::IMU_SPI_INDEX, BUS_SPI::IMU_SPI_PINS);
+    static IMU_BMI270 imuSensor(IMU_AXIS_ORDER, SPI_8_MEGAHERTZ,  BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
 #endif
 
     imu = &imuSensor;

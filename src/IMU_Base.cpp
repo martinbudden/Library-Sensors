@@ -12,14 +12,14 @@
 #endif
 
 
-IMU_Base::IMU_Base(axis_order_e axisOrder, BUS_BASE& busBase, uint32_t flags) :
+IMU_Base::IMU_Base(axis_order_e axisOrder, BusBase& busBase, uint32_t flags) :
     _axisOrder(axisOrder),
     _busBase(&busBase),
     _flags(flags)
 {
 }
 
-IMU_Base::IMU_Base(axis_order_e axisOrder, BUS_BASE& busBase) :
+IMU_Base::IMU_Base(axis_order_e axisOrder, BusBase& busBase) :
     IMU_Base(axisOrder, busBase, 0)
 {
 }

@@ -74,7 +74,7 @@ ESPIDF bus index is one-based so, for SPI, BUS_INDEX_0 corresponds to SPI1_HOST
 
 STM32 bus index is one-based so, for SPI, BUS_INDEX_0 corresponds to SPI1
 */
-class BUS_BASE {
+class BusBase {
 public:
     enum bus_index_e : uint8_t { BUS_INDEX_0, BUS_INDEX_1, BUS_INDEX_2, BUS_INDEX_3, BUS_INDEX_4, BUS_INDEX_5, BUS_INDEX_6, BUS_INDEX_7 };
     static constexpr uint8_t READ_BIT = 0x80U;
@@ -134,7 +134,7 @@ public:
 #endif
 };
 
-inline void BUS_BASE::delayMs(int ms)
+inline void BusBase::delayMs(int ms)
 {
 #if defined(FRAMEWORK_USE_FREERTOS)
     vTaskDelay(pdMS_TO_TICKS(ms));

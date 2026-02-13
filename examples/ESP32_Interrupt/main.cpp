@@ -30,7 +30,7 @@ void setup()
     delay(1000);
 
     // statically allocate a BMI270 IMU object
-    static IMU_BMI270 imuStatic(IMU_Base::XPOS_YPOS_ZPOS, BUS_I2C::IMU_I2C_PINS);
+    static IMU_BMI270 imuStatic(IMU_Base::XPOS_YPOS_ZPOS, BusI2c::IMU_I2C_PINS);
 
     imu = &imuStatic;
 

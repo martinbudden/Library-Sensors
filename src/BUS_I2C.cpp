@@ -14,7 +14,7 @@
 #endif
 
 
-BUS_I2C* BUS_I2C::self {nullptr};
+BusI2c* BusI2c::self {nullptr};
 
 /*!
 Data ready interrupt service routine (ISR)
@@ -22,7 +22,7 @@ Data ready interrupt service routine (ISR)
 Currently support only one interrupt, but could index action off the gpio pin
 */
 #if defined(FRAMEWORK_RPI_PICO)
-void __not_in_flash_func(BUS_I2C::dataReadyISR)(unsigned int gpio, uint32_t events) // NOLINT(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp)
+void __not_in_flash_func(BusI2c::dataReadyISR)(unsigned int gpio, uint32_t events) // NOLINT(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp)
 {
     (void)gpio;
     (void)events;
@@ -32,7 +32,7 @@ void __not_in_flash_func(BUS_I2C::dataReadyISR)(unsigned int gpio, uint32_t even
     self->SIGNAL_DATA_READY_FROM_ISR();
 }
 #else
-FAST_CODE void BUS_I2C::dataReadyISR()
+FAST_CODE void BusI2c::dataReadyISR()
 {
     // reading the IMU register resets the interrupt
     self->readDeviceData();
@@ -40,7 +40,7 @@ FAST_CODE void BUS_I2C::dataReadyISR()
 }
 #endif
 
-BUS_I2C::BUS_I2C(uint8_t I2C_address, bus_index_e I2C_index, const stm32_i2c_pins_t& pins) :
+BusI2c::BusI2c(uint8_t I2C_address, bus_index_e I2C_index, const stm32_i2c_pins_t& pins) :
     _I2C_index(I2C_index),
     _pins(pins),
 #if defined(FRAMEWORK_RPI_PICO)
@@ -59,7 +59,7 @@ BUS_I2C::BUS_I2C(uint8_t I2C_address, bus_index_e I2C_index, const stm32_i2c_pin
     init();
 }
 
-BUS_I2C::BUS_I2C(uint8_t I2C_address, bus_index_e I2C_index, const i2c_pins_t& pins) :
+BusI2c::BusI2c(uint8_t I2C_address, bus_index_e I2C_index, const i2c_pins_t& pins) :
     _I2C_index(I2C_index),
 #if defined(FRAMEWORK_RPI_PICO)
     _I2C(I2C_index == BUS_INDEX_1 ? i2c1 : i2c0),
@@ -81,7 +81,7 @@ BUS_I2C::BUS_I2C(uint8_t I2C_address, bus_index_e I2C_index, const i2c_pins_t& p
     init();
 }
 
-void BUS_I2C::init()
+void BusI2c::init()
 {
 #if defined(FRAMEWORK_RPI_PICO)
     static_assert(static_cast<int>(IRQ_LEVEL_LOW) == GPIO_IRQ_LEVEL_LOW);
@@ -205,7 +205,7 @@ void BUS_I2C::init()
 }
 
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) && !defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-BUS_I2C::BUS_I2C(uint8_t I2C_address, TwoWire& wire, const i2c_pins_t& pins) :
+BusI2c::BusI2c(uint8_t I2C_address, TwoWire& wire, const i2c_pins_t& pins) :
     _I2C_index(BUS_INDEX_0),
     _wire(wire),
     _I2C_address(I2C_address)
@@ -228,24 +228,24 @@ BUS_I2C::BUS_I2C(uint8_t I2C_address, TwoWire& wire, const i2c_pins_t& pins) :
 }
 #endif
 
-BUS_I2C::BUS_I2C(uint8_t I2C_address, bus_index_e I2C_index)
+BusI2c::BusI2c(uint8_t I2C_address, bus_index_e I2C_index)
 #if defined(FRAMEWORK_RPI_PICO)
-    : BUS_I2C(I2C_address, I2C_index,
+    : BusI2c(I2C_address, I2C_index,
         I2C_index == BUS_INDEX_0 ? i2c_pins_t{.sda=PICO_DEFAULT_I2C_SDA_PIN, .scl=PICO_DEFAULT_I2C_SCL_PIN, .irq=IRQ_NOT_SET} :
                                    i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
 #elif defined(FRAMEWORK_ESPIDF)
-    : BUS_I2C(I2C_address, I2C_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
+    : BusI2c(I2C_address, I2C_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
 #elif defined(FRAMEWORK_STM32_CUBE)
-    : BUS_I2C(I2C_address, I2C_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
+    : BusI2c(I2C_address, I2C_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
 #elif defined(FRAMEWORK_TEST)
-    : BUS_I2C(I2C_address, I2C_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
+    : BusI2c(I2C_address, I2C_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
 #else // defaults to FRAMEWORK_ARDUINO
-    : BUS_I2C(I2C_address, I2C_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
+    : BusI2c(I2C_address, I2C_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
 #endif // FRAMEWORK
 {
 }
 
-void BUS_I2C::setInterruptDriven(irq_level_e irqLevel) // NOLINT(readability-make-member-function-const)
+void BusI2c::setInterruptDriven(irq_level_e irqLevel) // NOLINT(readability-make-member-function-const)
 {
     self = this;
 
@@ -277,7 +277,7 @@ void BUS_I2C::setInterruptDriven(irq_level_e irqLevel) // NOLINT(readability-mak
 #endif
 }
 
-FAST_CODE uint8_t BUS_I2C::readRegister(uint8_t reg) const
+FAST_CODE uint8_t BusI2c::readRegister(uint8_t reg) const
 {
     uint8_t ret = 0; // NOLINT(misc-const-correctness)
 #if defined(FRAMEWORK_RPI_PICO)
@@ -302,7 +302,7 @@ FAST_CODE uint8_t BUS_I2C::readRegister(uint8_t reg) const
     return ret;
 }
 
-FAST_CODE uint8_t BUS_I2C::readRegisterWithTimeout(uint8_t reg, uint32_t timeoutMs) const
+FAST_CODE uint8_t BusI2c::readRegisterWithTimeout(uint8_t reg, uint32_t timeoutMs) const
 {
     uint8_t ret = 0; // NOLINT(misc-const-correctness)
 #if defined(FRAMEWORK_RPI_PICO)
@@ -335,12 +335,12 @@ FAST_CODE uint8_t BUS_I2C::readRegisterWithTimeout(uint8_t reg, uint32_t timeout
     return ret;
 }
 
-FAST_CODE bool BUS_I2C::readDeviceData()
+FAST_CODE bool BusI2c::readDeviceData()
 {
     return readRegister(_deviceDataRegister, _deviceReadBuf, _deviceReadLength);
 }
 
-FAST_CODE bool BUS_I2C::readRegister(uint8_t reg, uint8_t* data, size_t length) const // NOLINT(readability-non-const-parameter)
+FAST_CODE bool BusI2c::readRegister(uint8_t reg, uint8_t* data, size_t length) const // NOLINT(readability-non-const-parameter)
 {
 #if defined(FRAMEWORK_RPI_PICO)
     i2c_write_blocking(_I2C, _I2C_address, &reg, 1, RETAIN_CONTROL_OF_BUS);
@@ -373,7 +373,7 @@ FAST_CODE bool BUS_I2C::readRegister(uint8_t reg, uint8_t* data, size_t length) 
     return false;
 }
 
-FAST_CODE bool BUS_I2C::readBytes(uint8_t* data, size_t length) const // NOLINT(readability-non-const-parameter)
+FAST_CODE bool BusI2c::readBytes(uint8_t* data, size_t length) const // NOLINT(readability-non-const-parameter)
 {
 #if defined(FRAMEWORK_RPI_PICO)
     i2c_read_blocking(_I2C, _I2C_address, data, length, false);
@@ -399,7 +399,7 @@ FAST_CODE bool BUS_I2C::readBytes(uint8_t* data, size_t length) const // NOLINT(
     return false;
 }
 
-FAST_CODE bool BUS_I2C::readBytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) const // NOLINT(readability-non-const-parameter)
+FAST_CODE bool BusI2c::readBytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) const // NOLINT(readability-non-const-parameter)
 {
 #if defined(FRAMEWORK_RPI_PICO)
     enum { MILLISECONDS_TO_MICROSECONDS = 1000 };
@@ -434,7 +434,7 @@ FAST_CODE bool BUS_I2C::readBytesWithTimeout(uint8_t* data, size_t length, uint3
     return false;
 }
 
-FAST_CODE uint8_t BUS_I2C::writeRegister(uint8_t reg, uint8_t data)
+FAST_CODE uint8_t BusI2c::writeRegister(uint8_t reg, uint8_t data)
 {
 #if defined(FRAMEWORK_RPI_PICO)
     std::array<uint8_t, 2> buf = {{ reg, data }};
@@ -457,7 +457,7 @@ FAST_CODE uint8_t BUS_I2C::writeRegister(uint8_t reg, uint8_t data)
     return 0;
 }
 
-FAST_CODE uint8_t BUS_I2C::writeRegister(uint8_t reg, const uint8_t* data, size_t length)
+FAST_CODE uint8_t BusI2c::writeRegister(uint8_t reg, const uint8_t* data, size_t length)
 {
 #if defined(FRAMEWORK_RPI_PICO)
     i2c_write_blocking(_I2C, _I2C_address, &reg, 1, false);
@@ -482,7 +482,7 @@ FAST_CODE uint8_t BUS_I2C::writeRegister(uint8_t reg, const uint8_t* data, size_
     return 0;
 }
 
-FAST_CODE uint8_t BUS_I2C::writeBytes(const uint8_t* data, size_t length)
+FAST_CODE uint8_t BusI2c::writeBytes(const uint8_t* data, size_t length)
 {
 #if defined(FRAMEWORK_RPI_PICO)
     return i2c_write_blocking(_I2C, _I2C_address, data, length, false);
