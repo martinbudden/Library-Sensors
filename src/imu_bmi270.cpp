@@ -179,14 +179,14 @@ ImuBmi270::ImuBmi270(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, 
 {
 }
 #else
-ImuBmi270::ImuBmi270(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
+ImuBmi270::ImuBmi270(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t i2c_address) :
     ImuBase(axis_order, _bus),
-    _bus(I2C_address, i2c_index, pins)
+    _bus(i2c_address, i2c_index, pins)
 {
 }
-ImuBmi270::ImuBmi270(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+ImuBmi270::ImuBmi270(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address) :
     ImuBase(axis_order, _bus),
-    _bus(I2C_address, i2c_index, pins)
+    _bus(i2c_address, i2c_index, pins)
 {
 }
 #endif
@@ -212,7 +212,7 @@ int ImuBmi270::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivit
     _gyro_id_msp = 17;
     _acc_id_msp = 18;
 
-    _bus.set_device_data_register(REG_ACC_X_L, reinterpret_cast<uint8_t*>(&_spiAccGyroData), sizeof(_spiAccGyroData));
+    _bus.set_device_data_register(REG_ACC_X_L, reinterpret_cast<uint8_t*>(&_spi_acc_gyro_data), sizeof(_spi_acc_gyro_data));
 
     // Initialization sequence, see page 17 and following from BMI270 Datasheet
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
@@ -254,7 +254,7 @@ int ImuBmi270::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivit
     _bus.write_register(REG_INIT_CTRL, 0x00); // prepare config load
     delay_ms(1);
 
-    loadConfigurationData();
+    load_configuration_data();
 
     _bus.write_register(REG_PWR_CTRL, 0x0E); // enable gyro, acc and temp sensors
     delay_ms(1);
@@ -372,26 +372,26 @@ int ImuBmi270::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivit
     return static_cast<int>(_gyro_sample_rate_hz);
 }
 
-void ImuBmi270::loadConfigurationData()
+void ImuBmi270::load_configuration_data()
 {
-    const size_t dataSize = sizeof(::imu_bmi270_config_data);
-    const std::array<uint8_t, 2> addressArray = {{
-        static_cast<uint8_t>((dataSize >> 1U) & 0x0FU),
-        static_cast<uint8_t>(dataSize >> 5U)
+    const size_t data_size = sizeof(::imu_bmi270_config_data);
+    const std::array<uint8_t, 2> address_array = {{
+        static_cast<uint8_t>((data_size >> 1U) & 0x0FU),
+        static_cast<uint8_t>(data_size >> 5U)
     }};
-    _bus.write_register(REG_INIT_ADDR_0, &addressArray[0], 2);
+    _bus.write_register(REG_INIT_ADDR_0, &address_array[0], 2);
     enum { BUS_WRITE_CHUNK_SIZE = 32 };
     static_assert(sizeof(::imu_bmi270_config_data) % BUS_WRITE_CHUNK_SIZE == 0);
-    for (size_t ii = 0; ii < dataSize; ii += BUS_WRITE_CHUNK_SIZE) {
+    for (size_t ii = 0; ii < data_size; ii += BUS_WRITE_CHUNK_SIZE) {
         _bus.write_register(REG_INIT_DATA, &::imu_bmi270_config_data[ii], BUS_WRITE_CHUNK_SIZE);
     }
     _bus.write_register(REG_INIT_CTRL, 0x01); // complete config load
     delay_ms(10);
-    [[maybe_unused]] const uint8_t internalStatus = _bus.read_register(REG_INTERNAL_STATUS);
+    [[maybe_unused]] const uint8_t internal_status = _bus.read_register(REG_INTERNAL_STATUS);
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
-    Serial.printf("ImuBmi270 init, internalStatus=%02x\r\n", internalStatus);
+    Serial.printf("ImuBmi270 init, internal_status=%02x\r\n", internal_status);
 #endif
-    //assert(internalStatus == INIT_OK || internalStatus == SENSOR_STOPPED);
+    //assert(internal_status == INIT_OK || internal_status == SENSOR_STOPPED);
 }
 
 void ImuBmi270::set_interrupt_driven()
@@ -448,11 +448,11 @@ xyz_t ImuBmi270::read_acc()
 FAST_CODE acc_gyro_rps_t ImuBmi270::read_acc_gyro_rps()
 {
     bus_semaphore_take();
-    _bus.read_register(REG_ACC_X_L, &_spiAccGyroData.accGyro.data[0], sizeof(_spiAccGyroData.accGyro));
+    _bus.read_register(REG_ACC_X_L, &_spi_acc_gyro_data.accGyro.data[0], sizeof(_spi_acc_gyro_data.accGyro));
     //_bus.read_device_data();
     bus_semaphore_give();
 
-    return acc_gyro_rpsFromRaw(_spiAccGyroData.accGyro.value);
+    return acc_gyro_rps_from_raw(_spi_acc_gyro_data.accGyro.value);
 }
 
 /*!
@@ -460,10 +460,10 @@ Return the gyroAcc data that was read in the ISR
 */
 FAST_CODE acc_gyro_rps_t ImuBmi270::get_acc_gyro_rps() const
 {
-    return acc_gyro_rpsFromRaw(_spiAccGyroData.accGyro.value);
+    return acc_gyro_rps_from_raw(_spi_acc_gyro_data.accGyro.value);
 }
 
-acc_gyro_rps_t ImuBmi270::acc_gyro_rpsFromRaw(const acc_gyro_data_t::value_t& data) const
+acc_gyro_rps_t ImuBmi270::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return acc_gyro_rps_t {

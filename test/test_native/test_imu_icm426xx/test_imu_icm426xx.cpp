@@ -18,7 +18,7 @@ void test_icm426xx()
 #else
     static ImuIcm426xx imu(ImuBase::XPOS_YPOS_ZPOS, IMU_I2C_SDA_PIN, IMU_I2C_SCL_PIN);
 #endif
-    TEST_ASSERT_EQUAL(0, imu.getFlags());
+    TEST_ASSERT_EQUAL(0, imu.get_flags());
 
     imu.init(8000, ImuBase::GYRO_FULL_SCALE_MAX, ImuBase::ACC_FULL_SCALE_MAX, nullptr);
     TEST_ASSERT_EQUAL(12, imu.get_gyro_id_msp());

@@ -12,15 +12,15 @@ public:
     ImuMpu6000(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    ImuMpu6000(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
-    ImuMpu6000(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : ImuMpu6000(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    ImuMpu6000(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t i2c_address);
+    ImuMpu6000(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins, uint8_t i2c_address) : ImuMpu6000(axis_order, BusI2c::BUS_INDEX_0, pins, i2c_address) {}
     ImuMpu6000(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins) : ImuMpu6000(axis_order, pins, I2C_ADDRESS) {}
 
-    ImuMpu6000(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
-    ImuMpu6000(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : ImuMpu6000(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    ImuMpu6000(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address);
+    ImuMpu6000(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address) : ImuMpu6000(axis_order, BusI2c::BUS_INDEX_0, pins, i2c_address) {}
     ImuMpu6000(uint8_t axis_order, const BusI2c::i2c_pins_t& pins) : ImuMpu6000(axis_order, pins, I2C_ADDRESS) {}
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-    ImuMpu6000(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    ImuMpu6000(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address);
 #endif
 #endif
     virtual int init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) override;
@@ -62,7 +62,7 @@ public:
     };
 #pragma pack(pop)
     struct spi_acc_gyro_data_t {
-        std::array<uint8_t, BusBase::SPI_PRE_READ_BUFFER_SIZE> preReadBuffer; // buffer for the transmit byte sent as part of a read
+        std::array<uint8_t, BusBase::SPI_PRE_READ_BUFFER_SIZE> pre_read_buffer; // buffer for the transmit byte sent as part of a read
         acc_temperature_gyro_data_t accGyro;
     };
     static_assert(sizeof(spi_acc_gyro_data_t) == sizeof(acc_temperature_gyro_data_t) + BusBase::SPI_PRE_READ_BUFFER_SIZE);
@@ -78,14 +78,14 @@ public:
     virtual acc_gyro_rps_t read_acc_gyro_rps() override;
     virtual acc_gyro_rps_t get_acc_gyro_rps() const override;
 private:
-    xyz_t gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const;
-    xyz_t accFromRaw(const mems_sensor_data_t::value_t& data) const;
-    acc_gyro_rps_t acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t::value_t& data) const;
+    xyz_t gyro_rps_from_raw(const mems_sensor_data_t::value_t& data) const;
+    xyz_t acc_from_raw(const mems_sensor_data_t::value_t& data) const;
+    acc_gyro_rps_t acc_gyro_rps_from_raw(const acc_temperature_gyro_data_t::value_t& data) const;
 private:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuMpu6000_USE_SPI_BUS)
     BusSpi _bus; //!< SPI bus interface
 #else
     BusI2c _bus; //!< I2C bus interface
 #endif
-    spi_acc_gyro_data_t _spiAccGyroData {};
+    spi_acc_gyro_data_t _spi_acc_gyro_data {};
 };

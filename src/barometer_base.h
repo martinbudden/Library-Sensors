@@ -21,7 +21,7 @@ public:
     explicit BarometerBase(BusBase& bus_base) : _bus_base(&bus_base) {}
     virtual int init() = 0;
 
-    uint32_t getSample_rate_hz() const { return _sample_rate_hz; }
+    uint32_t get_sample_rate_hz() const { return _sample_rate_hz; }
     float get_temperature_celsius() const { return _temperature_celsius; }
     float get_pressure_pascals() const { return _pressure_pascals; }
 

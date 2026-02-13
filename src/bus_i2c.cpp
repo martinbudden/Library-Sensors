@@ -40,39 +40,39 @@ FAST_CODE void BusI2c::data_ready_isr()
 }
 #endif
 
-BusI2c::BusI2c(uint8_t I2C_address, uint8_t i2c_index, const stm32_i2c_pins_t& pins) :
+BusI2c::BusI2c(uint8_t i2c_address, uint8_t i2c_index, const stm32_i2c_pins_t& pins) :
     _i2c_index(i2c_index),
     _pins(pins),
 #if defined(FRAMEWORK_RPI_PICO)
-    _I2C(i2c_index == BUS_INDEX_1 ? i2c1 : i2c0),
+    _i2c(i2c_index == BUS_INDEX_1 ? i2c1 : i2c0),
 #elif defined(FRAMEWORK_ESPIDF)
 #elif defined(FRAMEWORK_STM32_CUBE)
 #elif defined(FRAMEWORK_TEST)
 #else // defaults to FRAMEWORK_ARDUINO
     _wire(Wire),
 #endif
-    _I2C_address(I2C_address)
+    _i2c_address(i2c_address)
 {
 #if defined(FRAMEWORK_STM32_CUBE)
-    _I2C.Instance = (i2c_index == BUS_INDEX_1) ? I2C2 : I2C1;
+    _i2c.Instance = (i2c_index == BUS_INDEX_1) ? I2C2 : I2C1;
 #endif
     init();
 }
 
-BusI2c::BusI2c(uint8_t I2C_address, uint8_t i2c_index, const i2c_pins_t& pins) :
+BusI2c::BusI2c(uint8_t i2c_address, uint8_t i2c_index, const i2c_pins_t& pins) :
     _i2c_index(i2c_index),
 #if defined(FRAMEWORK_RPI_PICO)
-    _I2C(i2c_index == BUS_INDEX_1 ? i2c1 : i2c0),
+    _i2c(i2c_index == BUS_INDEX_1 ? i2c1 : i2c0),
 #elif defined(FRAMEWORK_ESPIDF)
 #elif defined(FRAMEWORK_STM32_CUBE)
 #elif defined(FRAMEWORK_TEST)
 #else // defaults to FRAMEWORK_ARDUINO
     _wire(Wire),
 #endif
-    _I2C_address(I2C_address)
+    _i2c_address(i2c_address)
 {
 #if defined(FRAMEWORK_STM32_CUBE)
-    _I2C.Instance = (i2c_index == BUS_INDEX_1) ? I2C2 : I2C1;
+    _i2c.Instance = (i2c_index == BUS_INDEX_1) ? I2C2 : I2C1;
 #endif
 
     _pins.sda = {0,pins.sda};
@@ -90,7 +90,7 @@ void BusI2c::init() // NOLINT(readability-make-member-function-const)
     static_assert(static_cast<int>(IRQ_EDGE_RISE) == GPIO_IRQ_EDGE_RISE);
 
     enum { BUS_400_KHZ = 400000 };
-    i2c_init(_I2C, BUS_400_KHZ);
+    i2c_init(_i2c, BUS_400_KHZ);
     gpio_set_function(_pins.sda.pin, GPIO_FUNC_I2C); // PICO_DEFAULT_I2C_SDA_PIN is GP4
     gpio_set_function(_pins.scl.pin, GPIO_FUNC_I2C); // PICO_DEFAULT_I2C_SCL_PIN is GP5
     gpio_pull_up(_pins.sda.pin);
@@ -118,7 +118,7 @@ void BusI2c::init() // NOLINT(readability-make-member-function-const)
 
     i2c_device_config_t dev_cfg = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
-        .device_address = _I2C_address,
+        .device_address = _i2c_address,
         .scl_speed_hz = 400000,
         .scl_wait_us = 0,
         .flags {
@@ -132,18 +132,18 @@ void BusI2c::init() // NOLINT(readability-make-member-function-const)
 
     // STM32 indices are 1-based
     if (_i2c_index == BUS_INDEX_0) {
-        _I2C.Instance = I2C1;
+        _i2c.Instance = I2C1;
 #if defined(I2C2)
     } else if (_i2c_index == BUS_INDEX_1) {
-        _I2C.Instance = I2C2;
+        _i2c.Instance = I2C2;
 #endif
 #if defined(I2C3)
     } else if (_i2c_index == BUS_INDEX_2) {
-        _I2C.Instance = I2C3;
+        _i2c.Instance = I2C3;
 #endif
 #if defined(I2C4)
     } else if (_i2c_index == BUS_INDEX_3) {
-        _I2C.Instance = I2C4;
+        _i2c.Instance = I2C4;
 #endif
     }
     if (gpioPort(_pins.sda) == GPIOA) {
@@ -172,15 +172,15 @@ void BusI2c::init() // NOLINT(readability-make-member-function-const)
 #if defined(FRAMEWORK_STM32_CUBE_F1)
 #elif defined(FRAMEWORK_STM32_CUBE_F3)
 #elif defined(FRAMEWORK_STM32_CUBE_F4)
-    _I2C.Init.ClockSpeed = 100000;
-    _I2C.Init.DutyCycle = I2C_DUTYCYCLE_2;
-    _I2C.Init.OwnAddress1 = 0;
-    _I2C.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-    _I2C.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-    _I2C.Init.OwnAddress2 = 0;
-    _I2C.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-    _I2C.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-    HAL_I2C_Init(&_I2C);
+    _i2c.Init.ClockSpeed = 100000;
+    _i2c.Init.DutyCycle = I2C_DUTYCYCLE_2;
+    _i2c.Init.OwnAddress1 = 0;
+    _i2c.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+    _i2c.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    _i2c.Init.OwnAddress2 = 0;
+    _i2c.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    _i2c.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+    HAL_I2C_Init(&_i2c);
 #endif
 
 #elif defined(FRAMEWORK_TEST)
@@ -205,10 +205,10 @@ void BusI2c::init() // NOLINT(readability-make-member-function-const)
 }
 
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) && !defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-BusI2c::BusI2c(uint8_t I2C_address, TwoWire& wire, const i2c_pins_t& pins) :
+BusI2c::BusI2c(uint8_t i2c_address, TwoWire& wire, const i2c_pins_t& pins) :
     _i2c_index(BUS_INDEX_0),
     _wire(wire),
-    _I2C_address(I2C_address)
+    _i2c_address(i2c_address)
 {
     _pins.sda = {0,pins.sda};
     _pins.scl = {0,pins.scl};
@@ -228,24 +228,24 @@ BusI2c::BusI2c(uint8_t I2C_address, TwoWire& wire, const i2c_pins_t& pins) :
 }
 #endif
 
-BusI2c::BusI2c(uint8_t I2C_address, uint8_t i2c_index)
+BusI2c::BusI2c(uint8_t i2c_address, uint8_t i2c_index)
 #if defined(FRAMEWORK_RPI_PICO)
-    : BusI2c(I2C_address, i2c_index,
+    : BusI2c(i2c_address, i2c_index,
         i2c_index == BUS_INDEX_0 ? i2c_pins_t{.sda=PICO_DEFAULT_I2C_SDA_PIN, .scl=PICO_DEFAULT_I2C_SCL_PIN, .irq=IRQ_NOT_SET} :
                                    i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
 #elif defined(FRAMEWORK_ESPIDF)
-    : BusI2c(I2C_address, i2c_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
+    : BusI2c(i2c_address, i2c_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
 #elif defined(FRAMEWORK_STM32_CUBE)
-    : BusI2c(I2C_address, i2c_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
+    : BusI2c(i2c_address, i2c_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
 #elif defined(FRAMEWORK_TEST)
-    : BusI2c(I2C_address, i2c_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
+    : BusI2c(i2c_address, i2c_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
 #else // defaults to FRAMEWORK_ARDUINO
-    : BusI2c(I2C_address, i2c_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
+    : BusI2c(i2c_address, i2c_index, i2c_pins_t{.sda=0, .scl=0, .irq=IRQ_NOT_SET})
 #endif // FRAMEWORK
 {
 }
 
-void BusI2c::set_interrupt_driven(uint8_t irqLevel) // NOLINT(readability-make-member-function-const)
+void BusI2c::set_interrupt_driven(uint8_t irq_level) // NOLINT(readability-make-member-function-const)
 {
     self = this;
 
@@ -254,25 +254,25 @@ void BusI2c::set_interrupt_driven(uint8_t irqLevel) // NOLINT(readability-make-m
 #if defined(FRAMEWORK_RPI_PICO)
     gpio_init(_pins.irq.pin);
     enum { IRQ_ENABLED = true };
-    gpio_set_irq_enabled_with_callback(_pins.irq.pin, irqLevel, IRQ_ENABLED, &data_ready_isr);
+    gpio_set_irq_enabled_with_callback(_pins.irq.pin, irq_level, IRQ_ENABLED, &data_ready_isr);
 #elif defined(FRAMEWORK_ARDUINO_ESP32)
     //pinMode(_pins.irq.pin, INPUT);
     // map to ESP32 constants
     enum { LEVEL_LOW = 0x04, LEVEL_HIGH = 0x05, EDGE_FALL = 0x02, EDGE_RISE = 0x01, EDGE_CHANGE = 0x03 };
     const uint8_t level =
-        (irqLevel == IRQ_LEVEL_LOW) ? LEVEL_LOW :
-        (irqLevel == IRQ_LEVEL_HIGH) ? LEVEL_HIGH :
-        (irqLevel == IRQ_EDGE_FALL) ? EDGE_FALL :
-        (irqLevel == IRQ_EDGE_RISE) ? EDGE_RISE : EDGE_CHANGE;
+        (irq_level == IRQ_LEVEL_LOW) ? LEVEL_LOW :
+        (irq_level == IRQ_LEVEL_HIGH) ? LEVEL_HIGH :
+        (irq_level == IRQ_EDGE_FALL) ? EDGE_FALL :
+        (irq_level == IRQ_EDGE_RISE) ? EDGE_RISE : EDGE_CHANGE;
     (void)level;
-    //attachInterrupt(digitalPinToInterrupt(_pins.irq), &data_ready_isr, irqLevel); // esp32-hal-gpio.h
+    //attachInterrupt(digitalPinToInterrupt(_pins.irq), &data_ready_isr, irq_level); // esp32-hal-gpio.h
 #else
     enum { LEVEL_LOW = 0x04, LEVEL_HIGH = 0x05, EDGE_FALL = 0x02, EDGE_RISE = 0x01, EDGE_CHANGE = 0x03 };
     const uint8_t level =
-        (irqLevel == IRQ_LEVEL_LOW) ? LEVEL_LOW :
-        (irqLevel == IRQ_LEVEL_HIGH) ? LEVEL_HIGH :
-        (irqLevel == IRQ_EDGE_FALL) ? EDGE_FALL :
-        (irqLevel == IRQ_EDGE_RISE) ? EDGE_RISE : EDGE_CHANGE;
+        (irq_level == IRQ_LEVEL_LOW) ? LEVEL_LOW :
+        (irq_level == IRQ_LEVEL_HIGH) ? LEVEL_HIGH :
+        (irq_level == IRQ_EDGE_FALL) ? EDGE_FALL :
+        (irq_level == IRQ_EDGE_RISE) ? EDGE_RISE : EDGE_CHANGE;
     (void)level;
 #endif
 }
@@ -281,51 +281,51 @@ FAST_CODE uint8_t BusI2c::read_register(uint8_t reg) const
 {
     uint8_t ret = 0; // NOLINT(misc-const-correctness)
 #if defined(FRAMEWORK_RPI_PICO)
-    i2c_write_blocking(_I2C, _I2C_address, &reg, 1, RETAIN_CONTROL_OF_BUS);
-    i2c_read_blocking(_I2C, _I2C_address, &ret, 1, DONT_RETAIN_CONTROL_OF_BUS);
+    i2c_write_blocking(_i2c, _i2c_address, &reg, 1, RETAIN_CONTROL_OF_BUS);
+    i2c_read_blocking(_i2c, _i2c_address, &ret, 1, DONT_RETAIN_CONTROL_OF_BUS);
 #elif defined(FRAMEWORK_ESPIDF)
     (void)reg;
 #elif defined(FRAMEWORK_TEST)
     (void)reg;
 #elif defined(FRAMEWORK_STM32_CUBE)
-    HAL_I2C_Master_Transmit(&_I2C, _I2C_address, &reg, 1, HAL_MAX_DELAY); //Sending in Blocking mode
-    HAL_I2C_Master_Receive (&_I2C, _I2C_address, &ret, 1, HAL_MAX_DELAY);
+    HAL_I2C_Master_Transmit(&_i2c, _i2c_address, &reg, 1, HAL_MAX_DELAY); //Sending in Blocking mode
+    HAL_I2C_Master_Receive (&_i2c, _i2c_address, &ret, 1, HAL_MAX_DELAY);
 #else // defaults to FRAMEWORK_ARDUINO
-    _wire.beginTransmission(_I2C_address);
+    _wire.beginTransmission(_i2c_address);
     _wire.write(reg);
     _wire.endTransmission();
 
-    if (_wire.requestFrom(_I2C_address, 1U)) {
+    if (_wire.requestFrom(_i2c_address, 1U)) {
         return static_cast<uint8_t>(_wire.read());
     }
 #endif
     return ret;
 }
 
-FAST_CODE uint8_t BusI2c::read_register_with_timeout(uint8_t reg, uint32_t timeoutMs) const
+FAST_CODE uint8_t BusI2c::read_register_with_timeout(uint8_t reg, uint32_t timeout_ms) const
 {
     uint8_t ret = 0; // NOLINT(misc-const-correctness)
 #if defined(FRAMEWORK_RPI_PICO)
-    i2c_write_blocking(_I2C, _I2C_address, &reg, 1, RETAIN_CONTROL_OF_BUS);
+    i2c_write_blocking(_i2c, _i2c_address, &reg, 1, RETAIN_CONTROL_OF_BUS);
     enum { MILLISECONDS_TO_MICROSECONDS = 1000 };
-    i2c_read_timeout_us(_I2C, _I2C_address, &ret, 1, DONT_RETAIN_CONTROL_OF_BUS, timeoutMs * MILLISECONDS_TO_MICROSECONDS);
+    i2c_read_timeout_us(_i2c, _i2c_address, &ret, 1, DONT_RETAIN_CONTROL_OF_BUS, timeout_ms * MILLISECONDS_TO_MICROSECONDS);
     return ret;
 #elif defined(FRAMEWORK_ESPIDF)
     (void)reg;
-    (void)timeoutMs;
+    (void)timeout_ms;
 #elif defined(FRAMEWORK_STM32_CUBE)
-    HAL_I2C_Master_Transmit(&_I2C,_I2C_address, &reg, 1, timeoutMs); //Sending in Blocking mode
-    HAL_I2C_Master_Receive (&_I2C,_I2C_address, &ret, 1, timeoutMs);
+    HAL_I2C_Master_Transmit(&_i2c,_i2c_address, &reg, 1, timeout_ms); //Sending in Blocking mode
+    HAL_I2C_Master_Receive (&_i2c,_i2c_address, &ret, 1, timeout_ms);
 #elif defined(FRAMEWORK_TEST)
     (void)reg;
-    (void)timeoutMs;
+    (void)timeout_ms;
 #else // defaults to FRAMEWORK_ARDUINO
-    _wire.beginTransmission(_I2C_address);
+    _wire.beginTransmission(_i2c_address);
     _wire.write(reg);
     _wire.endTransmission(false);
 
-    _wire.requestFrom(_I2C_address, 1U);
-    for (uint32_t ii = 0; ii < timeoutMs; ++ii) {
+    _wire.requestFrom(_i2c_address, 1U);
+    for (uint32_t ii = 0; ii < timeout_ms; ++ii) {
         if (_wire.available() > 0) {
             return static_cast<uint8_t>(_wire.read());
         }
@@ -343,9 +343,9 @@ FAST_CODE bool BusI2c::read_device_data()
 FAST_CODE bool BusI2c::read_register(uint8_t reg, uint8_t* data, size_t length) const // NOLINT(readability-non-const-parameter)
 {
 #if defined(FRAMEWORK_RPI_PICO)
-    i2c_write_blocking(_I2C, _I2C_address, &reg, 1, RETAIN_CONTROL_OF_BUS);
-    const int bytesRead = i2c_read_blocking(_I2C, _I2C_address, data, length, DONT_RETAIN_CONTROL_OF_BUS);
-    if (bytesRead <= 0) {
+    i2c_write_blocking(_i2c, _i2c_address, &reg, 1, RETAIN_CONTROL_OF_BUS);
+    const int bytes_read = i2c_read_blocking(_i2c, _i2c_address, data, length, DONT_RETAIN_CONTROL_OF_BUS);
+    if (bytes_read <= 0) {
         return false;
     }
 #elif defined(FRAMEWORK_ESPIDF)
@@ -353,8 +353,8 @@ FAST_CODE bool BusI2c::read_register(uint8_t reg, uint8_t* data, size_t length) 
     (void)data;
     (void)length;
 #elif defined(FRAMEWORK_STM32_CUBE)
-    HAL_I2C_Master_Transmit(&_I2C,_I2C_address, &reg, 1, HAL_MAX_DELAY); //Sending in Blocking mode
-    const HAL_StatusTypeDef status = HAL_I2C_Master_Receive (&_I2C,_I2C_address, data, length, HAL_MAX_DELAY);
+    HAL_I2C_Master_Transmit(&_i2c,_i2c_address, &reg, 1, HAL_MAX_DELAY); //Sending in Blocking mode
+    const HAL_StatusTypeDef status = HAL_I2C_Master_Receive (&_i2c,_i2c_address, data, length, HAL_MAX_DELAY);
     if (status != HAL_OK) {
         return false;
     }
@@ -363,7 +363,7 @@ FAST_CODE bool BusI2c::read_register(uint8_t reg, uint8_t* data, size_t length) 
     (void)data;
     (void)length;
 #else // defaults to FRAMEWORK_ARDUINO
-    _wire.beginTransmission(_I2C_address);
+    _wire.beginTransmission(_i2c_address);
     _wire.write(reg);
     const uint8_t err = _wire.endTransmission(false);
     if (err == 0) {
@@ -376,7 +376,7 @@ FAST_CODE bool BusI2c::read_register(uint8_t reg, uint8_t* data, size_t length) 
 FAST_CODE bool BusI2c::read_bytes(uint8_t* data, size_t length) const // NOLINT(readability-non-const-parameter)
 {
 #if defined(FRAMEWORK_RPI_PICO)
-    i2c_read_blocking(_I2C, _I2C_address, data, length, false);
+    i2c_read_blocking(_i2c, _i2c_address, data, length, false);
     return true;
 #elif defined(FRAMEWORK_ESPIDF)
     (void)data;
@@ -388,7 +388,7 @@ FAST_CODE bool BusI2c::read_bytes(uint8_t* data, size_t length) const // NOLINT(
     (void)data;
     (void)length;
 #else // defaults to FRAMEWORK_ARDUINO
-    if (_wire.requestFrom(_I2C_address, static_cast<uint8_t>(length))) {
+    if (_wire.requestFrom(_i2c_address, static_cast<uint8_t>(length))) {
         //while (_wire._available() < 1) { delay(1); }
         for (size_t ii = 0; ii < length; ++ii) {
             data[ii] = static_cast<uint8_t>(_wire.read()); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -399,28 +399,28 @@ FAST_CODE bool BusI2c::read_bytes(uint8_t* data, size_t length) const // NOLINT(
     return false;
 }
 
-FAST_CODE bool BusI2c::read_bytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) const // NOLINT(readability-non-const-parameter)
+FAST_CODE bool BusI2c::read_bytes_with_timeout(uint8_t* data, size_t length, uint32_t timeout_ms) const // NOLINT(readability-non-const-parameter)
 {
 #if defined(FRAMEWORK_RPI_PICO)
     enum { MILLISECONDS_TO_MICROSECONDS = 1000 };
-    i2c_read_timeout_us(_I2C, _I2C_address, data, length, false, timeoutMs * MILLISECONDS_TO_MICROSECONDS);
+    i2c_read_timeout_us(_i2c, _i2c_address, data, length, false, timeout_ms * MILLISECONDS_TO_MICROSECONDS);
     return true;
 #elif defined(FRAMEWORK_ESPIDF)
     *data = 0;
     (void)length;
-    (void)timeoutMs;
+    (void)timeout_ms;
 #elif defined(FRAMEWORK_STM32_CUBE)
-    const HAL_StatusTypeDef status = HAL_I2C_Master_Receive(&_I2C,_I2C_address, data, length, timeoutMs);
+    const HAL_StatusTypeDef status = HAL_I2C_Master_Receive(&_i2c,_i2c_address, data, length, timeout_ms);
     if (status != HAL_OK) {
         return false;
     }
 #elif defined(FRAMEWORK_TEST)
     (void)data;
     (void)length;
-    (void)timeoutMs;
+    (void)timeout_ms;
 #else // defaults to FRAMEWORK_ARDUINO
-    _wire.requestFrom(_I2C_address, static_cast<uint8_t>(length));
-    for (uint32_t ii = 0; ii < timeoutMs; ++ii) {
+    _wire.requestFrom(_i2c_address, static_cast<uint8_t>(length));
+    for (uint32_t ii = 0; ii < timeout_ms; ++ii) {
         if (_wire.available() > 0) {
             for (size_t jj = 0; jj < length; ++jj) {
                 data[jj] = static_cast<uint8_t>(_wire.read()); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -438,18 +438,18 @@ FAST_CODE uint8_t BusI2c::write_register(uint8_t reg, uint8_t data)
 {
 #if defined(FRAMEWORK_RPI_PICO)
     std::array<uint8_t, 2> buf = {{ reg, data }};
-    i2c_write_blocking(_I2C, _I2C_address, &buf[0], sizeof(buf), false);
+    i2c_write_blocking(_i2c, _i2c_address, &buf[0], sizeof(buf), false);
 #elif defined(FRAMEWORK_ESPIDF)
     (void)reg;
     (void)data;
 #elif defined(FRAMEWORK_STM32_CUBE)
     std::array<uint8_t, 2> buf = { reg, data };
-    HAL_I2C_Master_Transmit(&_I2C,_I2C_address, &buf[0], sizeof(buf), HAL_MAX_DELAY); //Sending in Blocking mode
+    HAL_I2C_Master_Transmit(&_i2c,_i2c_address, &buf[0], sizeof(buf), HAL_MAX_DELAY); //Sending in Blocking mode
 #elif defined(FRAMEWORK_TEST)
     (void)reg;
     (void)data;
 #else // defaults to FRAMEWORK_ARDUINO
-    _wire.beginTransmission(_I2C_address);
+    _wire.beginTransmission(_i2c_address);
     _wire.write(reg);
     _wire.write(data);
     return _wire.endTransmission();
@@ -460,21 +460,21 @@ FAST_CODE uint8_t BusI2c::write_register(uint8_t reg, uint8_t data)
 FAST_CODE uint8_t BusI2c::write_register(uint8_t reg, const uint8_t* data, size_t length)
 {
 #if defined(FRAMEWORK_RPI_PICO)
-    i2c_write_blocking(_I2C, _I2C_address, &reg, 1, false);
-    return i2c_write_blocking(_I2C, _I2C_address, data, length, false);
+    i2c_write_blocking(_i2c, _i2c_address, &reg, 1, false);
+    return i2c_write_blocking(_i2c, _i2c_address, data, length, false);
 #elif defined(FRAMEWORK_ESPIDF)
     (void)reg;
     (void)data;
     (void)length;
 #elif defined(FRAMEWORK_STM32_CUBE)
-    HAL_I2C_Master_Transmit(&_I2C,_I2C_address, &reg, 1, HAL_MAX_DELAY); //Sending in Blocking mode
-    HAL_I2C_Master_Transmit(&_I2C,_I2C_address, const_cast<uint8_t*>(data), length, HAL_MAX_DELAY); //Sending in Blocking mode
+    HAL_I2C_Master_Transmit(&_i2c,_i2c_address, &reg, 1, HAL_MAX_DELAY); //Sending in Blocking mode
+    HAL_I2C_Master_Transmit(&_i2c,_i2c_address, const_cast<uint8_t*>(data), length, HAL_MAX_DELAY); //Sending in Blocking mode
 #elif defined(FRAMEWORK_TEST)
     (void)reg;
     (void)data;
     (void)length;
 #else // defaults to FRAMEWORK_ARDUINO
-    _wire.beginTransmission(_I2C_address);
+    _wire.beginTransmission(_i2c_address);
     _wire.write(reg);
     _wire.write(data, length);
     return _wire.endTransmission();
@@ -485,17 +485,17 @@ FAST_CODE uint8_t BusI2c::write_register(uint8_t reg, const uint8_t* data, size_
 FAST_CODE uint8_t BusI2c::write_bytes(const uint8_t* data, size_t length)
 {
 #if defined(FRAMEWORK_RPI_PICO)
-    return i2c_write_blocking(_I2C, _I2C_address, data, length, false);
+    return i2c_write_blocking(_i2c, _i2c_address, data, length, false);
 #elif defined(FRAMEWORK_ESPIDF)
     (void)data;
     (void)length;
 #elif defined(FRAMEWORK_STM32_CUBE)
-    HAL_I2C_Master_Transmit(&_I2C,_I2C_address, const_cast<uint8_t*>(data), length, HAL_MAX_DELAY); //Sending in Blocking mode
+    HAL_I2C_Master_Transmit(&_i2c,_i2c_address, const_cast<uint8_t*>(data), length, HAL_MAX_DELAY); //Sending in Blocking mode
 #elif defined(FRAMEWORK_TEST)
     (void)data;
     (void)length;
 #else // defaults to FRAMEWORK_ARDUINO
-    _wire.beginTransmission(_I2C_address);
+    _wire.beginTransmission(_i2c_address);
     _wire.write(data, length);
     return _wire.endTransmission();
 #endif

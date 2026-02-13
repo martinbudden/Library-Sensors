@@ -19,13 +19,13 @@ void setup()
 void loop()
 {
     // read the gyro data and convert from radians per second to degrees per second
-    const xyz_t gyroDPS = imu->read_gyro_rps() * ImuBase::RADIANS_TO_DEGREES;
+    const xyz_t gyro_dps = imu->read_gyro_rps() * ImuBase::RADIANS_TO_DEGREES;
     Serial.print("gyroX:");
-    Serial.print(gyroDPS.x);
+    Serial.print(gyro_dps.x);
     Serial.print(" gyroY:");
-    Serial.print(gyroDPS.y);
+    Serial.print(gyro_dps.y);
     Serial.print(" gyroZ:");
-    Serial.println(gyroDPS.z);
+    Serial.println(gyro_dps.z);
 
     // read the orientation quaternion
     const Quaternion orientation = imu->read_orientation();

@@ -9,9 +9,9 @@ ImuM5Unified::ImuM5Unified(uint8_t axis_order) :
 {
 }
 
-int ImuM5Unified::init(uint32_t outputDataRateHz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)
+int ImuM5Unified::init(uint32_t output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)
 {
-    (void)outputDataRateHz;
+    (void)output_data_rate_hz;
     (void)gyro_sensitivity;
     (void)acc_sensitivity;
 
@@ -174,14 +174,14 @@ xyz_t ImuM5Unified::read_gyro_rps()
     bus_semaphore_give(_bus_mutex);
 
     const m5::IMU_Class::imu_data_t& data = M5.Imu.getImuData();
-    const xyz_t gyroRPS {
+    const xyz_t gyro_rps {
         // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
         .x = data.gyro.x * DEGREES_TO_RADIANS,
         .y = data.gyro.y * DEGREES_TO_RADIANS,
         .z = data.gyro.z * DEGREES_TO_RADIANS
         // NOLINTEND(cppcoreguidelines-pro-type-union-access)
     };
-    return gyroRPS;
+    return gyro_rps;
 }
 
 xyz_t ImuM5Unified::read_gyro_dps()
@@ -192,14 +192,14 @@ xyz_t ImuM5Unified::read_gyro_dps()
     bus_semaphore_give(_bus_mutex);
 
     const m5::IMU_Class::imu_data_t& data = M5.Imu.getImuData();
-    const xyz_t gyroDPS {
+    const xyz_t gyro_dps {
         // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
         .x = data.gyro.x,
         .y = data.gyro.y,
         .z = data.gyro.z
         // NOLINTEND(cppcoreguidelines-pro-type-union-access)
     };
-    return gyroDPS;
+    return gyro_dps;
 }
 
 FAST_CODE acc_gyro_rps_t ImuM5Unified::read_acc_gyro_rps()

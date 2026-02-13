@@ -51,12 +51,12 @@ public:
     BarometerBmp280(uint32_t frequency, uint8_t spi_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    BarometerBmp280(uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
-    BarometerBmp280(const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : BarometerBmp280(BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    BarometerBmp280(uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t i2c_address);
+    BarometerBmp280(const BusI2c::stm32_i2c_pins_t& pins, uint8_t i2c_address) : BarometerBmp280(BusI2c::BUS_INDEX_0, pins, i2c_address) {}
     explicit BarometerBmp280(const BusI2c::stm32_i2c_pins_t& pins) : BarometerBmp280(pins, I2C_ADDRESS) {}
 
-    BarometerBmp280(uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
-    BarometerBmp280(const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : BarometerBmp280(BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    BarometerBmp280(uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address);
+    BarometerBmp280(const BusI2c::i2c_pins_t& pins, uint8_t i2c_address) : BarometerBmp280(BusI2c::BUS_INDEX_0, pins, i2c_address) {}
     explicit BarometerBmp280(const BusI2c::i2c_pins_t& pins) : BarometerBmp280(pins, I2C_ADDRESS) {}
 #endif
     virtual int init() override;
@@ -69,5 +69,5 @@ private:
     BusI2c _bus; //!< I2C bus interface
 #endif
     int32_t _temperatureFine {};
-    calibration_data_u _calibrationData {};
+    calibration_data_u _calibration_data {};
 };

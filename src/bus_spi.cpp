@@ -198,7 +198,7 @@ extern "C" __weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     // The IMU has indicated it has new data, so initiate a read.
-    if (GPIO_Pin != BusSpi::self->getIrq_pin()) {
+    if (GPIO_Pin != BusSpi::self->get_irq_pin()) {
         return;
     }
 #if defined(LIBRARY_SENSORS_USE_SPI_DMA_IN_ISR)
@@ -247,8 +247,8 @@ BusSpi::~BusSpi() // NOLINT(hicpp-use-equals-default,modernize-use-equals-defaul
 #endif
 }
 
-BusSpi::BusSpi(uint32_t frequencyHz, uint8_t spi_index, const spi_pins_t& pins) :
-    _frequency_hz(frequencyHz)
+BusSpi::BusSpi(uint32_t frequency_hz, uint8_t spi_index, const spi_pins_t& pins) :
+    _frequency_hz(frequency_hz)
     ,_spi_index(spi_index)
     ,_pins {
         .cs =   {0,pins.cs},
@@ -279,8 +279,8 @@ BusSpi::BusSpi(uint32_t frequencyHz, uint8_t spi_index, const spi_pins_t& pins) 
     init();
 }
 
-BusSpi::BusSpi(uint32_t frequencyHz, uint8_t spi_index, const stm32_spi_pins_t& pins) :
-    _frequency_hz(frequencyHz)
+BusSpi::BusSpi(uint32_t frequency_hz, uint8_t spi_index, const stm32_spi_pins_t& pins) :
+    _frequency_hz(frequency_hz)
     ,_spi_index(spi_index)
     ,_pins(pins)
 #if defined(FRAMEWORK_RPI_PICO)
@@ -355,18 +355,18 @@ void BusSpi::init()
         .intr_flags = 0   // Interrupt flag for the bus to set the priority, and IRAM attribute
     };
 
-    spi_host_device_t spiHostDevice {};
+    spi_host_device_t spi_host_device {};
     if (_spi_index == BUS_INDEX_0) { // NOLINT(bugprone-branch-clone)
-        spiHostDevice = SPI1_HOST;
+        spi_host_device = SPI1_HOST;
     } else if (_spi_index == BUS_INDEX_1) {
-        spiHostDevice = SPI2_HOST;
+        spi_host_device = SPI2_HOST;
 #if (SOC_SPI_PERIPH_NUM > 2)
     } else if (_spi_index == BUS_INDEX_2) {
-       spiHostDevice = SPI3_HOST;
+       spi_host_device = SPI3_HOST;
 #endif
     }
     static const char *TAG = "BusSpi::init";
-    esp_err_t err = spi_bus_initialize(spiHostDevice, &buscfg, SPI_DMA_CH_AUTO);
+    esp_err_t err = spi_bus_initialize(spi_host_device, &buscfg, SPI_DMA_CH_AUTO);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize SPI bus: %s", esp_err_to_name(err));
         return;
@@ -380,15 +380,15 @@ void BusSpi::init()
         .intr_type = GPIO_INTR_DISABLE
     };
 
-    const esp_err_t gpioErr = gpio_config(&cs_config);
-    if (gpioErr != ESP_OK) {
-        ESP_LOGE(TAG, "gpio_config fail: %s", esp_err_to_name(gpioErr));
-        //Serial.printf("gpioErr:%d\r\n", gpioErr);
+    const esp_err_t gpio_err = gpio_config(&cs_config);
+    if (gpio_err != ESP_OK) {
+        ESP_LOGE(TAG, "gpio_config fail: %s", esp_err_to_name(gpio_err));
+        //Serial.printf("gpio_err:%d\r\n", gpio_err);
     }
     // chip select is active-low, so we initialise it to high
     const esp_err_t setErr = gpio_set_level(static_cast<gpio_num_t>(_pins.cs.pin), 1);
     if (setErr != ESP_OK) {
-        ESP_LOGE(TAG, "gpio_set_level fail: %s", esp_err_to_name(gpioErr));
+        ESP_LOGE(TAG, "gpio_set_level fail: %s", esp_err_to_name(gpio_err));
         //Serial.printf("setErr:%d\r\n", setErr);
     }
 
@@ -410,7 +410,7 @@ void BusSpi::init()
         .pre_cb = nullptr,
         .post_cb = nullptr,
     };
-    err = spi_bus_add_device(spiHostDevice, &devcfg, &_spi); // sets device handle _spi
+    err = spi_bus_add_device(spi_host_device, &devcfg, &_spi); // sets device handle _spi
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to add SPI device: %s", esp_err_to_name(err));
         return;
@@ -591,7 +591,7 @@ When the IMU interrupt pin indicates data ready, the dataReady ISR is called and
 
 This routine sets the GPIO IRQ pin to input and attaches the dataReady ISR to be triggered by that pin.
 */
-void BusSpi::set_interrupt_driven(uint8_t irqLevel) // NOLINT(readability-make-member-function-const)
+void BusSpi::set_interrupt_driven(uint8_t irq_level) // NOLINT(readability-make-member-function-const)
 {
     self = this;
     assert(_pins.irq.pin != IRQ_NOT_SET);
@@ -600,13 +600,13 @@ void BusSpi::set_interrupt_driven(uint8_t irqLevel) // NOLINT(readability-make-m
     gpio_init(_pins.irq.pin);
     gpio_set_dir(_pins.irq.pin, GPIO_IN);
     enum { IRQ_ENABLED = true };
-    gpio_set_irq_enabled_with_callback(_pins.irq.pin, irqLevel, IRQ_ENABLED, &data_ready_isr);
+    gpio_set_irq_enabled_with_callback(_pins.irq.pin, irq_level, IRQ_ENABLED, &data_ready_isr);
 #elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
     const gpio_int_type_t interruptType =
-        (irqLevel == IRQ_LEVEL_LOW) ? GPIO_INTR_LOW_LEVEL :
-        (irqLevel == IRQ_LEVEL_HIGH) ? GPIO_INTR_HIGH_LEVEL :
-        (irqLevel == IRQ_EDGE_FALL) ? GPIO_INTR_NEGEDGE :
-        (irqLevel == IRQ_EDGE_RISE) ? GPIO_INTR_POSEDGE : GPIO_INTR_ANYEDGE;
+        (irq_level == IRQ_LEVEL_LOW) ? GPIO_INTR_LOW_LEVEL :
+        (irq_level == IRQ_LEVEL_HIGH) ? GPIO_INTR_HIGH_LEVEL :
+        (irq_level == IRQ_EDGE_FALL) ? GPIO_INTR_NEGEDGE :
+        (irq_level == IRQ_EDGE_RISE) ? GPIO_INTR_POSEDGE : GPIO_INTR_ANYEDGE;
     const gpio_config_t interruptConfig = {
         .pin_bit_mask = (1ULL << _pins.irq.pin),
         .mode = GPIO_MODE_INPUT,
@@ -614,20 +614,20 @@ void BusSpi::set_interrupt_driven(uint8_t irqLevel) // NOLINT(readability-make-m
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
         .intr_type = interruptType
     };
-    const esp_err_t gpioErr = gpio_config(&interruptConfig);
-    (void)gpioErr;
+    const esp_err_t gpio_err = gpio_config(&interruptConfig);
+    (void)gpio_err;
     // now see
     // gpio_intr_enable
     // gpio_isr_register
 #elif defined(FRAMEWORK_TEST)
-    (void)irqLevel;
+    (void)irq_level;
 #else
     enum { LEVEL_LOW = 0x04, LEVEL_HIGH = 0x05, EDGE_FALL = 0x02, EDGE_RISE = 0x01, EDGE_CHANGE = 0x03 };
     const uint8_t level =
-        (irqLevel == IRQ_LEVEL_LOW) ? LEVEL_LOW :
-        (irqLevel == IRQ_LEVEL_HIGH) ? LEVEL_HIGH :
-        (irqLevel == IRQ_EDGE_FALL) ? EDGE_FALL :
-        (irqLevel == IRQ_EDGE_RISE) ? EDGE_RISE : EDGE_CHANGE;
+        (irq_level == IRQ_LEVEL_LOW) ? LEVEL_LOW :
+        (irq_level == IRQ_LEVEL_HIGH) ? LEVEL_HIGH :
+        (irq_level == IRQ_EDGE_FALL) ? EDGE_FALL :
+        (irq_level == IRQ_EDGE_RISE) ? EDGE_RISE : EDGE_CHANGE;
     (void)level;
     //pinMode(_pins.irq.pin, INPUT);
     //attachInterrupt(digitalPinToInterrupt(_pins.irq.pin), &data_ready_isr, level); // esp32-hal-gpio.h
@@ -644,13 +644,13 @@ FAST_CODE bool BusSpi::read_device_data()
     return true;
 #elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
     // ESPIDF cannot use same memory for tx_buffer and rx_buffer
-    _spiTransaction.flags = 0;
-    _spiTransaction.addr = _device_data_register,
-    _spiTransaction.length = BITS_PER_BYTE*(_device_read_length);
-    _spiTransaction.rxlength = BITS_PER_BYTE*(_device_read_length);
-    _spiTransaction.tx_buffer = nullptr;
-    _spiTransaction.rx_buffer = _device_read_buf;
-    spi_device_transmit(_spi, &_spiTransaction);
+    _spi_transaction.flags = 0;
+    _spi_transaction.addr = _device_data_register,
+    _spi_transaction.length = BITS_PER_BYTE*(_device_read_length);
+    _spi_transaction.rxlength = BITS_PER_BYTE*(_device_read_length);
+    _spi_transaction.tx_buffer = nullptr;
+    _spi_transaction.rx_buffer = _device_read_buf;
+    spi_device_transmit(_spi, &_spi_transaction);
     return true;
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     *_device_read_buf = _device_data_register;
@@ -671,35 +671,35 @@ FAST_CODE uint8_t BusSpi::read_register(uint8_t reg) const
 {
     reg |= READ_BIT;
 #if defined(FRAMEWORK_RPI_PICO)
-    std::array<uint8_t, 2> outBuf = {{ reg, 0 }};
-    std::array<uint8_t, 2> inBuf;
+    std::array<uint8_t, 2> out_buf = {{ reg, 0 }};
+    std::array<uint8_t, 2> in_buf;
     cs_select(*this);
-    spi_write_read_blocking(_spi, &outBuf[0], &inBuf[0], 2);
+    spi_write_read_blocking(_spi, &out_buf[0], &in_buf[0], 2);
     cs_deselect(*this);
-    return inBuf[1];
+    return in_buf[1];
 #elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
 // see https://github.com/krzychb/esp-lis35de/blob/master/components/lis35de/lis35de.c
-    _spiTransaction.flags = SPI_TRANS_USE_RXDATA;
-    _spiTransaction.addr = reg,
-    _spiTransaction.length = BITS_PER_BYTE;
-    _spiTransaction.rxlength = BITS_PER_BYTE;
-    _spiTransaction.tx_buffer = nullptr;
-    //_spiTransaction.rx_data[0] = 0;
+    _spi_transaction.flags = SPI_TRANS_USE_RXDATA;
+    _spi_transaction.addr = reg,
+    _spi_transaction.length = BITS_PER_BYTE;
+    _spi_transaction.rxlength = BITS_PER_BYTE;
+    _spi_transaction.tx_buffer = nullptr;
+    //_spi_transaction.rx_data[0] = 0;
     //spi_device_acquire_bus(_spi, portMAX_DELAY);
-    esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
+    esp_err_t ret = spi_device_transmit(_spi, &_spi_transaction);
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
-    Serial.printf("read ret:%d(%d)\r\n", ret, _spiTransaction.rx_data[0]);
+    Serial.printf("read ret:%d(%d)\r\n", ret, _spi_transaction.rx_data[0]);
 #endif
     assert(ret == ESP_OK && "SPI read_register fail");
     //spi_device_release_bus(_spi);
-    return _spiTransaction.rx_data[0];
+    return _spi_transaction.rx_data[0];
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
-    std::array<uint8_t, 2> outBuf = {{ reg, 0 }};
-    std::array<uint8_t, 2> inBuf;
+    std::array<uint8_t, 2> out_buf = {{ reg, 0 }};
+    std::array<uint8_t, 2> in_buf;
     cs_select(*this);
-    HAL_SPI_TransmitReceive(&_spi, &outBuf[0], &inBuf[0], 2, HAL_MAX_DELAY);
+    HAL_SPI_TransmitReceive(&_spi, &out_buf[0], &in_buf[0], 2, HAL_MAX_DELAY);
     cs_deselect(*this);
-    return inBuf[1];
+    return in_buf[1];
 #elif defined(FRAMEWORK_TEST)
     (void)reg;
 #else // defaults to FRAMEWORK_ARDUINO
@@ -714,17 +714,17 @@ FAST_CODE uint8_t BusSpi::read_register(uint8_t reg) const
     return 0;
 }
 
-FAST_CODE uint8_t BusSpi::read_register_with_timeout(uint8_t reg, uint32_t timeoutMs) const
+FAST_CODE uint8_t BusSpi::read_register_with_timeout(uint8_t reg, uint32_t timeout_ms) const
 {
 #if defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     cs_select(*this);
-    std::array<uint8_t, 2> outBuf = {{ static_cast<uint8_t>(reg | READ_BIT), 0 }};
-    std::array<uint8_t, 2> inBuf;
-    HAL_SPI_TransmitReceive(&_spi, &outBuf[0], &inBuf[0], 2, timeoutMs); // note timeout is in milliseconds
+    std::array<uint8_t, 2> out_buf = {{ static_cast<uint8_t>(reg | READ_BIT), 0 }};
+    std::array<uint8_t, 2> in_buf;
+    HAL_SPI_TransmitReceive(&_spi, &out_buf[0], &in_buf[0], 2, timeout_ms); // note timeout is in milliseconds
     cs_deselect(*this);
-    return inBuf[1];
+    return in_buf[1];
 #else
-    (void)timeoutMs;
+    (void)timeout_ms;
     return read_register(reg);
 #endif
 }
@@ -739,14 +739,14 @@ FAST_CODE bool BusSpi::read_register(uint8_t reg, uint8_t* data, size_t length) 
     cs_deselect(*this);
     return true;
 #elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
-    _spiTransaction.flags = 0;
-    _spiTransaction.addr = reg,
-    _spiTransaction.length = BITS_PER_BYTE * length;
-    _spiTransaction.rxlength = BITS_PER_BYTE * length;
-    _spiTransaction.tx_buffer = nullptr;
-    _spiTransaction.rx_buffer = &data[0]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    _spi_transaction.flags = 0;
+    _spi_transaction.addr = reg,
+    _spi_transaction.length = BITS_PER_BYTE * length;
+    _spi_transaction.rxlength = BITS_PER_BYTE * length;
+    _spi_transaction.tx_buffer = nullptr;
+    _spi_transaction.rx_buffer = &data[0]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     //spi_device_acquire_bus(_spi, portMAX_DELAY);
-    esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
+    esp_err_t ret = spi_device_transmit(_spi, &_spi_transaction);
     assert(ret == ESP_OK && "SPI read_register data, len fail");
     //spi_device_release_bus(_spi);
     return ret;
@@ -781,14 +781,14 @@ FAST_CODE bool BusSpi::read_bytes(uint8_t* data, size_t length) const // NOLINT(
     cs_deselect(*this);
     return true;
 #elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
-    _spiTransaction.flags = 0;
-    _spiTransaction.addr = *data,
-    _spiTransaction.length = BITS_PER_BYTE*length;
-    _spiTransaction.rxlength = BITS_PER_BYTE*length;
-    _spiTransaction.tx_buffer = nullptr;
-    _spiTransaction.rx_buffer = &data[0]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    _spi_transaction.flags = 0;
+    _spi_transaction.addr = *data,
+    _spi_transaction.length = BITS_PER_BYTE*length;
+    _spi_transaction.rxlength = BITS_PER_BYTE*length;
+    _spi_transaction.tx_buffer = nullptr;
+    _spi_transaction.rx_buffer = &data[0]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     //spi_device_acquire_bus(_spi, portMAX_DELAY);
-    esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
+    esp_err_t ret = spi_device_transmit(_spi, &_spi_transaction);
     assert(ret == ESP_OK && "SPI read_bytes data, len fail");
     //spi_device_release_bus(_spi);
     return ret;
@@ -811,14 +811,14 @@ FAST_CODE bool BusSpi::read_bytes(uint8_t* data, size_t length) const // NOLINT(
     return false;
 }
 
-FAST_CODE bool BusSpi::read_bytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) const
+FAST_CODE bool BusSpi::read_bytes_with_timeout(uint8_t* data, size_t length, uint32_t timeout_ms) const
 {
 #if defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     //  HAL_OK, HAL_ERROR, HAL_BUSY, HAL_TIMEOUT
-    const HAL_StatusTypeDef status = HAL_SPI_Transmit(&_spi, data, length, timeoutMs); //!!T
+    const HAL_StatusTypeDef status = HAL_SPI_Transmit(&_spi, data, length, timeout_ms); //!!T
     return status == HAL_ERROR ? false : true;
 #else
-    (void)timeoutMs;
+    (void)timeout_ms;
     return read_bytes(data, length);
 #endif
 }
@@ -827,20 +827,20 @@ FAST_CODE uint8_t BusSpi::write_register(uint8_t reg, uint8_t data) // NOLINT(re
 {
     reg &= static_cast<uint8_t>(~READ_BIT);
 #if defined(FRAMEWORK_RPI_PICO)
-    std::array<uint8_t, 2> outBuf = {{ reg, data }}; // remove read bit as this is a write
-    std::array<uint8_t, 2> inBuf;
+    std::array<uint8_t, 2> out_buf = {{ reg, data }}; // remove read bit as this is a write
+    std::array<uint8_t, 2> in_buf;
     cs_select(*this);
-    spi_write_read_blocking(_spi, &outBuf[0], &inBuf[0], 2);
+    spi_write_read_blocking(_spi, &out_buf[0], &in_buf[0], 2);
     cs_deselect(*this);
 #elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
-    _spiTransaction.flags = SPI_TRANS_USE_TXDATA;
-    _spiTransaction.addr = reg,
-    _spiTransaction.length = BITS_PER_BYTE;
-    _spiTransaction.rxlength = 0;
-    _spiTransaction.tx_data[0] = data;
-    _spiTransaction.rx_buffer = nullptr;
+    _spi_transaction.flags = SPI_TRANS_USE_TXDATA;
+    _spi_transaction.addr = reg,
+    _spi_transaction.length = BITS_PER_BYTE;
+    _spi_transaction.rxlength = 0;
+    _spi_transaction.tx_data[0] = data;
+    _spi_transaction.rx_buffer = nullptr;
     //spi_device_acquire_bus(_spi, portMAX_DELAY);
-    esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
+    esp_err_t ret = spi_device_transmit(_spi, &_spi_transaction);
     assert(ret == ESP_OK && "SPI write_register data, len fail");
     //spi_device_release_bus(_spi);
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
@@ -868,14 +868,14 @@ FAST_CODE uint8_t BusSpi::write_register(uint8_t reg, const uint8_t* data, size_
     spi_write_blocking(_spi, data, length);
     cs_deselect(*this);
 #elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
-    _spiTransaction.flags = 0;
-    _spiTransaction.addr = reg,
-    _spiTransaction.length = BITS_PER_BYTE*length;
-    _spiTransaction.rxlength = 0;
-    _spiTransaction.tx_buffer = data;
-    _spiTransaction.rx_buffer = nullptr;
+    _spi_transaction.flags = 0;
+    _spi_transaction.addr = reg,
+    _spi_transaction.length = BITS_PER_BYTE*length;
+    _spi_transaction.rxlength = 0;
+    _spi_transaction.tx_buffer = data;
+    _spi_transaction.rx_buffer = nullptr;
     //spi_device_acquire_bus(_spi, portMAX_DELAY);
-    esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
+    esp_err_t ret = spi_device_transmit(_spi, &_spi_transaction);
     assert(ret == ESP_OK && "SPI write_register data, len fail");
     //spi_device_release_bus(_spi);
     return static_cast<uint8_t>(ret);
@@ -908,14 +908,14 @@ FAST_CODE uint8_t BusSpi::write_bytes(const uint8_t* data, size_t length) // NOL
     spi_write_blocking(_spi, data, length);
     cs_deselect(*this);
 #elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
-    _spiTransaction.flags = 0;
-    _spiTransaction.addr = *data,
-    _spiTransaction.length = BITS_PER_BYTE*(length - 1);
-    _spiTransaction.rxlength = 0;
-    _spiTransaction.tx_buffer = data + 1;
-    _spiTransaction.rx_buffer = nullptr;
+    _spi_transaction.flags = 0;
+    _spi_transaction.addr = *data,
+    _spi_transaction.length = BITS_PER_BYTE*(length - 1);
+    _spi_transaction.rxlength = 0;
+    _spi_transaction.tx_buffer = data + 1;
+    _spi_transaction.rx_buffer = nullptr;
     //spi_device_acquire_bus(_spi, portMAX_DELAY);
-    esp_err_t ret = spi_device_transmit(_spi, &_spiTransaction);
+    esp_err_t ret = spi_device_transmit(_spi, &_spi_transaction);
     assert(ret == ESP_OK && "SPI write_bytes data, len fail");
     //spi_device_release_bus(_spi);
     return static_cast<uint8_t>(ret);
@@ -940,7 +940,7 @@ FAST_CODE uint8_t BusSpi::write_bytes(const uint8_t* data, size_t length) // NOL
 }
 
 // Determine the divisor to use for a given bus frequency
-uint16_t BusSpi::calculate_clock_divider(uint32_t frequencyHz)
+uint16_t BusSpi::calculate_clock_divider(uint32_t frequency_hz)
 {
 #if defined(FRAMEWORK_RPI_PICO)
     /*
@@ -956,7 +956,7 @@ uint16_t BusSpi::calculate_clock_divider(uint32_t frequencyHz)
     // post-divide. Prescale is an even number from 2 to 254 inclusive.
     uint32_t prescale = 2;
     while (prescale <= 254) {
-        if (spiClock < prescale * 256 * static_cast<uint64_t>(frequencyHz)) {
+        if (spiClock < prescale * 256 * static_cast<uint64_t>(frequency_hz)) {
             break;
         }
         prescale += 2;
@@ -969,7 +969,7 @@ uint16_t BusSpi::calculate_clock_divider(uint32_t frequencyHz)
     // an integer in the range 1 to 256 inclusive.
     uint32_t postdiv = 256;
     while (postdiv > 1) {
-        if (spiClock / (prescale * (postdiv - 1)) > frequencyHz) {
+        if (spiClock / (prescale * (postdiv - 1)) > frequency_hz) {
             break;
         }
         --postdiv;
@@ -978,13 +978,13 @@ uint16_t BusSpi::calculate_clock_divider(uint32_t frequencyHz)
     // Store prescale, (postdiv - 1), both in range 0 to 255.
     return (uint16_t)((prescale << 8) + (postdiv - 1));
 #else
-    (void)frequencyHz;
+    (void)frequency_hz;
     return 1;
 #endif
 }
 
 // Return the SPI clock based on the given divisor
-uint32_t BusSpi::calculate_clock(uint16_t clockDivisor)
+uint32_t BusSpi::calculate_clock(uint16_t clock_divisor)
 {
     enum { DEFAULT_CLOCK = 64000000 };
 #if defined(FRAMEWORK_RPI_PICO)
@@ -1003,13 +1003,13 @@ uint32_t BusSpi::calculate_clock(uint16_t clockDivisor)
 #else
     const uint32_t clock = DEFAULT_CLOCK;
 #endif
-    return clock / clockDivisor;
+    return clock / clock_divisor;
 #elif defined(FRAMEWORK_TEST)
     const uint32_t clock = DEFAULT_CLOCK;
 #else // defaults to FRAMEWORK_ARDUINO
     const uint32_t clock = DEFAULT_CLOCK;
 #endif // FRAMEWORK
-    return clock / clockDivisor;
+    return clock / clock_divisor;
 }
 
 // Set the clock divisor to be used for accesses by the given device
@@ -1019,9 +1019,9 @@ void BusSpi::setClockDivisor(uint16_t divisor)
 }
 
 // Set the clock phase/polarity to be used for accesses by the given device
-void BusSpi::setClockPhasePolarity(bool leadingEdge)
+void BusSpi::setClockPhasePolarity(bool leading_edge)
 {
-    (void)leadingEdge;
+    (void)leading_edge;
 }
 
 // Enable/disable DMA on a specific device. Enabled by default.

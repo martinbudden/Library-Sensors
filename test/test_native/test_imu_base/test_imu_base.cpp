@@ -212,27 +212,27 @@ void test_raw()
 {
     static ImuNull imu;
 
-    ImuBase::xyz_int32_t gyroRaw = imu.read_gyro_raw();
-    TEST_ASSERT_EQUAL(0, gyroRaw.x);
-    TEST_ASSERT_EQUAL(0, gyroRaw.y);
-    TEST_ASSERT_EQUAL(0, gyroRaw.z);
+    ImuBase::xyz_int32_t gyro_raw = imu.read_gyro_raw();
+    TEST_ASSERT_EQUAL(0, gyro_raw.x);
+    TEST_ASSERT_EQUAL(0, gyro_raw.y);
+    TEST_ASSERT_EQUAL(0, gyro_raw.z);
 
-    imu.setGyroRaw({3, 5, 7});
-    gyroRaw = imu.read_gyro_raw();
-    TEST_ASSERT_EQUAL(3, gyroRaw.x);
-    TEST_ASSERT_EQUAL(5, gyroRaw.y);
-    TEST_ASSERT_EQUAL(7, gyroRaw.z);
+    imu.set_gyro_raw({3, 5, 7});
+    gyro_raw = imu.read_gyro_raw();
+    TEST_ASSERT_EQUAL(3, gyro_raw.x);
+    TEST_ASSERT_EQUAL(5, gyro_raw.y);
+    TEST_ASSERT_EQUAL(7, gyro_raw.z);
 
-    ImuBase::xyz_int32_t accRaw = imu.read_acc_raw();
-    TEST_ASSERT_EQUAL(0, accRaw.x);
-    TEST_ASSERT_EQUAL(0, accRaw.y);
-    TEST_ASSERT_EQUAL(0, accRaw.z);
+    ImuBase::xyz_int32_t acc_raw = imu.read_acc_raw();
+    TEST_ASSERT_EQUAL(0, acc_raw.x);
+    TEST_ASSERT_EQUAL(0, acc_raw.y);
+    TEST_ASSERT_EQUAL(0, acc_raw.z);
 
-    imu.setAccRaw({11, 13, 17});
-    accRaw = imu.read_acc_raw();
-    TEST_ASSERT_EQUAL(11, accRaw.x);
-    TEST_ASSERT_EQUAL(13, accRaw.y);
-    TEST_ASSERT_EQUAL(17, accRaw.z);
+    imu.set_acc_raw({11, 13, 17});
+    acc_raw = imu.read_acc_raw();
+    TEST_ASSERT_EQUAL(11, acc_raw.x);
+    TEST_ASSERT_EQUAL(13, acc_raw.y);
+    TEST_ASSERT_EQUAL(17, acc_raw.z);
 }
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-init-variables,readability-magic-numbers)
 

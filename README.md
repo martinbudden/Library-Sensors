@@ -121,17 +121,17 @@ classDiagram
     class BUS_I2C {
         _i2c_index i2c_index_e
         _pins pins_t
-        _I2C_address uint8_t
+        _i2c_address uint8_t
 
         set_interrupt_driven()
-        set_device_data_register(uint8_t deviceRegister, uint8_t* readBuf, size_t read_length)
+        set_device_data_register(uint8_t deviceRegister, uint8_t* read_buf, size_t read_length)
 
         read_device_data() bool
         read_register(uint8_t reg) uint8_t
-        read_register_with_timeout(uint8_t reg, uint32_t timeoutMs) uint8_t
+        read_register_with_timeout(uint8_t reg, uint32_t timeout_ms) uint8_t
         read_register(uint8_t reg, uint8_t* data, size_t length) bool
         read_bytes(uint8_t* data, size_t length) bool
-        read_bytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) bool
+        read_bytes_with_timeout(uint8_t* data, size_t length, uint32_t timeout_ms) bool
         write_register(uint8_t reg, uint8_t data) uint8_t
         write_register(uint8_t reg, const uint8_t* data, size_t length) uint8_t
         write_bytes(const uint8_t* data, size_t length) uint8_t
@@ -143,14 +143,14 @@ classDiagram
         _pins pins_t
 
         set_interrupt_driven()
-        set_device_data_register(uint8_t deviceRegister, uint8_t* readBuf, size_t read_length)
+        set_device_data_register(uint8_t deviceRegister, uint8_t* read_buf, size_t read_length)
 
         read_device_data() bool
         read_register(uint8_t reg) uint8_t
-        read_register_with_timeout(uint8_t reg, uint32_t timeoutMs) uint8_t
+        read_register_with_timeout(uint8_t reg, uint32_t timeout_ms) uint8_t
         read_register(uint8_t reg, uint8_t* data, size_t length) bool
         read_bytes(uint8_t* data, size_t length) bool
-        read_bytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) bool
+        read_bytes_with_timeout(uint8_t* data, size_t length, uint32_t timeout_ms) bool
         write_register(uint8_t reg, uint8_t data) uint8_t
         write_register(uint8_t reg, const uint8_t* data, size_t length) uint8_t
         write_bytes(const uint8_t* data, size_t length) uint8_t
@@ -179,7 +179,7 @@ classDiagram
         virtual get_acc_offset() xyz_int32_t
         virtual setAcc_offset()
 
-        virtual get_accOneG_Raw() int32_t
+        virtual get_acc_one_g_raw() int32_t
 
         virtual read_gyro_rps() xyz_t
         virtual read_gyro_dps() xyz_t

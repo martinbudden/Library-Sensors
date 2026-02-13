@@ -65,9 +65,9 @@ BarometerQmp6988::BarometerQmp6988(uint32_t frequency, uint8_t spi_index, const 
 {
 }
 #else
-BarometerQmp6988::BarometerQmp6988(uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+BarometerQmp6988::BarometerQmp6988(uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address) :
     BarometerBase(_bus),
-    _bus(I2C_address, i2c_index, pins)
+    _bus(i2c_address, i2c_index, pins)
 {
 }
 #endif
@@ -85,7 +85,7 @@ int BarometerQmp6988::init()
     }
 #endif
 
-    readCalibrationData();
+    read_calibration_data();
     delay_ms(1);
 
 
@@ -106,7 +106,7 @@ int BarometerQmp6988::init()
 }
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
-void BarometerQmp6988::readCalibrationData()
+void BarometerQmp6988::read_calibration_data()
 {
     std::array<uint8_t, CALIBRATION_DATA_SIZE> data {};
     _bus.read_register(REG_CALIBRATION_DATA, &data[0], CALIBRATION_DATA_SIZE);
@@ -131,20 +131,20 @@ void BarometerQmp6988::readCalibrationData()
     calibration.b21 = static_cast<int16_t>(((data[14]) << 8) | data[15]);
     calibration.bp3 = static_cast<int16_t>(((data[16]) << 8) | data[17]);
 
-    _ikData.a0  = calibration.a0;   // 20Q4
-    _ikData.b00 = calibration.b00;  // 20Q4
+    _ik_data.a0  = calibration.a0;   // 20Q4
+    _ik_data.b00 = calibration.b00;  // 20Q4
 
-    _ikData.a1 = 3608L    * static_cast<int32_t>(calibration.a1)  - 1731677965L; // 31Q23
-    _ikData.a2 = 16889L   * static_cast<int32_t>(calibration.a2)  - 87619360L;   // 30Q47
+    _ik_data.a1 = 3608L    * static_cast<int32_t>(calibration.a1)  - 1731677965L; // 31Q23
+    _ik_data.a2 = 16889L   * static_cast<int32_t>(calibration.a2)  - 87619360L;   // 30Q47
 
-    _ikData.bt1 = 2982L   * static_cast<int64_t>(calibration.bt1) + 107370906L;  // 28Q15
-    _ikData.bt2 = 329854L * static_cast<int64_t>(calibration.bt2) + 108083093L;  // 34Q38
-    _ikData.bp1 = 19923L  * static_cast<int64_t>(calibration.bp1) + 1133836764L; // 31Q20
-    _ikData.b11 = 2406L   * static_cast<int64_t>(calibration.b11) + 118215883L;  // 28Q34
-    _ikData.bp2 = 3079L   * static_cast<int64_t>(calibration.bp2) - 181579595L;  // 29Q43
-    _ikData.b12 = 6846L   * static_cast<int64_t>(calibration.b12) + 85590281L;   // 29Q53
-    _ikData.b21 = 13836L  * static_cast<int64_t>(calibration.b21) + 79333336L;   // 29Q60
-    _ikData.bp3 = 2915L   * static_cast<int64_t>(calibration.bp3) + 157155561L;  // 28Q65
+    _ik_data.bt1 = 2982L   * static_cast<int64_t>(calibration.bt1) + 107370906L;  // 28Q15
+    _ik_data.bt2 = 329854L * static_cast<int64_t>(calibration.bt2) + 108083093L;  // 34Q38
+    _ik_data.bp1 = 19923L  * static_cast<int64_t>(calibration.bp1) + 1133836764L; // 31Q20
+    _ik_data.b11 = 2406L   * static_cast<int64_t>(calibration.b11) + 118215883L;  // 28Q34
+    _ik_data.bp2 = 3079L   * static_cast<int64_t>(calibration.bp2) - 181579595L;  // 29Q43
+    _ik_data.b12 = 6846L   * static_cast<int64_t>(calibration.b12) + 85590281L;   // 29Q53
+    _ik_data.b21 = 13836L  * static_cast<int64_t>(calibration.b21) + 79333336L;   // 29Q60
+    _ik_data.bp3 = 2915L   * static_cast<int64_t>(calibration.bp3) + 157155561L;  // 28Q65
 }
 
 void BarometerQmp6988::read_temperature_and_pressure()
@@ -153,68 +153,68 @@ void BarometerQmp6988::read_temperature_and_pressure()
     _bus.read_register(REG_PRESSURE_MSB, &pt.data[0], sizeof(pt));
 
     constexpr int32_t OFFSET = 8388608;
-    const auto pressureRead =
+    const auto pressure_read =
         static_cast<uint32_t>((static_cast<uint32_t>(pt.data[0]) << 16) | (static_cast<uint16_t>(pt.data[1]) << 8) | pt.data[2]);
-    const auto pressureRaw  = static_cast<int32_t>(pressureRead - OFFSET);
+    const auto pressure_raw  = static_cast<int32_t>(pressure_read - OFFSET);
 
-    const auto temperatureRead =
+    const auto temperature_read =
         static_cast<uint32_t>((static_cast<uint32_t>(pt.data[3]) << 16) | (static_cast<uint16_t>(pt.data[4]) << 8) | pt.data[5]);
-    const auto temperatureRaw  = static_cast<int32_t>(temperatureRead - OFFSET);
+    const auto temperature_raw  = static_cast<int32_t>(temperature_read - OFFSET);
 
-    const int16_t temperature = convertTemperature(temperatureRaw);
-    const int32_t pressure = convertPressure(pressureRaw, temperature);
+    const int16_t temperature = convert_temperature(temperature_raw);
+    const int32_t pressure = convert_pressure(pressure_raw, temperature);
     _temperature_celsius = static_cast<float>(temperature) / 256.0F;
     _pressure_pascals    = static_cast<float>(pressure) / 16.0F;
 }
 
-int16_t BarometerQmp6988::convertTemperature(int32_t dt) const
+int16_t BarometerQmp6988::convert_temperature(int32_t dt) const
 {
     const int64_t dt64 = dt;
     // wk1: 60Q4 // bit size
-    const int64_t wk1 = (static_cast<int64_t>(_ikData.a1) * dt64);      // 31Q23+24-1=54 (54Q23)
-    int64_t wk2 = (static_cast<int64_t>(_ikData.a2) * dt64) >> 14;      // 30Q47+24-1=53 (39Q33)
+    const int64_t wk1 = (static_cast<int64_t>(_ik_data.a1) * dt64);      // 31Q23+24-1=54 (54Q23)
+    int64_t wk2 = (static_cast<int64_t>(_ik_data.a2) * dt64) >> 14;      // 30Q47+24-1=53 (39Q33)
     wk2 = (wk2 * dt64) >> 10;                                           // 39Q33+24-1=62 (52Q23)
     wk2 = ((wk1 + wk2) / 32767) >> 19;                                  // 54,52->55Q23 (20Q04)
 
-    const auto ret = static_cast<int16_t>((_ikData.a0 + wk2) >> 4);  // 21Q4 -> 17Q0
+    const auto ret = static_cast<int16_t>((_ik_data.a0 + wk2) >> 4);  // 21Q4 -> 17Q0
     return ret;
 }
 
-int32_t BarometerQmp6988::convertPressure(int32_t dp, int16_t tx) const
+int32_t BarometerQmp6988::convert_pressure(int32_t dp, int16_t tx) const
 {
     const int64_t dp64 = dp;
     const int64_t tx64 = tx;
 
     // wk1 = 48Q16 // bit size
-    int64_t wk1 = (_ikData.bt1 * tx64);         // 28Q15+16-1=43 (43Q15)
-    int64_t wk2 = (_ikData.bp1 * dp64) >> 5;    // 31Q20+24-1=54 (49Q15)
+    int64_t wk1 = (_ik_data.bt1 * tx64);         // 28Q15+16-1=43 (43Q15)
+    int64_t wk2 = (_ik_data.bp1 * dp64) >> 5;    // 31Q20+24-1=54 (49Q15)
     wk1 += wk2;  // 43,49->50Q15
-    wk2 = (_ikData.bt2 * tx64) >> 1;            // 34Q38+16-1=49 (48Q37)
+    wk2 = (_ik_data.bt2 * tx64) >> 1;            // 34Q38+16-1=49 (48Q37)
     wk2 = (wk2 * tx64) >> 8;                    // 48Q37+16-1=63 (55Q29)
     int64_t wk3 = wk2;                          // 55Q29
-    wk2 = (_ikData.b11 * tx64) >> 4;            // 28Q34+16-1=43 (39Q30)
+    wk2 = (_ik_data.b11 * tx64) >> 4;            // 28Q34+16-1=43 (39Q30)
     wk2 = (wk2 * dp64) >> 1;                    // 39Q30+24-1=62 (61Q29)
     wk3 += wk2;                                 // 55,61->62Q29
-    wk2 = (_ikData.bp2 * dp64) >> 13;           // 29Q43+24-1=52 (39Q30)
+    wk2 = (_ik_data.bp2 * dp64) >> 13;           // 29Q43+24-1=52 (39Q30)
     wk2 = (wk2 * dp64) >> 1;                    // 39Q30+24-1=62 (61Q29)
     wk3 += wk2;                                 // 62,61->63Q29
     wk1 += wk3 >> 14;                           // Q29 >> 14 -> Q15
-    wk2 = (_ikData.b12 * tx64);                 // 29Q53+16-1=45 (45Q53)
+    wk2 = (_ik_data.b12 * tx64);                 // 29Q53+16-1=45 (45Q53)
     wk2 = (wk2 * tx64) >> 22;                   // 45Q53+16-1=61 (39Q31)
     wk2 = (wk2 * dp64) >> 1;                    // 39Q31+24-1=62 (61Q30)
     wk3 = wk2;                                  // 61Q30
-    wk2 = (_ikData.b21 * tx64) >> 6;            // 29Q60+16-1=45 (39Q54)
+    wk2 = (_ik_data.b21 * tx64) >> 6;            // 29Q60+16-1=45 (39Q54)
     wk2 = (wk2 * dp64) >> 23;                   // 39Q54+24-1=62 (39Q31)
     wk2 = (wk2 * dp64) >> 1;                    // 39Q31+24-1=62 (61Q20)
     wk3 += wk2;                                 // 61,61->62Q30
-    wk2 = (_ikData.bp3 * dp64) >> 12;           // 28Q65+24-1=51 (39Q53)
+    wk2 = (_ik_data.bp3 * dp64) >> 12;           // 28Q65+24-1=51 (39Q53)
     wk2 = (wk2 * dp64) >> 23;                   // 39Q53+24-1=62 (39Q30)
     wk2 = (wk2 * dp64);                         // 39Q30+24-1=62 (62Q30)
     wk3 += wk2;                                 // 62,62->63Q30
     wk1 += wk3 >> 15;                           // Q30 >> 15 = Q15
     wk1 /= 32767L;
     wk1 >>= 11;                                 // Q15 >> 7 = Q4
-    wk1 += _ikData.b00;                         // Q4 + 20Q4
+    wk1 += _ik_data.b00;                         // Q4 + 20Q4
     // wk1 >>= 4; // 28Q4 -> 24Q0
 
     const auto ret = static_cast<int32_t>(wk1);

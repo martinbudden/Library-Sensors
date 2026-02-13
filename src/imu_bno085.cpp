@@ -58,9 +58,9 @@ ImuBno085::ImuBno085(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, 
 {
 }
 #else
-ImuBno085::ImuBno085(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+ImuBno085::ImuBno085(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address) :
     ImuBase(axis_order, _bus, IMU_AUTO_CALIBRATES | IMU_PERFORMS_SENSOR_FUSION),
-    _bus(I2C_address, i2c_index, pins),
+    _bus(i2c_address, i2c_index, pins),
     _axis_order_quaternion(axisOrientations[axis_order])
 {
 }
@@ -428,7 +428,7 @@ bool ImuBno085::read_packet_and_parse()
 bool ImuBno085::read_packet()
 {
     // No interrupt pin set then we rely on receivePacket() to timeout. Strictly speaking this does not follow the SH-2 transport protocol.
-    if (_bus.read_bytesWithTimeout(reinterpret_cast<uint8_t*>(&_shtp_packet.header), sizeof(ShtpHeader), BUS_TIMEOUT_MS) == false) { // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+    if (_bus.read_bytes_with_timeout(reinterpret_cast<uint8_t*>(&_shtp_packet.header), sizeof(ShtpHeader), BUS_TIMEOUT_MS) == false) { // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
         return false;
     }
 
@@ -464,18 +464,18 @@ Arduino I2C read limit is 32 bytes. Header is 4 bytes, so max data we can read p
 bool ImuBno085::read_data(size_t read_length)
 {
     size_t index = 0;
-    size_t bytesToRead = read_length;
+    size_t bytes_to_read = read_length;
 
     //Setup a series of chunked 32 byte reads
-    while (bytesToRead > 0) {
-        //Serial.printf("bytesToRead:%d\r\n", bytesToRead);
-        size_t readCount = bytesToRead;
-        if (readCount + sizeof(ShtpHeader) > MAX_I2C_READ_LENGTH) {
-            readCount = MAX_I2C_READ_LENGTH - sizeof(ShtpHeader);
+    while (bytes_to_read > 0) {
+        //Serial.printf("bytes_to_read:%d\r\n", bytes_to_read);
+        size_t read_count = bytes_to_read;
+        if (read_count + sizeof(ShtpHeader) > MAX_I2C_READ_LENGTH) {
+            read_count = MAX_I2C_READ_LENGTH - sizeof(ShtpHeader);
         }
 
         std::array<uint8_t, MAX_I2C_READ_LENGTH> data;
-        if (_bus.read_bytesWithTimeout(reinterpret_cast<uint8_t*>(&data[0]), readCount + sizeof(ShtpHeader), BUS_TIMEOUT_MS) == false) { // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast,readability-simplify-boolean-expr)
+        if (_bus.read_bytes_with_timeout(reinterpret_cast<uint8_t*>(&data[0]), read_count + sizeof(ShtpHeader), BUS_TIMEOUT_MS) == false) { // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast,readability-simplify-boolean-expr)
             return false;
         }
 
@@ -484,36 +484,36 @@ bool ImuBno085::read_data(size_t read_length)
         Serial.printf("data_length:%3d(0x%3X) CH:%d, SN:%d\r\n", data_length, data_length, data[2], data[3]);
 #endif
 
-        //Serial.printf("readCount:%d\r\n", readCount);
+        //Serial.printf("read_count:%d\r\n", read_count);
         // Read a chunk of data
-        if (index + readCount <= MAX_PACKET_SIZE) {
-            memcpy(&_shtp_packet.data[index], &data[4], readCount);
+        if (index + read_count <= MAX_PACKET_SIZE) {
+            memcpy(&_shtp_packet.data[index], &data[4], read_count);
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
-            for (int ii = 0; ii < readCount; ++ii) {
+            for (int ii = 0; ii < read_count; ++ii) {
                 Serial.printf("%02x ", _shtp_packet.data[index + ii]);
             }
             if (read_length > 0) {
                 Serial.printf("\r\n");
             }
 #endif
-            index += readCount;
+            index += read_count;
         } else {
             // no room for the data, so just throw it away
         }
-        bytesToRead -= readCount;
+        bytes_to_read -= read_count;
     }
     return true;
 }
 
 // NOTE: Arduino has a maximum 32 byte send.
-bool ImuBno085::send_packet(uint8_t channelNumber, uint8_t data_length)
+bool ImuBno085::send_packet(uint8_t channel_number, uint8_t data_length)
 {
-    const uint8_t packetLength = data_length + sizeof(_shtp_packet.header); // Add four bytes for the header
-    _shtp_packet.header.lengthLSB = packetLength & 0xFF;
-    _shtp_packet.header.lengthMSB = packetLength >> 8;
-    _shtp_packet.header.channel = channelNumber;
-    _shtp_packet.header.sequence_number = _sequence_number[channelNumber]++;
-    _bus.write_bytes(reinterpret_cast<uint8_t*>(&_shtp_packet), packetLength); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+    const uint8_t packet_length = data_length + sizeof(_shtp_packet.header); // Add four bytes for the header
+    _shtp_packet.header.lengthLSB = packet_length & 0xFF;
+    _shtp_packet.header.lengthMSB = packet_length >> 8;
+    _shtp_packet.header.channel = channel_number;
+    _shtp_packet.header.sequence_number = _sequence_number[channel_number]++;
+    _bus.write_bytes(reinterpret_cast<uint8_t*>(&_shtp_packet), packet_length); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
 
     return true;
 }

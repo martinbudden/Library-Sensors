@@ -107,9 +107,9 @@ public:
     This sets up a pre-read buffer for the register, so the register can be read using a single SPI transmit/receive instruction.
     This can be used, in particular, to simplify DMA on some architectures.
     */
-    void set_device_data_register(uint8_t device_data_register, uint8_t* readBuf, size_t read_length) {
+    void set_device_data_register(uint8_t device_data_register, uint8_t* read_buf, size_t read_length) {
         _device_data_register = device_data_register | READ_BIT;
-        _device_read_buf = readBuf + SPI_PRE_READ_BUFFER_OFFSET;
+        _device_read_buf = read_buf + SPI_PRE_READ_BUFFER_OFFSET;
         *_device_read_buf = _device_data_register;
         _device_read_length = read_length - SPI_PRE_READ_BUFFER_OFFSET;
     }

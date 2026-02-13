@@ -19,9 +19,9 @@ ImuM5Stack::ImuM5Stack(uint8_t axis_order) :
     _acc_sample_rate_hz = 500;
 }
 
-int ImuM5Stack::init(uint32_t outputDataRateHz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)
+int ImuM5Stack::init(uint32_t output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)
 {
-    (void)outputDataRateHz;
+    (void)output_data_rate_hz;
     (void)gyro_sensitivity;
     (void)acc_sensitivity;
 
@@ -99,12 +99,12 @@ xyz_t ImuM5Stack::read_gyro_rps()
     M5.IMU.get_gyroAdc(&x, &y, &z);
     bus_semaphore_give(_bus_mutex);
 
-    const xyz_t gyroRPS {
+    const xyz_t gyro_rps {
         .x = static_cast<float>(x) * _gyro_resolution_rps - _gyro_offset.x,
         .y = static_cast<float>(y) * _gyro_resolution_rps - _gyro_offset.y,
         .z = static_cast<float>(z) * _gyro_resolution_rps - _gyro_offset.z,
     };
-    return map_axes(gyroRPS);
+    return map_axes(gyro_rps);
 }
 
 xyz_t ImuM5Stack::read_gyro_dps()
@@ -117,12 +117,12 @@ xyz_t ImuM5Stack::read_gyro_dps()
     M5.IMU.get_gyroAdc(&x, &y, &z);
     bus_semaphore_give(_bus_mutex);
 
-    const xyz_t gyroDPS {
+    const xyz_t gyro_dps {
         .x = static_cast<float>(x - _gyro_offset.x) * _gyro_resolution_dps,
         .y = static_cast<float>(y - _gyro_offset.y) * _gyro_resolution_dps,
         .z = static_cast<float>(z - _gyro_offset.z) * _gyro_resolution_dps,
     };
-    return map_axes(gyroDPS);
+    return map_axes(gyro_dps);
 }
 
 FAST_CODE acc_gyro_rps_t ImuM5Stack::read_acc_gyro_rps()
@@ -135,7 +135,7 @@ FAST_CODE acc_gyro_rps_t ImuM5Stack::read_acc_gyro_rps()
     return gyroAcc;
 }
 
-acc_gyro_rps_t ImuM5Stack::acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t& data) const
+acc_gyro_rps_t ImuM5Stack::acc_gyro_rps_from_raw(const acc_temperature_gyro_data_t& data) const
 {
 // NOLINTBEGIN(hicpp-signed-bitwise)
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)

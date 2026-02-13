@@ -165,20 +165,20 @@ ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, uint32_t frequency, uint8_t spi
 {
 }
 #else
-ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
+ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t i2c_address) :
     ImuBase(axis_order, _bus),
-    _bus(I2C_address, i2c_index, pins)
+    _bus(i2c_address, i2c_index, pins)
 {
 }
-ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address) :
     ImuBase(axis_order, _bus),
-    _bus(I2C_address, i2c_index, pins)
+    _bus(i2c_address, i2c_index, pins)
 {
 }
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address) :
     ImuBase(axis_order, _bus),
-    _bus(I2C_address, wire, pins)
+    _bus(i2c_address, wire, pins)
 {
 }
 #endif
@@ -201,7 +201,7 @@ int ImuLsmds63trC::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensit
     _gyro_id_msp = 18;
     _acc_id_msp = 19;
 
-    _bus.set_device_data_register(REG_OUTX_L_G, &_spiAccGyroData.preReadBuffer[0], sizeof(_spiAccGyroData));
+    _bus.set_device_data_register(REG_OUTX_L_G, &_spi_acc_gyro_data.pre_read_buffer[0], sizeof(_spi_acc_gyro_data));
 
     _bus.write_register(REG_CTRL3_C, SW_RESET); // software reset
     delay_ms(100);
@@ -378,10 +378,10 @@ FAST_CODE acc_gyro_rps_t ImuLsmds63trC::read_acc_gyro_rps()
     bus_semaphore_take();
     _bus.read_device_data();
     //_bus.read_device_data_dma(); // for testing
-    //_bus.read_register(REG_OUTX_L_G, &_spiAccGyroData.accGyro.data[0], sizeof(_spiAccGyroData.accGyro));
+    //_bus.read_register(REG_OUTX_L_G, &_spi_acc_gyro_data.accGyro.data[0], sizeof(_spi_acc_gyro_data.accGyro));
     bus_semaphore_give();
 
-    return acc_gyro_rpsFromRaw(_spiAccGyroData.accGyro.value);
+    return acc_gyro_rps_from_raw(_spi_acc_gyro_data.accGyro.value);
 }
 
 /*!
@@ -389,10 +389,10 @@ Return the gyroAcc data that was read in the ISR
 */
 FAST_CODE acc_gyro_rps_t ImuLsmds63trC::get_acc_gyro_rps() const
 {
-    return acc_gyro_rpsFromRaw(_spiAccGyroData.accGyro.value);
+    return acc_gyro_rps_from_raw(_spi_acc_gyro_data.accGyro.value);
 }
 
-acc_gyro_rps_t ImuLsmds63trC::acc_gyro_rpsFromRaw(const acc_gyro_data_t::value_t& data) const
+acc_gyro_rps_t ImuLsmds63trC::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return acc_gyro_rps_t {

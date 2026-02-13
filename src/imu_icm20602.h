@@ -13,12 +13,12 @@ public:
     ImuIcm20602(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    ImuIcm20602(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
-    ImuIcm20602(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : ImuIcm20602(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    ImuIcm20602(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t i2c_address);
+    ImuIcm20602(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins, uint8_t i2c_address) : ImuIcm20602(axis_order, BusI2c::BUS_INDEX_0, pins, i2c_address) {}
     ImuIcm20602(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins) : ImuIcm20602(axis_order, pins, I2C_ADDRESS) {}
 
-    ImuIcm20602(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
-    ImuIcm20602(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : ImuIcm20602(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    ImuIcm20602(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address);
+    ImuIcm20602(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address) : ImuIcm20602(axis_order, BusI2c::BUS_INDEX_0, pins, i2c_address) {}
     ImuIcm20602(uint8_t axis_order, const BusI2c::i2c_pins_t& pins) : ImuIcm20602(axis_order, pins, I2C_ADDRESS) {}
 #endif
     virtual int init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) override;
@@ -60,7 +60,7 @@ private:
     };
 #pragma pack(pop)
     struct spi_acc_temperature_gyro_data_t {
-        std::array<uint8_t, BusBase::SPI_PRE_READ_BUFFER_SIZE> preReadBuffer; // buffer for the transmit byte sent as part of a read
+        std::array<uint8_t, BusBase::SPI_PRE_READ_BUFFER_SIZE> pre_read_buffer; // buffer for the transmit byte sent as part of a read
         acc_temperature_gyro_data_t accGyro;
     };
 public:
@@ -75,17 +75,17 @@ public:
     virtual acc_gyro_rps_t read_acc_gyro_rps() override;
     virtual acc_gyro_rps_t get_acc_gyro_rps() const override;
 
-    float readTemperature() const;
-    int32_t readTemperatureRaw() const;
+    float read_temperature() const;
+    int32_t read_temperature_raw() const;
 private:
-    xyz_t gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const;
-    xyz_t accFromRaw(const mems_sensor_data_t::value_t& data) const;
-    acc_gyro_rps_t acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t::value_t& data) const;
+    xyz_t gyro_rps_from_raw(const mems_sensor_data_t::value_t& data) const;
+    xyz_t acc_from_raw(const mems_sensor_data_t::value_t& data) const;
+    acc_gyro_rps_t acc_gyro_rps_from_raw(const acc_temperature_gyro_data_t::value_t& data) const;
 private:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuIcm20602_USE_SPI_BUS)
     BusSpi _bus; //!< SPI bus interface
 #else
     BusI2c _bus; //!< I2C bus interface
 #endif
-    spi_acc_temperature_gyro_data_t _spiAccTemperatureGyroData {};
+    spi_acc_temperature_gyro_data_t _spi_acc_temperature_gyro_data {};
 };

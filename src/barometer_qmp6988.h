@@ -60,26 +60,26 @@ public:
     BarometerQmp6988(uint32_t frequency, uint8_t spi_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    BarometerQmp6988(uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
-    BarometerQmp6988(const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : BarometerQmp6988(BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    BarometerQmp6988(uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t i2c_address);
+    BarometerQmp6988(const BusI2c::stm32_i2c_pins_t& pins, uint8_t i2c_address) : BarometerQmp6988(BusI2c::BUS_INDEX_0, pins, i2c_address) {}
     explicit BarometerQmp6988(const BusI2c::stm32_i2c_pins_t& pins) : BarometerQmp6988(pins, I2C_ADDRESS) {}
 
-    BarometerQmp6988(uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
-    BarometerQmp6988(const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : BarometerQmp6988(BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    BarometerQmp6988(uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address);
+    BarometerQmp6988(const BusI2c::i2c_pins_t& pins, uint8_t i2c_address) : BarometerQmp6988(BusI2c::BUS_INDEX_0, pins, i2c_address) {}
     explicit BarometerQmp6988(const BusI2c::i2c_pins_t& pins) : BarometerQmp6988(pins, I2C_ADDRESS) {}
 #endif
     virtual int init() override;
     virtual void read_temperature_and_pressure() override;
     virtual float calculate_altitude_meters(float pressure_pascals, float temperature_celsius) override;
 
-    void readCalibrationData();
-    int16_t convertTemperature(int32_t dt) const;
-    int32_t convertPressure(int32_t dp, int16_t tx) const;
+    void read_calibration_data();
+    int16_t convert_temperature(int32_t dt) const;
+    int32_t convert_pressure(int32_t dp, int16_t tx) const;
 private:
 #if defined(LIBRARY_SENSORS_BAROMETER_USE_SPI_BUS)
     BusSpi _bus; //!< SPI bus interface
 #else
     BusI2c _bus; //!< I2C bus interface
 #endif
-    ik_data_t _ikData {};
+    ik_data_t _ik_data {};
 };

@@ -195,7 +195,7 @@ public:
     uint32_t get_acc_sample_rate_hz() const { return _acc_sample_rate_hz; }
     uint16_t get_gyro_id_msp() const { return _gyro_id_msp; }
     uint16_t get_acc_id_msp() const { return _acc_id_msp; }
-    void calibrate(uint8_t calibrationType, size_t calibrationCount);
+    void calibrate(uint8_t calibration_type, size_t calibration_count);
 
     virtual void set_interrupt_driven();
     int32_t WAIT_IMU_DATA_READY() { return _bus_base->WAIT_DATA_READY(); }
@@ -228,7 +228,7 @@ public:
     static xyz_alignment_t alignment_from_axis_order(uint8_t axis_order);
     static uint8_t axis_orderFromAlignment(const xyz_alignment_t& alignment);
 
-    uint32_t getFlags() const { return _flags; }
+    uint8_t get_flags() const { return _flags; }
 #if defined(FRAMEWORK_USE_FREERTOS)
 #if defined(LIBRARY_SENSORS_IMU_BUS_MUTEX_REQUIRED)
     void bus_semaphore_take() const { xSemaphoreTake(_bus_mutex, portMAX_DELAY); }

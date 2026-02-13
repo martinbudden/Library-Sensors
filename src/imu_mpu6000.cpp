@@ -93,20 +93,20 @@ ImuMpu6000::ImuMpu6000(uint8_t axis_order, uint32_t frequency, uint8_t spi_index
 {
 }
 #else
-ImuMpu6000::ImuMpu6000(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
+ImuMpu6000::ImuMpu6000(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t i2c_address) :
     ImuBase(axis_order, _bus),
-    _bus(I2C_address, i2c_index, pins)
+    _bus(i2c_address, i2c_index, pins)
 {
 }
-ImuMpu6000::ImuMpu6000(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+ImuMpu6000::ImuMpu6000(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address) :
     ImuBase(axis_order, _bus),
-    _bus(I2C_address, i2c_index, pins)
+    _bus(i2c_address, i2c_index, pins)
 {
 }
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-ImuMpu6000::ImuMpu6000(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+ImuMpu6000::ImuMpu6000(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address) :
     ImuBase(axis_order, _bus),
-    _bus(I2C_address, wire, pins)
+    _bus(i2c_address, wire, pins)
 {
 }
 #endif
@@ -129,7 +129,7 @@ int ImuMpu6000::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivi
     _gyro_id_msp = MSP_GYRO_ID_MPU6000;
     _acc_id_msp = MSP_ACC_ID_MPU6000;
 
-    _bus.set_device_data_register(REG_ACCEL_XOUT_H, reinterpret_cast<uint8_t*>(&_spiAccGyroData), sizeof(_spiAccGyroData));
+    _bus.set_device_data_register(REG_ACCEL_XOUT_H, reinterpret_cast<uint8_t*>(&_spi_acc_gyro_data), sizeof(_spi_acc_gyro_data));
 
     // Disable Primary I2C Interface
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuMpu6000_USE_SPI_BUS)
@@ -268,7 +268,7 @@ xyz_t ImuMpu6000::read_gyro_rps()
     _bus.read_register(REG_GYRO_XOUT_H, &gyro.data[0], sizeof(gyro));
     bus_semaphore_give(_bus_mutex);
 
-    return gyroRPS_FromRaw(gyro.value);
+    return gyro_rps_from_raw(gyro.value);
 }
 
 xyz_t ImuMpu6000::read_gyro_dps()
@@ -284,17 +284,17 @@ xyz_t ImuMpu6000::read_acc()
     _bus.read_register(REG_ACCEL_XOUT_H, &acc.data[0], sizeof(acc));
     bus_semaphore_give(_bus_mutex);
 
-    return accFromRaw(acc.value);
+    return acc_from_raw(acc.value);
 }
 
 FAST_CODE acc_gyro_rps_t ImuMpu6000::read_acc_gyro_rps()
 {
     bus_semaphore_take(_bus_mutex);
-    _bus.read_register(REG_ACCEL_XOUT_H, &_spiAccGyroData.accGyro.data[0], sizeof(_spiAccGyroData.accGyro));
+    _bus.read_register(REG_ACCEL_XOUT_H, &_spi_acc_gyro_data.accGyro.data[0], sizeof(_spi_acc_gyro_data.accGyro));
     //_bus.read_device_data();
     bus_semaphore_give(_bus_mutex);
 
-    return acc_gyro_rpsFromRaw(_spiAccGyroData.accGyro.value);
+    return acc_gyro_rps_from_raw(_spi_acc_gyro_data.accGyro.value);
 }
 
 /*!
@@ -302,10 +302,10 @@ Return the gyroAcc data that was read in the ISR
 */
 FAST_CODE acc_gyro_rps_t ImuMpu6000::get_acc_gyro_rps() const
 {
-    return acc_gyro_rpsFromRaw(_spiAccGyroData.accGyro.value);
+    return acc_gyro_rps_from_raw(_spi_acc_gyro_data.accGyro.value);
 }
 
-xyz_t ImuMpu6000::gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const
+xyz_t ImuMpu6000::gyro_rps_from_raw(const mems_sensor_data_t::value_t& data) const
 {
     // static cast to int16_t to sign extend the 8 bit values
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
@@ -342,7 +342,7 @@ xyz_t ImuMpu6000::gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const
 #endif
 }
 
-xyz_t ImuMpu6000::accFromRaw(const mems_sensor_data_t::value_t& data) const
+xyz_t ImuMpu6000::acc_from_raw(const mems_sensor_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
     return xyz_t {
@@ -378,7 +378,7 @@ xyz_t ImuMpu6000::accFromRaw(const mems_sensor_data_t::value_t& data) const
 #endif
 }
 
-acc_gyro_rps_t ImuMpu6000::acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t::value_t& data) const
+acc_gyro_rps_t ImuMpu6000::acc_gyro_rps_from_raw(const acc_temperature_gyro_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return acc_gyro_rps_t {

@@ -34,5 +34,5 @@ private:
         uint8_t gyro_z_h;
         uint8_t gyro_z_l;
     };
-    acc_gyro_rps_t acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t& data) const;
+    acc_gyro_rps_t acc_gyro_rps_from_raw(const acc_temperature_gyro_data_t& data) const;
 };

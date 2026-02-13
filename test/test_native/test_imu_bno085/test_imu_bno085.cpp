@@ -44,10 +44,10 @@ void test_bno085_channel_input_sensor_reports()
 
     packet.data[5] = ImuBno085::SENSOR_REPORTID_GYROSCOPE_CALIBRATED;
     TEST_ASSERT_EQUAL(ImuBno085::SENSOR_REPORTID_GYROSCOPE_CALIBRATED, imu.parse_input_sensor_report(packet));
-    const ImuBno085::sensor_output_t gyroRPS = imu.get_gyro_rps_Data();
-    TEST_ASSERT_EQUAL(0x0503, gyroRPS.x);
-    TEST_ASSERT_EQUAL(0x7538, gyroRPS.y);
-    TEST_ASSERT_EQUAL(static_cast<int16_t>(0xD761), gyroRPS.z);
+    const ImuBno085::sensor_output_t gyro_rps = imu.get_gyro_rps_data();
+    TEST_ASSERT_EQUAL(0x0503, gyro_rps.x);
+    TEST_ASSERT_EQUAL(0x7538, gyro_rps.y);
+    TEST_ASSERT_EQUAL(static_cast<int16_t>(0xD761), gyro_rps.z);
 
     packet.data[5] = ImuBno085::SENSOR_REPORTID_MAGNETIC_FIELD_CALIBRATED;
     TEST_ASSERT_EQUAL(ImuBno085::SENSOR_REPORTID_MAGNETIC_FIELD_CALIBRATED, imu.parse_input_sensor_report(packet));
@@ -96,7 +96,7 @@ void test_bno085_channel_gyro_integrated_rotation_vector_report()
     packet.data[7] = 0xF9;
     TEST_ASSERT_EQUAL(ImuBno085::SENSOR_REPORTID_GYRO_INTEGRATED_ROTATION_VECTOR, imu.parseGyro_integrated_rotation_vectorReport(packet));
 
-    const ImuBno085::gyro_integrated_rotation_vector_t gyroRotation = imu.get_gyro_integrated_rotation_vectorData();
+    const ImuBno085::gyro_integrated_rotation_vector_t gyroRotation = imu.get_gyro_integrated_rotation_vector_data();
     TEST_ASSERT_EQUAL(0x0503, gyroRotation.i);
     TEST_ASSERT_EQUAL(0x7538, gyroRotation.j);
     TEST_ASSERT_EQUAL(static_cast<int16_t>(0xD761), gyroRotation.k);
@@ -126,7 +126,7 @@ void test_bno085()
 #else
     static const ImuBno085 imu(ImuBase::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{});
 #endif
-    TEST_ASSERT_EQUAL(ImuBase::IMU_AUTO_CALIBRATES | ImuBase::IMU_PERFORMS_SENSOR_FUSION, imu.getFlags());
+    TEST_ASSERT_EQUAL(ImuBase::IMU_AUTO_CALIBRATES | ImuBase::IMU_PERFORMS_SENSOR_FUSION, imu.get_flags());
 }
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-init-variables,readability-magic-numbers)
 

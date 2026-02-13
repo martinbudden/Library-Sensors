@@ -22,8 +22,8 @@ public:
     virtual xyz_int32_t read_acc_raw() override;
 // NOLINTEND(cppcoreguidelines-explicit-virtual-functions,hicpp-use-override,modernize-use-override)
 public: // for testing
-    void setGyroRaw(const xyz_int32_t& gyroRaw) { _gyro_raw = gyroRaw; }
-    void setAccRaw(const xyz_int32_t& accRaw) { _acc_raw = accRaw; }
+    void set_gyro_raw(const xyz_int32_t& gyro_raw) { _gyro_raw = gyro_raw; }
+    void set_acc_raw(const xyz_int32_t& acc_raw) { _acc_raw = acc_raw; }
 private:
     xyz_int32_t _gyro_raw {};
     xyz_int32_t _acc_raw {};

@@ -77,9 +77,9 @@ BarometerBmp280::BarometerBmp280(uint32_t frequency, uint8_t spi_index, const Bu
 {
 }
 #else
-BarometerBmp280::BarometerBmp280(uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+BarometerBmp280::BarometerBmp280(uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address) :
     BarometerBase(_bus),
-    _bus(I2C_address, i2c_index, pins)
+    _bus(i2c_address, i2c_index, pins)
 {
 }
 #endif
@@ -96,21 +96,21 @@ int BarometerBmp280::init()
         return NOT_DETECTED;
     }
 #endif
-    /*_calibrationData.value.dig_T1 = read_register16_LE(REG_DIG_T1);
-    _calibrationData.value.dig_T2 = read_register16S_LE(REG_DIG_T2);
-    _calibrationData.value.dig_T3 = read_register16S_LE(REG_DIG_T3);
+    /*_calibration_data.value.dig_T1 = read_register16_LE(REG_DIG_T1);
+    _calibration_data.value.dig_T2 = read_register16S_LE(REG_DIG_T2);
+    _calibration_data.value.dig_T3 = read_register16S_LE(REG_DIG_T3);
 
-    _calibrationData.value.dig_P1 = read_register16_LE(REG_DIG_P1);
-    _calibrationData.value.dig_P2 = read_register16S_LE(REG_DIG_P2);
-    _calibrationData.value.dig_P3 = read_register16S_LE(REG_DIG_P3);
-    _calibrationData.value.dig_P4 = read_register16S_LE(REG_DIG_P4);
-    _calibrationData.value.dig_P5 = read_register16S_LE(REG_DIG_P5);
-    _calibrationData.value.dig_P6 = read_register16S_LE(REG_DIG_P6);
-    _calibrationData.value.dig_P7 = read_register16S_LE(REG_DIG_P7);
-    _calibrationData.value.dig_P8 = read_register16S_LE(REG_DIG_P8);
-    _calibrationData.value.dig_P9 = read_register16S_LE(REG_DIG_P9);*/
+    _calibration_data.value.dig_P1 = read_register16_LE(REG_DIG_P1);
+    _calibration_data.value.dig_P2 = read_register16S_LE(REG_DIG_P2);
+    _calibration_data.value.dig_P3 = read_register16S_LE(REG_DIG_P3);
+    _calibration_data.value.dig_P4 = read_register16S_LE(REG_DIG_P4);
+    _calibration_data.value.dig_P5 = read_register16S_LE(REG_DIG_P5);
+    _calibration_data.value.dig_P6 = read_register16S_LE(REG_DIG_P6);
+    _calibration_data.value.dig_P7 = read_register16S_LE(REG_DIG_P7);
+    _calibration_data.value.dig_P8 = read_register16S_LE(REG_DIG_P8);
+    _calibration_data.value.dig_P9 = read_register16S_LE(REG_DIG_P9);*/
 
-    _bus.read_register(REG_DIG_T1, &_calibrationData.data[0], sizeof(_calibrationData));
+    _bus.read_register(REG_DIG_T1, &_calibration_data.data[0], sizeof(_calibration_data));
     delay_ms(1);
 
     /*
@@ -143,18 +143,18 @@ int BarometerBmp280::init()
 void BarometerBmp280::read_temperature_and_pressure()
 {
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
-    const auto T1 = static_cast<int32_t>(_calibrationData.value.dig_T1);
-    const auto T2 = static_cast<int32_t>(_calibrationData.value.dig_T2);
-    const auto T3 = static_cast<int32_t>(_calibrationData.value.dig_T3);
-    const auto P1 = static_cast<int64_t>(_calibrationData.value.dig_P1);
-    const auto P2 = static_cast<int64_t>(_calibrationData.value.dig_P2);
-    const auto P3 = static_cast<int64_t>(_calibrationData.value.dig_P3);
-    const auto P4 = static_cast<int64_t>(_calibrationData.value.dig_P4);
-    const auto P5 = static_cast<int64_t>(_calibrationData.value.dig_P5);
-    const auto P6 = static_cast<int64_t>(_calibrationData.value.dig_P6);
-    const auto P7 = static_cast<int64_t>(_calibrationData.value.dig_P7);
-    const auto P8 = static_cast<int64_t>(_calibrationData.value.dig_P8);
-    const auto P9 = static_cast<int64_t>(_calibrationData.value.dig_P9);
+    const auto T1 = static_cast<int32_t>(_calibration_data.value.dig_T1);
+    const auto T2 = static_cast<int32_t>(_calibration_data.value.dig_T2);
+    const auto T3 = static_cast<int32_t>(_calibration_data.value.dig_T3);
+    const auto P1 = static_cast<int64_t>(_calibration_data.value.dig_P1);
+    const auto P2 = static_cast<int64_t>(_calibration_data.value.dig_P2);
+    const auto P3 = static_cast<int64_t>(_calibration_data.value.dig_P3);
+    const auto P4 = static_cast<int64_t>(_calibration_data.value.dig_P4);
+    const auto P5 = static_cast<int64_t>(_calibration_data.value.dig_P5);
+    const auto P6 = static_cast<int64_t>(_calibration_data.value.dig_P6);
+    const auto P7 = static_cast<int64_t>(_calibration_data.value.dig_P7);
+    const auto P8 = static_cast<int64_t>(_calibration_data.value.dig_P8);
+    const auto P9 = static_cast<int64_t>(_calibration_data.value.dig_P9);
 
     // burst read of temperature and pressure data
     _bus.write_register(REG_CONTROL, MEASUREMENT_MODE);

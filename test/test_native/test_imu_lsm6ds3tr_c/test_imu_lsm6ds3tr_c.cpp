@@ -21,7 +21,7 @@ void test_lsm6ds3tr_c()
     constexpr uint8_t SCL_pin = 0;
     const ImuLsmds63trC imu(ImuBase::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{.sda=IMU_I2C_SDA_PIN, .scl=IMU_I2C_SCL_PIN});
 #endif
-    TEST_ASSERT_EQUAL(0, imu.getFlags());
+    TEST_ASSERT_EQUAL(0, imu.get_flags());
 }
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-init-variables,readability-magic-numbers)
 

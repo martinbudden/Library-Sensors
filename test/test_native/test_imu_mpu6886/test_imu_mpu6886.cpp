@@ -18,7 +18,7 @@ void test_mpu6886()
 #else
     static const ImuMpu6886 imu(ImuBase::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{});
 #endif
-    TEST_ASSERT_EQUAL(0, imu.getFlags());
+    TEST_ASSERT_EQUAL(0, imu.get_flags());
 }
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-init-variables,readability-magic-numbers)
 

@@ -125,8 +125,8 @@ public:
     ImuBno085(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    ImuBno085(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
-    ImuBno085(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : ImuBno085(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    ImuBno085(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address);
+    ImuBno085(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t i2c_address) : ImuBno085(axis_order, BusI2c::BUS_INDEX_0, pins, i2c_address) {}
     ImuBno085(uint8_t axis_order, const BusI2c::i2c_pins_t& pins) : ImuBno085(axis_order, pins, I2C_ADDRESS) {}
 #endif
 public:
@@ -148,22 +148,22 @@ public:
     bool send_command_calibrate_motion_engine();
     bool send_command_save_dynamic_calibration_data();
     // for unit testing
-    gyro_integrated_rotation_vector_t get_gyro_integrated_rotation_vectorData() const { return _gyro_integrated_rotation_vector; }
+    gyro_integrated_rotation_vector_t get_gyro_integrated_rotation_vector_data() const { return _gyro_integrated_rotation_vector; }
     rotation_vector_t get_rotation_vector_data() const { return _rotation_vector; }
     sensor_output_t get_acc_data() const { return _acc; }
     sensor_output_t get_acc_linear_data() const { return _acc_linear; }
-    sensor_output_t get_gyro_rps_Data() const { return _gyro_rps; }
+    sensor_output_t get_gyro_rps_data() const { return _gyro_rps; }
     sensor_output_t get_mag_data() const { return _mag; }
     sensor_output_t get_gravity_data() const { return _gravity; }
     sensor_output_t get_acc_raw_data() const { return _acc_raw; }
     sensor_output_t get_gyro_raw_data() const { return _gyro_raw; }
     sensor_output_t get_mag_raw_data() const { return _mag_raw; }
-    sensor_output_uncalibrated_gyro_t get_gyro_uncalibrated_rps_Data() const { return _gyro_uncalibrated_rps; }
+    sensor_output_uncalibrated_gyro_t get_gyro_uncalibrated_rps_data() const { return _gyro_uncalibrated_rps; }
 private:
     bool read_packet_and_parse();
     bool read_packet();
     bool read_data(size_t read_length);
-    bool send_packet(uint8_t channelNumber, uint8_t data_length);
+    bool send_packet(uint8_t channel_number, uint8_t data_length);
     bool send_command(uint8_t command);
 protected:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuBno085_USE_SPI_BUS)

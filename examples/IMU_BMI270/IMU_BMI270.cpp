@@ -69,15 +69,15 @@ void setup()
 void loop()
 {
     // take a gyro reading
-    const xyz_t gyroDPS =  imu->read_gyro_dps();
+    const xyz_t gyro_dps =  imu->read_gyro_dps();
 
     Serial.println();
     Serial.print("gyroX:");
-    Serial.print(gyroDPS.x, 1);
+    Serial.print(gyro_dps.x, 1);
     Serial.print(" gyroY:");
-    Serial.print(gyroDPS.y, 1);
+    Serial.print(gyro_dps.y, 1);
     Serial.print(" gyroZ:");
-    Serial.println(gyroDPS.z, 1);
+    Serial.println(gyro_dps.z, 1);
 
     // take an accelerometer reading
     const xyz_t acc =  imu->read_acc();

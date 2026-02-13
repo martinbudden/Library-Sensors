@@ -82,31 +82,31 @@ void ImuBase::setAcc_offset(const xyz_t& acc_offset)
 
 xyz_t ImuBase::read_gyro_rps()
 {
-    const xyz_int32_t gyroRaw = read_gyro_raw();
+    const xyz_int32_t gyro_raw = read_gyro_raw();
     return map_axes({
-        .x = static_cast<float>(gyroRaw.x) * _gyro_resolution_rps - _gyro_offset.x,
-        .y = static_cast<float>(gyroRaw.y) * _gyro_resolution_rps - _gyro_offset.y,
-        .z = static_cast<float>(gyroRaw.z) * _gyro_resolution_rps - _gyro_offset.z
+        .x = static_cast<float>(gyro_raw.x) * _gyro_resolution_rps - _gyro_offset.x,
+        .y = static_cast<float>(gyro_raw.y) * _gyro_resolution_rps - _gyro_offset.y,
+        .z = static_cast<float>(gyro_raw.z) * _gyro_resolution_rps - _gyro_offset.z
     });
 }
 
 xyz_t ImuBase::read_gyro_dps()
 {
-    const xyz_int32_t gyroRaw = read_gyro_raw();
+    const xyz_int32_t gyro_raw = read_gyro_raw();
     return map_axes({
-        .x = static_cast<float>(gyroRaw.x) * _gyro_resolution_dps - _gyro_offset.x,
-        .y = static_cast<float>(gyroRaw.y) * _gyro_resolution_dps - _gyro_offset.y,
-        .z = static_cast<float>(gyroRaw.z) * _gyro_resolution_dps - _gyro_offset.z
+        .x = static_cast<float>(gyro_raw.x) * _gyro_resolution_dps - _gyro_offset.x,
+        .y = static_cast<float>(gyro_raw.y) * _gyro_resolution_dps - _gyro_offset.y,
+        .z = static_cast<float>(gyro_raw.z) * _gyro_resolution_dps - _gyro_offset.z
     });
 }
 
 xyz_t ImuBase::read_acc()
 {
-    const xyz_int32_t accRaw = read_acc_raw();
+    const xyz_int32_t acc_raw = read_acc_raw();
     return map_axes({
-        .x = static_cast<float>(accRaw.x) * _acc_resolution - _acc_offset.x,
-        .y = static_cast<float>(accRaw.y) * _acc_resolution - _acc_offset.y,
-        .z = static_cast<float>(accRaw.z) * _acc_resolution - _acc_offset.z
+        .x = static_cast<float>(acc_raw.x) * _acc_resolution - _acc_offset.x,
+        .y = static_cast<float>(acc_raw.y) * _acc_resolution - _acc_offset.y,
+        .z = static_cast<float>(acc_raw.z) * _acc_resolution - _acc_offset.z
     });
 }
 
@@ -382,7 +382,7 @@ uint8_t ImuBase::axis_orderFromAlignment(const xyz_alignment_t& alignment)
     return XPOS_YPOS_ZPOS;
 }
 
-void ImuBase::calibrate(uint8_t calibrationType, size_t calibrationCount)
+void ImuBase::calibrate(uint8_t calibration_type, size_t calibration_count)
 {
     int64_t gyroX = 0;
     int64_t gyroY = 0;
@@ -391,7 +391,7 @@ void ImuBase::calibrate(uint8_t calibrationType, size_t calibrationCount)
     int64_t accY = 0;
     int64_t accZ = 0;
 
-    for (size_t ii = 0; ii < calibrationCount; ++ii) {
+    for (size_t ii = 0; ii < calibration_count; ++ii) {
         delay_ms(1);
 
         const xyz_int32_t gyro32 = read_gyro_raw();
@@ -406,15 +406,15 @@ void ImuBase::calibrate(uint8_t calibrationType, size_t calibrationCount)
     }
 
     const xyz_t gyro_offset = xyz_t {
-        .x = static_cast<float>(gyroX) / static_cast<float>(calibrationCount),
-        .y = static_cast<float>(gyroY) / static_cast<float>(calibrationCount),
-        .z = static_cast<float>(gyroZ) / static_cast<float>(calibrationCount)
+        .x = static_cast<float>(gyroX) / static_cast<float>(calibration_count),
+        .y = static_cast<float>(gyroY) / static_cast<float>(calibration_count),
+        .z = static_cast<float>(gyroZ) / static_cast<float>(calibration_count)
     } *  get_acc_resolution();
 
     xyz_t acc_offset = {
-        .x = static_cast<float>(accX) / static_cast<float>(calibrationCount),
-        .y = static_cast<float>(accY) / static_cast<float>(calibrationCount),
-        .z = static_cast<float>(accZ) / static_cast<float>(calibrationCount)
+        .x = static_cast<float>(accX) / static_cast<float>(calibration_count),
+        .y = static_cast<float>(accY) / static_cast<float>(calibration_count),
+        .z = static_cast<float>(accZ) / static_cast<float>(calibration_count)
     };
 
     const float oneG = 1.0F / get_acc_resolution();
@@ -435,7 +435,7 @@ void ImuBase::calibrate(uint8_t calibrationType, size_t calibrationCount)
     acc_offset *= get_acc_resolution();
 
     setGyro_offset(gyro_offset);
-    if (calibrationType == CALIBRATE_ACC_AND_GYRO) {
+    if (calibration_type == CALIBRATE_ACC_AND_GYRO) {
         setAcc_offset(acc_offset);
     }
 }
