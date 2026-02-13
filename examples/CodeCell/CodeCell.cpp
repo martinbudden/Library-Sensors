@@ -1,7 +1,7 @@
 #include <Arduino.h>
-#include <IMU_BNO085.h>
+#include <imu_bno085.h>
 
-static IMU_Base* imu;
+static ImuBase* imu;
 
 void setup()
 {
@@ -10,7 +10,7 @@ void setup()
     Serial.begin(115200);
 
     // statically allocate a BNO085 IMU object
-    static IMU_BNO085 imuStatic(IMU_Base::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{.sda=8,.scl=9,.irq=0xFF});
+    static ImuBno085 imuStatic(ImuBase::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{.sda=8,.scl=9,.irq=0xFF});
     imu = &imuStatic;
     // initialize the IMU
     imu->init();
@@ -19,7 +19,7 @@ void setup()
 void loop()
 {
     // read the gyro data and convert from radians per second to degrees per second
-    const xyz_t gyroDPS = imu->read_gyro_rps() * IMU_Base::RADIANS_TO_DEGREES;
+    const xyz_t gyroDPS = imu->read_gyro_rps() * ImuBase::RADIANS_TO_DEGREES;
     Serial.print("gyroX:");
     Serial.print(gyroDPS.x);
     Serial.print(" gyroY:");

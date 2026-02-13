@@ -3,9 +3,9 @@
 #include "imu_base.h"
 
 
-class IMU_M5_STACK : public IMU_Base {
+class ImuM5Stack : public ImuBase {
 public:
-    explicit IMU_M5_STACK(uint8_t axis_order);
+    explicit ImuM5Stack(uint8_t axis_order);
 public:
     virtual int init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) override;
     virtual xyz_int32_t read_gyro_raw() override;

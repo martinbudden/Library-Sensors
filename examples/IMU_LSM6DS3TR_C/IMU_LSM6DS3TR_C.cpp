@@ -1,13 +1,13 @@
 #include <Arduino.h>
 
-#include <IMU_LSM6DS3TR_C.h>
+#include <imu_lsm6ds3tr_c.h>
 #if defined(M5_UNIFIED)
 #include <M5Unified.h>
 #endif
 
 //#define INTERRUPT_DRIVEN
 
-static IMU_Base* imu;
+static ImuBase* imu;
 
 void setup()
 {
@@ -25,14 +25,14 @@ void setup()
     // create an LSM6DS3TR_C IMU object
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
     static constexpr uint32_t spiFrequencyHz = 10000000; // 10 MHz
-    //static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
-    //IMU_LSM6DS3TR_C(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
-    static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, spiFrequencyHz, BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
+    //static ImuLsmds63trC imuStatic(ImuBase::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
+    //ImuLsmds63trC(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
+    static ImuLsmds63trC imuStatic(ImuBase::XPOS_YPOS_ZPOS, spiFrequencyHz, BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
 #else
 #if defined(LIBRARY_SENSORS_IMU_USE_I2C_WIRE_1)
-    static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, Wire1, BusI2c::stm32_i2c_pins_t{.sda=IMU_I2C_SDA_PIN, .scl=IMU_I2C_SCL_PIN, .irq=BusSpi::IRQ_NOT_SET}, IMU_LSM6DS3TR_C::I2C_ADDRESS);
+    static ImuLsmds63trC imuStatic(ImuBase::XPOS_YPOS_ZPOS, Wire1, BusI2c::stm32_i2c_pins_t{.sda=IMU_I2C_SDA_PIN, .scl=IMU_I2C_SCL_PIN, .irq=BusSpi::IRQ_NOT_SET}, ImuLsmds63trC::I2C_ADDRESS);
 #else
-    static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, BusI2c::IMU_I2C_PINS);
+    static ImuLsmds63trC imuStatic(ImuBase::XPOS_YPOS_ZPOS, BusI2c::IMU_I2C_PINS);
 #endif
 #endif
     imu = &imuStatic;
@@ -64,7 +64,7 @@ void loop()
     const acc_gyro_rps_t acc_gyro_rps = imu->get_acc_gyro_rps();
 
     // convert the gyro radians per second value to degrees per second
-    const xyz_t gyroDPS = acc_gyro_rps.gyroRPS * IMU_Base::RADIANS_TO_DEGREES;
+    const xyz_t gyroDPS = acc_gyro_rps.gyroRPS * ImuBase::RADIANS_TO_DEGREES;
 
     Serial.println();
     Serial.print("gyroX:");

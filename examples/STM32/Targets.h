@@ -8,7 +8,7 @@ Targets
 #if defined(TARGET_ADAFRUIT_FEATHER_F405)
     #define BOARD_IDENTIFIER    "Feather_F405"
 
-    #define IMU_AXIS_ORDER      IMU_Base::XPOS_YPOS_ZPOS
+    #define IMU_AXIS_ORDER      ImuBase::XPOS_YPOS_ZPOS
     #define IMU_CLASS IMU_LSM6DS3TR_C
     //#define IMU_CLASS IMU_ICM426xx
     //#define IMU_CLASS IMU_MPU6000
@@ -64,7 +64,7 @@ Targets
     #define SOFT_SERIAL_2_PINS  port_pins_t{.rx={PB,0},.tx={PB,1}}
     #define I2C_1_PINS          port_pins_t{.sda={PB,7},.scl={PB,6}}
 
-    #define IMU_AXIS_ORDER      IMU_Base::XPOS_YPOS_ZPOS
+    #define IMU_AXIS_ORDER      ImuBase::XPOS_YPOS_ZPOS
     //!!TODO: add port_pins to IMU_MPU6000
     #define IMU_I2C_PINS        stm32_i2c_pins_t{.sda={PB,11},.scl={PB,10},.irq={PB,13}}
     // On afroflight Rev 5 MPU6050 is connected to IC2 index 2

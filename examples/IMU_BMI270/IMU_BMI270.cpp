@@ -1,8 +1,8 @@
 #include <Arduino.h>
-#include <IMU_BMI270.h>
+#include <imu_bmi270.h>
 
-#define IMU_AXIS_ORDER IMU_Base::XPOS_YPOS_ZPOS
-static IMU_Base* imu;
+#define IMU_AXIS_ORDER ImuBase::XPOS_YPOS_ZPOS
+static ImuBase* imu;
 
 #if defined(TARGET_M5STACK_ATOMS3R)
 #include <M5Unified.h>
@@ -22,7 +22,7 @@ void setup()
     delay(400); // delay to allow serial port to initialize before first print
 
     // statically allocate a BMI270 IMU object
-    static IMU_BMI270 imuSensor(IMU_AXIS_ORDER, BusI2c::IMU_I2C_PINS);
+    static ImuBmi270 imuSensor(IMU_AXIS_ORDER, BusI2c::IMU_I2C_PINS);
 #else
     Serial.begin(115200);
     delay(1000); // delay to allow serial port to initialize before first print
@@ -55,7 +55,7 @@ void setup()
 #endif
 
     enum { SPI_8_MEGAHERTZ = 8000000, SPI_10_MEGAHERTZ = 10000000, SPI_20_MEGAHERTZ = 20000000 };
-    static IMU_BMI270 imuSensor(IMU_AXIS_ORDER, SPI_8_MEGAHERTZ,  BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
+    static ImuBmi270 imuSensor(IMU_AXIS_ORDER, SPI_8_MEGAHERTZ,  BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
 #endif
 
     imu = &imuSensor;

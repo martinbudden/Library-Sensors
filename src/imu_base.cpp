@@ -12,75 +12,75 @@
 #endif
 
 
-IMU_Base::IMU_Base(uint8_t axis_order, BusBase& bus_base, uint8_t flags) :
+ImuBase::ImuBase(uint8_t axis_order, BusBase& bus_base, uint8_t flags) :
     _bus_base(&bus_base),
     _axis_order(axis_order),
     _flags(flags)
 {
 }
 
-IMU_Base::IMU_Base(uint8_t axis_order, BusBase& bus_base) :
-    IMU_Base(axis_order, bus_base, 0)
+ImuBase::ImuBase(uint8_t axis_order, BusBase& bus_base) :
+    ImuBase(axis_order, bus_base, 0)
 {
 }
 
-IMU_Base::IMU_Base(uint8_t axis_order, uint8_t flags):
+ImuBase::ImuBase(uint8_t axis_order, uint8_t flags):
     _bus_base(nullptr),
     _axis_order(axis_order),
     _flags(flags)
 {
 }
 
-IMU_Base::IMU_Base(uint8_t axis_order) :
-    IMU_Base(axis_order, 0)
+ImuBase::ImuBase(uint8_t axis_order) :
+    ImuBase(axis_order, 0)
 {
 }
 
-int IMU_Base::init(uint32_t target_output_data_rate_hz, void* bus_mutex)
+int ImuBase::init(uint32_t target_output_data_rate_hz, void* bus_mutex)
 {
     return init(target_output_data_rate_hz, GYRO_FULL_SCALE_MAX, ACC_FULL_SCALE_MAX, bus_mutex);
 }
 
-int IMU_Base::init(uint32_t target_output_data_rate_hz)
+int ImuBase::init(uint32_t target_output_data_rate_hz)
 {
     return init(target_output_data_rate_hz, nullptr);
 }
 
-int IMU_Base::init(void* bus_mutex)
+int ImuBase::init(void* bus_mutex)
 {
     return init(TARGET_OUTPUT_DATA_RATE_MAX, GYRO_FULL_SCALE_MAX, ACC_FULL_SCALE_MAX, bus_mutex);
 }
 
-int IMU_Base::init()
+int ImuBase::init()
 {
     return init(nullptr);
 }
 
-void IMU_Base::set_interrupt_driven()
+void ImuBase::set_interrupt_driven()
 {
 }
 
-xyz_t IMU_Base::get_gyro_offset() const
+xyz_t ImuBase::get_gyro_offset() const
 {
     return _gyro_offset;
 }
 
-void IMU_Base::setGyro_offset(const xyz_t& gyro_offset)
+void ImuBase::setGyro_offset(const xyz_t& gyro_offset)
 {
     _gyro_offset = gyro_offset;
 }
 
-xyz_t IMU_Base::get_acc_offset() const
+xyz_t ImuBase::get_acc_offset() const
 {
     return _acc_offset;
 }
 
-void IMU_Base::setAcc_offset(const xyz_t& acc_offset)
+void ImuBase::setAcc_offset(const xyz_t& acc_offset)
 {
     _acc_offset = acc_offset;
 }
 
-xyz_t IMU_Base::read_gyro_rps()
+xyz_t ImuBase::read_gyro_rps()
 {
     const xyz_int32_t gyroRaw = read_gyro_raw();
     return map_axes({
@@ -90,7 +90,7 @@ xyz_t IMU_Base::read_gyro_rps()
     });
 }
 
-xyz_t IMU_Base::read_gyro_dps()
+xyz_t ImuBase::read_gyro_dps()
 {
     const xyz_int32_t gyroRaw = read_gyro_raw();
     return map_axes({
@@ -100,7 +100,7 @@ xyz_t IMU_Base::read_gyro_dps()
     });
 }
 
-xyz_t IMU_Base::read_acc()
+xyz_t ImuBase::read_acc()
 {
     const xyz_int32_t accRaw = read_acc_raw();
     return map_axes({
@@ -110,7 +110,7 @@ xyz_t IMU_Base::read_acc()
     });
 }
 
-acc_gyro_rps_t IMU_Base::read_acc_gyro_rps()
+acc_gyro_rps_t ImuBase::read_acc_gyro_rps()
 {
     return acc_gyro_rps_t {
         .gyroRPS = read_gyro_rps(),
@@ -118,17 +118,17 @@ acc_gyro_rps_t IMU_Base::read_acc_gyro_rps()
     };
 }
 
-acc_gyro_rps_t IMU_Base::get_acc_gyro_rps() const
+acc_gyro_rps_t ImuBase::get_acc_gyro_rps() const
 {
     return acc_gyro_rps_t {};
 }
 
-Quaternion IMU_Base::read_orientation()
+Quaternion ImuBase::read_orientation()
 {
     return Quaternion {};
 }
 
-xyz_t IMU_Base::map_axes(const xyz_t& data, uint8_t axis_order)
+xyz_t ImuBase::map_axes(const xyz_t& data, uint8_t axis_order)
 {
 // NOLINTBEGIN(bugprone-branch-clone) false positive
     switch (axis_order) {
@@ -320,7 +320,7 @@ xyz_t IMU_Base::map_axes(const xyz_t& data, uint8_t axis_order)
     return data;
 }
 
-uint8_t IMU_Base::axis_order_inverse(uint8_t axis_order)
+uint8_t ImuBase::axis_order_inverse(uint8_t axis_order)
 {
     switch (axis_order) {
     case YPOS_XNEG_ZPOS:
@@ -365,7 +365,7 @@ uint8_t IMU_Base::axis_order_inverse(uint8_t axis_order)
     }
 }
 
-IMU_Base::xyz_alignment_t IMU_Base::alignment_from_axis_order(uint8_t axis_order)
+ImuBase::xyz_alignment_t ImuBase::alignment_from_axis_order(uint8_t axis_order)
 {
     (void)axis_order;
     xyz_alignment_t alignment {
@@ -376,13 +376,13 @@ IMU_Base::xyz_alignment_t IMU_Base::alignment_from_axis_order(uint8_t axis_order
     return alignment;
 }
 
-uint8_t IMU_Base::axis_orderFromAlignment(const xyz_alignment_t& alignment)
+uint8_t ImuBase::axis_orderFromAlignment(const xyz_alignment_t& alignment)
 {
     (void)alignment;
     return XPOS_YPOS_ZPOS;
 }
 
-void IMU_Base::calibrate(calibration_type_e calibrationType, size_t calibrationCount)
+void ImuBase::calibrate(calibration_type_e calibrationType, size_t calibrationCount)
 {
     int64_t gyroX = 0;
     int64_t gyroY = 0;

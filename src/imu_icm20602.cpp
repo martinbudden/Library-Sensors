@@ -95,26 +95,26 @@ constexpr uint8_t REG_ZA_OFFSET_L           = 0x7E;
 
 // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,hicpp-signed-bitwise)
 
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_ICM20602_USE_SPI_BUS)
-IMU_ICM20602::IMU_ICM20602(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
-    IMU_Base(axis_order, _bus),
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuIcm20602_USE_SPI_BUS)
+ImuIcm20602::ImuIcm20602(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
+    ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
-IMU_ICM20602::IMU_ICM20602(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
-    IMU_Base(axis_order, _bus),
+ImuIcm20602::ImuIcm20602(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
+    ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
 #else
-IMU_ICM20602::IMU_ICM20602(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
-    IMU_Base(axis_order, _bus),
+ImuIcm20602::ImuIcm20602(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+    ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
 #endif
 
-int IMU_ICM20602::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)
+int ImuIcm20602::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)
 {
     (void)target_output_data_rate_hz;
     (void)gyro_sensitivity;
@@ -205,13 +205,13 @@ int IMU_ICM20602::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensiti
     return static_cast<int>(_gyro_sample_rate_hz);
 }
 
-void IMU_ICM20602::set_interrupt_driven()
+void ImuIcm20602::set_interrupt_driven()
 {
     // set interrupt level as configured in init()
     _bus.set_interrupt_driven(BusBase::IRQ_EDGE_RISE);
 }
 
-IMU_Base::xyz_int32_t IMU_ICM20602::read_gyro_raw()
+ImuBase::xyz_int32_t ImuIcm20602::read_gyro_raw()
 {
     mems_sensor_data_t gyro; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -227,7 +227,7 @@ IMU_Base::xyz_int32_t IMU_ICM20602::read_gyro_raw()
     return ret;
 }
 
-IMU_Base::xyz_int32_t IMU_ICM20602::read_acc_raw()
+ImuBase::xyz_int32_t ImuIcm20602::read_acc_raw()
 {
     mems_sensor_data_t acc; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -242,7 +242,7 @@ IMU_Base::xyz_int32_t IMU_ICM20602::read_acc_raw()
     };
 }
 
-xyz_t IMU_ICM20602::read_gyro_rps()
+xyz_t ImuIcm20602::read_gyro_rps()
 {
     mems_sensor_data_t gyro; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -253,12 +253,12 @@ xyz_t IMU_ICM20602::read_gyro_rps()
     return gyroRPS_FromRaw(gyro.value);
 }
 
-xyz_t IMU_ICM20602::read_gyro_dps()
+xyz_t ImuIcm20602::read_gyro_dps()
 {
     return read_gyro_rps() * RADIANS_TO_DEGREES;
 }
 
-xyz_t IMU_ICM20602::read_acc()
+xyz_t ImuIcm20602::read_acc()
 {
     mems_sensor_data_t acc; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -269,7 +269,7 @@ xyz_t IMU_ICM20602::read_acc()
     return accFromRaw(acc.value);
 }
 
-FAST_CODE acc_gyro_rps_t IMU_ICM20602::read_acc_gyro_rps()
+FAST_CODE acc_gyro_rps_t ImuIcm20602::read_acc_gyro_rps()
 {
     bus_semaphore_take(_bus_mutex);
     _bus.read_register(REG_ACCEL_XOUT_H, &_spiAccTemperatureGyroData.accGyro.data[0], sizeof(_spiAccTemperatureGyroData.accGyro));
@@ -282,12 +282,12 @@ FAST_CODE acc_gyro_rps_t IMU_ICM20602::read_acc_gyro_rps()
 /*!
 Return the gyroAcc data that was read in the ISR
 */
-FAST_CODE acc_gyro_rps_t IMU_ICM20602::get_acc_gyro_rps() const
+FAST_CODE acc_gyro_rps_t ImuIcm20602::get_acc_gyro_rps() const
 {
     return acc_gyro_rpsFromRaw(_spiAccTemperatureGyroData.accGyro.value);
 }
 
-int32_t IMU_ICM20602::readTemperatureRaw() const
+int32_t ImuIcm20602::readTemperatureRaw() const
 {
     std::array<uint8_t, 2> data;
 
@@ -299,14 +299,14 @@ int32_t IMU_ICM20602::readTemperatureRaw() const
     return temperature;
 }
 
-float IMU_ICM20602::readTemperature() const
+float ImuIcm20602::readTemperature() const
 {
     const int32_t temperature = readTemperatureRaw();
 
     return static_cast<float>(temperature) / 326.8F + 25.0F; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 }
 
-xyz_t IMU_ICM20602::gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const
+xyz_t ImuIcm20602::gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const
 {
     // static cast to int16_t to sign extend the 8 bit values
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
@@ -343,7 +343,7 @@ xyz_t IMU_ICM20602::gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) con
 #endif
 }
 
-xyz_t IMU_ICM20602::accFromRaw(const mems_sensor_data_t::value_t& data) const
+xyz_t ImuIcm20602::accFromRaw(const mems_sensor_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return xyz_t {
@@ -379,7 +379,7 @@ xyz_t IMU_ICM20602::accFromRaw(const mems_sensor_data_t::value_t& data) const
 #endif
 }
 
-acc_gyro_rps_t IMU_ICM20602::acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t::value_t& data) const
+acc_gyro_rps_t ImuIcm20602::acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return acc_gyro_rps_t {

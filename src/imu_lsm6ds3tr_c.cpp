@@ -21,7 +21,7 @@ constexpr uint8_t REG_RESERVED_00           = 0x00;
 constexpr uint8_t REG_FUNC_CFG_ACCESS       = 0x01;
 constexpr uint8_t REG_RESERVED_03           = 0x03;
 
-#if defined(USE_IMU_LSM6DS3TR_C)
+#if defined(USE_ImuLsmds63trC)
 
 constexpr uint8_t REG_RESERVED_02           = 0x02;
 constexpr uint8_t REG_SENSOR_SYNC_TIME_FRAME= 0x04;
@@ -153,38 +153,38 @@ constexpr uint8_t REG_OUTZ_H_ACC            = 0x2D;
 /*!
 Gyroscope data rates up to 6.4 kHz, accelerometer up to 1.6 kHz
 */
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_LSM6DS3TR_C_USE_SPI_BUS)
-IMU_LSM6DS3TR_C::IMU_LSM6DS3TR_C(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
-    IMU_Base(axis_order, _bus),
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuLsmds63trC_USE_SPI_BUS)
+ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
+    ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
-IMU_LSM6DS3TR_C::IMU_LSM6DS3TR_C(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
-    IMU_Base(axis_order, _bus),
+ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
+    ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
 #else
-IMU_LSM6DS3TR_C::IMU_LSM6DS3TR_C(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
-    IMU_Base(axis_order, _bus),
+ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
+    ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
-IMU_LSM6DS3TR_C::IMU_LSM6DS3TR_C(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
-    IMU_Base(axis_order, _bus),
+ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+    ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-IMU_LSM6DS3TR_C::IMU_LSM6DS3TR_C(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
-    IMU_Base(axis_order, _bus),
+ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+    ImuBase(axis_order, _bus),
     _bus(I2C_address, wire, pins)
 {
 }
 #endif
 #endif
 
-int IMU_LSM6DS3TR_C::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) // NOLINT(readability-function-cognitive-complexity)
+int ImuLsmds63trC::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) // NOLINT(readability-function-cognitive-complexity)
 {
     static_assert(sizeof(mems_sensor_data_t) == mems_sensor_data_t::DATA_SIZE);
     static_assert(sizeof(acc_gyro_data_t) == acc_gyro_data_t::DATA_SIZE);
@@ -227,7 +227,7 @@ int IMU_LSM6DS3TR_C::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sens
     delay_ms(1);
     _bus.write_register(REG_CTRL3_C, BDU | IF_INC); // Block Data Update and automatically increment registers when read via serial interface (I2C or SPI)
     delay_ms(1);
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_LSM6DS3TR_C_USE_SPI_BUS)
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuLsmds63trC_USE_SPI_BUS)
     _bus.write_register(REG_CTRL4_C, LPF1_SEL_G | I2C_DISABLE);  // enable gyro LPF, disable I2C
 #else
     _bus.write_register(REG_CTRL4_C, LPF1_SEL_G); // enable gyro LPF
@@ -337,13 +337,13 @@ int IMU_LSM6DS3TR_C::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sens
     return static_cast<int>(_gyro_sample_rate_hz);
 }
 
-void IMU_LSM6DS3TR_C::set_interrupt_driven()
+void ImuLsmds63trC::set_interrupt_driven()
 {
     // set interrupt level as configured in init()
     _bus.set_interrupt_driven(BusBase::IRQ_EDGE_RISE);
 }
 
-IMU_Base::xyz_int32_t IMU_LSM6DS3TR_C::read_gyro_raw()
+ImuBase::xyz_int32_t ImuLsmds63trC::read_gyro_raw()
 {
     mems_sensor_data_t gyro; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -358,7 +358,7 @@ IMU_Base::xyz_int32_t IMU_LSM6DS3TR_C::read_gyro_raw()
     };
 }
 
-IMU_Base::xyz_int32_t IMU_LSM6DS3TR_C::read_acc_raw()
+ImuBase::xyz_int32_t ImuLsmds63trC::read_acc_raw()
 {
     mems_sensor_data_t acc; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -373,7 +373,7 @@ IMU_Base::xyz_int32_t IMU_LSM6DS3TR_C::read_acc_raw()
     };
 }
 
-FAST_CODE acc_gyro_rps_t IMU_LSM6DS3TR_C::read_acc_gyro_rps()
+FAST_CODE acc_gyro_rps_t ImuLsmds63trC::read_acc_gyro_rps()
 {
     bus_semaphore_take();
     _bus.read_device_data();
@@ -387,12 +387,12 @@ FAST_CODE acc_gyro_rps_t IMU_LSM6DS3TR_C::read_acc_gyro_rps()
 /*!
 Return the gyroAcc data that was read in the ISR
 */
-FAST_CODE acc_gyro_rps_t IMU_LSM6DS3TR_C::get_acc_gyro_rps() const
+FAST_CODE acc_gyro_rps_t ImuLsmds63trC::get_acc_gyro_rps() const
 {
     return acc_gyro_rpsFromRaw(_spiAccGyroData.accGyro.value);
 }
 
-acc_gyro_rps_t IMU_LSM6DS3TR_C::acc_gyro_rpsFromRaw(const acc_gyro_data_t::value_t& data) const
+acc_gyro_rps_t ImuLsmds63trC::acc_gyro_rpsFromRaw(const acc_gyro_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return acc_gyro_rps_t {

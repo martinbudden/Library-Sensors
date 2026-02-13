@@ -4,12 +4,12 @@
 #include <IMU_M5Unified.h>
 #include <cassert>
 
-IMU_M5_UNIFIED::IMU_M5_UNIFIED(uint8_t axis_order) :
-    IMU_Base(axis_order, IMU_AUTO_CALIBRATES)
+ImuM5Unified::ImuM5Unified(uint8_t axis_order) :
+    ImuBase(axis_order, IMU_AUTO_CALIBRATES)
 {
 }
 
-int IMU_M5_UNIFIED::init(uint32_t outputDataRateHz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)
+int ImuM5Unified::init(uint32_t outputDataRateHz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)
 {
     (void)outputDataRateHz;
     (void)gyro_sensitivity;
@@ -46,7 +46,7 @@ int IMU_M5_UNIFIED::init(uint32_t outputDataRateHz, uint8_t gyro_sensitivity, ui
     return _gyro_sample_rate_hz;
 }
 
-void IMU_M5_UNIFIED::setAxisOrder(uint8_t axis_order)
+void ImuM5Unified::setAxisOrder(uint8_t axis_order)
 {
     _axis_order = axis_order;
 
@@ -135,13 +135,13 @@ void IMU_M5_UNIFIED::setAxisOrder(uint8_t axis_order)
     }
 }
 
-IMU_Base::xyz_int32_t IMU_M5_UNIFIED::read_acc_raw()
+ImuBase::xyz_int32_t ImuM5Unified::read_acc_raw()
 {
     assert(false && ("M5Unified variants should not call read_acc_raw")); // NOLINT(readability-simplify-boolean-expr)
     return xyz_int32_t {};
 }
 
-xyz_t IMU_M5_UNIFIED::read_acc()
+xyz_t ImuM5Unified::read_acc()
 {
     // This is very slow on the M5 Atom.
     bus_semaphore_take(_bus_mutex);
@@ -160,13 +160,13 @@ xyz_t IMU_M5_UNIFIED::read_acc()
     return acc;
 }
 
-IMU_Base::xyz_int32_t IMU_M5_UNIFIED::read_gyro_raw()
+ImuBase::xyz_int32_t ImuM5Unified::read_gyro_raw()
 {
     assert(false && ("M5Unified variants should not call read_gyro_raw")); // NOLINT(readability-simplify-boolean-expr)
     return xyz_int32_t {};
 }
 
-xyz_t IMU_M5_UNIFIED::read_gyro_rps()
+xyz_t ImuM5Unified::read_gyro_rps()
 {
     // This is very slow on the M5 Atom.
     bus_semaphore_take(_bus_mutex);
@@ -184,7 +184,7 @@ xyz_t IMU_M5_UNIFIED::read_gyro_rps()
     return gyroRPS;
 }
 
-xyz_t IMU_M5_UNIFIED::read_gyro_dps()
+xyz_t ImuM5Unified::read_gyro_dps()
 {
     // This is very slow on the M5 Atom.
     bus_semaphore_take(_bus_mutex);
@@ -202,7 +202,7 @@ xyz_t IMU_M5_UNIFIED::read_gyro_dps()
     return gyroDPS;
 }
 
-FAST_CODE acc_gyro_rps_t IMU_M5_UNIFIED::read_acc_gyro_rps()
+FAST_CODE acc_gyro_rps_t ImuM5Unified::read_acc_gyro_rps()
 {
     // This is very slow on the M5 Atom.
     bus_semaphore_take(_bus_mutex);

@@ -1,11 +1,11 @@
 #include "Targets.h"
 #include <Arduino.h>
-#include <IMU_LSM6DS3TR_C.h>
-#include <IMU_NULL.h>
+#include <imu_lsm6ds3tr_c.h>
+#include <imu_null.h>
 #include <boards/pico.h>
 
 
-static IMU_Base* imu;
+static ImuBase* imu;
 static bool ledOn = false;
 
 #define INTERRUPT_DRIVEN
@@ -21,9 +21,9 @@ void setup()
 
     // statically allocate an LSM6DS3TR_C IMU object
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
-    static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, SPI_FREQUENCY_HZ, BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
+    static ImuLsmds63trC imuStatic(ImuBase::XPOS_YPOS_ZPOS, SPI_FREQUENCY_HZ, BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
 #else
-    static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, BusI2c::IMU_I2C_PINS);
+    static ImuLsmds63trC imuStatic(ImuBase::XPOS_YPOS_ZPOS, BusI2c::IMU_I2C_PINS);
 #endif
 
     imu = &imuStatic;
@@ -50,7 +50,7 @@ void loop()
     const acc_gyro_rps_t acc_gyro_rps =  imu->get_acc_gyro_rps();
 
     // convert the gyro data from radians per second to degrees per second
-    const xyz_t gyroDPS =  acc_gyro_rps.gyroRPS * IMU_Base::RADIANS_TO_DEGREES;
+    const xyz_t gyroDPS =  acc_gyro_rps.gyroRPS * ImuBase::RADIANS_TO_DEGREES;
     Serial.println();
     Serial.print("gyroX:");
     Serial.print(gyroDPS.x, 1);
@@ -68,7 +68,7 @@ void loop()
     Serial.print(" accZ:");
     Serial.println(acc.z);
 
-    static const IMU_Null XPOS_ZPOS_YNEG(IMU_Base::XPOS_ZPOS_YNEG);
+    static const ImuNull XPOS_ZPOS_YNEG(ImuBase::XPOS_ZPOS_YNEG);
     const xyz_t output = XPOS_ZPOS_YNEG.map_axes(acc);
     Serial.print("outputX:");
     Serial.print(output.x);

@@ -5,16 +5,16 @@
 /*!
 NULL IMU, useful for test code.
 */
-class IMU_Null : public IMU_Base {
+class ImuNull : public ImuBase {
 public:
-    virtual ~IMU_Null() override = default;
-    IMU_Null(const IMU_Null&) = delete;
-    IMU_Null& operator=(const IMU_Null&) = delete;
-    IMU_Null(IMU_Null&&) = delete;
-    IMU_Null& operator=(IMU_Null&&) = delete;
+    virtual ~ImuNull() override = default;
+    ImuNull(const ImuNull&) = delete;
+    ImuNull& operator=(const ImuNull&) = delete;
+    ImuNull(ImuNull&&) = delete;
+    ImuNull& operator=(ImuNull&&) = delete;
 
-    explicit IMU_Null(uint8_t axis_order) : IMU_Base(axis_order) {}
-    IMU_Null() : IMU_Null(IMU_Base::XPOS_YPOS_ZPOS) {}
+    explicit ImuNull(uint8_t axis_order) : ImuBase(axis_order) {}
+    ImuNull() : ImuNull(ImuBase::XPOS_YPOS_ZPOS) {}
 
 // NOLINTBEGIN(cppcoreguidelines-explicit-virtual-functions,hicpp-use-override,modernize-use-override)
     virtual int init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) override;

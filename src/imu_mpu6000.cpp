@@ -81,38 +81,38 @@ constexpr uint8_t REG_WHO_AM_I              = 0x75;
 
 // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,hicpp-signed-bitwise)
 
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_MPU6000_USE_SPI_BUS)
-IMU_MPU6000::IMU_MPU6000(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
-    IMU_Base(axis_order, _bus),
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuMpu6000_USE_SPI_BUS)
+ImuMpu6000::ImuMpu6000(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
+    ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
-IMU_MPU6000::IMU_MPU6000(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
-    IMU_Base(axis_order, _bus),
+ImuMpu6000::ImuMpu6000(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
+    ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
 #else
-IMU_MPU6000::IMU_MPU6000(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
-    IMU_Base(axis_order, _bus),
+ImuMpu6000::ImuMpu6000(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
+    ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
-IMU_MPU6000::IMU_MPU6000(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
-    IMU_Base(axis_order, _bus),
+ImuMpu6000::ImuMpu6000(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+    ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-IMU_MPU6000::IMU_MPU6000(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
-    IMU_Base(axis_order, _bus),
+ImuMpu6000::ImuMpu6000(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+    ImuBase(axis_order, _bus),
     _bus(I2C_address, wire, pins)
 {
 }
 #endif
 #endif
 
-int IMU_MPU6000::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) // NOLINT(readability-function-cognitive-complexity)
+int ImuMpu6000::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) // NOLINT(readability-function-cognitive-complexity)
 {
 #if defined(LIBRARY_SENSORS_IMU_BUS_MUTEX_REQUIRED)
     _bus_mutex = static_cast<SemaphoreHandle_t>(bus_mutex);
@@ -132,7 +132,7 @@ int IMU_MPU6000::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitiv
     _bus.set_device_data_register(REG_ACCEL_XOUT_H, reinterpret_cast<uint8_t*>(&_spiAccGyroData), sizeof(_spiAccGyroData));
 
     // Disable Primary I2C Interface
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_MPU6000_USE_SPI_BUS)
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuMpu6000_USE_SPI_BUS)
     _bus.write_register(REG_USER_CTRL, I2C_INTERFACE_DISABLED);
     delay_ms(15);
 #endif
@@ -224,13 +224,13 @@ int IMU_MPU6000::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitiv
     return static_cast<int>(_gyro_sample_rate_hz);
 }
 
-void IMU_MPU6000::set_interrupt_driven()
+void ImuMpu6000::set_interrupt_driven()
 {
     // set interrupt level as configured in init()
     _bus.set_interrupt_driven(BusBase::IRQ_EDGE_RISE);
 }
 
-IMU_Base::xyz_int32_t IMU_MPU6000::read_gyro_raw()
+ImuBase::xyz_int32_t ImuMpu6000::read_gyro_raw()
 {
     mems_sensor_data_t gyro; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -245,7 +245,7 @@ IMU_Base::xyz_int32_t IMU_MPU6000::read_gyro_raw()
     };
 }
 
-IMU_Base::xyz_int32_t IMU_MPU6000::read_acc_raw()
+ImuBase::xyz_int32_t ImuMpu6000::read_acc_raw()
 {
     mems_sensor_data_t acc; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -260,7 +260,7 @@ IMU_Base::xyz_int32_t IMU_MPU6000::read_acc_raw()
     };
 }
 
-xyz_t IMU_MPU6000::read_gyro_rps()
+xyz_t ImuMpu6000::read_gyro_rps()
 {
     mems_sensor_data_t gyro; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -271,12 +271,12 @@ xyz_t IMU_MPU6000::read_gyro_rps()
     return gyroRPS_FromRaw(gyro.value);
 }
 
-xyz_t IMU_MPU6000::read_gyro_dps()
+xyz_t ImuMpu6000::read_gyro_dps()
 {
     return read_gyro_rps() * RADIANS_TO_DEGREES;
 }
 
-xyz_t IMU_MPU6000::read_acc()
+xyz_t ImuMpu6000::read_acc()
 {
     mems_sensor_data_t acc; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -287,7 +287,7 @@ xyz_t IMU_MPU6000::read_acc()
     return accFromRaw(acc.value);
 }
 
-FAST_CODE acc_gyro_rps_t IMU_MPU6000::read_acc_gyro_rps()
+FAST_CODE acc_gyro_rps_t ImuMpu6000::read_acc_gyro_rps()
 {
     bus_semaphore_take(_bus_mutex);
     _bus.read_register(REG_ACCEL_XOUT_H, &_spiAccGyroData.accGyro.data[0], sizeof(_spiAccGyroData.accGyro));
@@ -300,12 +300,12 @@ FAST_CODE acc_gyro_rps_t IMU_MPU6000::read_acc_gyro_rps()
 /*!
 Return the gyroAcc data that was read in the ISR
 */
-FAST_CODE acc_gyro_rps_t IMU_MPU6000::get_acc_gyro_rps() const
+FAST_CODE acc_gyro_rps_t ImuMpu6000::get_acc_gyro_rps() const
 {
     return acc_gyro_rpsFromRaw(_spiAccGyroData.accGyro.value);
 }
 
-xyz_t IMU_MPU6000::gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const
+xyz_t ImuMpu6000::gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const
 {
     // static cast to int16_t to sign extend the 8 bit values
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
@@ -342,7 +342,7 @@ xyz_t IMU_MPU6000::gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) cons
 #endif
 }
 
-xyz_t IMU_MPU6000::accFromRaw(const mems_sensor_data_t::value_t& data) const
+xyz_t ImuMpu6000::accFromRaw(const mems_sensor_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
     return xyz_t {
@@ -378,7 +378,7 @@ xyz_t IMU_MPU6000::accFromRaw(const mems_sensor_data_t::value_t& data) const
 #endif
 }
 
-acc_gyro_rps_t IMU_MPU6000::acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t::value_t& data) const
+acc_gyro_rps_t ImuMpu6000::acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return acc_gyro_rps_t {

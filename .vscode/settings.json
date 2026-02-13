@@ -84,6 +84,7 @@
         "LEDC",
         "libc",
         "llvmlibc",
+        "Lsmds",
         "martinbudden",
         "MBEDTLS",
         "MCPWM",

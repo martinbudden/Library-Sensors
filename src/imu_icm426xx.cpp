@@ -174,39 +174,39 @@ constexpr uint8_t REG_BANK2_ACCEL_CONFIG_STATIC4    = 0x05;
 Gyroscope data rates up to 6.4 kHz, accelerometer up to 1.6 kHz
 */
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_ICM426XX_USE_SPI_BUS)
-IMU_ICM426xx::IMU_ICM426xx(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
-    IMU_Base(axis_order, _bus),
+ImuIcm426xx::ImuIcm426xx(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
+    ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
     static_assert(sizeof(mems_sensor_data_t) == mems_sensor_data_t::DATA_SIZE);
     static_assert(sizeof(acc_gyro_data_t) == acc_gyro_data_t::DATA_SIZE);
 }
-IMU_ICM426xx::IMU_ICM426xx(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
-    IMU_Base(axis_order, _bus),
+ImuIcm426xx::ImuIcm426xx(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
+    ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
 #else
-IMU_ICM426xx::IMU_ICM426xx(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
-    IMU_Base(axis_order, _bus),
+ImuIcm426xx::ImuIcm426xx(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
+    ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
-IMU_ICM426xx::IMU_ICM426xx(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
-    IMU_Base(axis_order, _bus),
+ImuIcm426xx::ImuIcm426xx(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+    ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-IMU_ICM426xx::IMU_ICM426xx(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
-    IMU_Base(axis_order, _bus),
+ImuIcm426xx::ImuIcm426xx(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+    ImuBase(axis_order, _bus),
     _bus(I2C_address, wire, pins)
 {
 }
 #endif
 #endif
 
-int IMU_ICM426xx::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) // NOLINT(readability-function-cognitive-complexity)
+int ImuIcm426xx::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) // NOLINT(readability-function-cognitive-complexity)
 {
     static_assert(sizeof(mems_sensor_data_t) == mems_sensor_data_t::DATA_SIZE);
     static_assert(sizeof(acc_gyro_data_t) == acc_gyro_data_t::DATA_SIZE);
@@ -412,13 +412,13 @@ int IMU_ICM426xx::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensiti
     return static_cast<int>(_gyro_sample_rate_hz);
 }
 
-void IMU_ICM426xx::set_interrupt_driven()
+void ImuIcm426xx::set_interrupt_driven()
 {
     // set interrupt level as configured in init()
     _bus.set_interrupt_driven(BusBase::IRQ_EDGE_RISE);
 }
 
-IMU_Base::xyz_int32_t IMU_ICM426xx::read_gyro_raw()
+ImuBase::xyz_int32_t ImuIcm426xx::read_gyro_raw()
 {
     mems_sensor_data_t gyro; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -433,7 +433,7 @@ IMU_Base::xyz_int32_t IMU_ICM426xx::read_gyro_raw()
     };
 }
 
-IMU_Base::xyz_int32_t IMU_ICM426xx::read_acc_raw()
+ImuBase::xyz_int32_t ImuIcm426xx::read_acc_raw()
 {
     mems_sensor_data_t acc; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -448,7 +448,7 @@ IMU_Base::xyz_int32_t IMU_ICM426xx::read_acc_raw()
     };
 }
 
-xyz_t IMU_ICM426xx::read_gyro_rps()
+xyz_t ImuIcm426xx::read_gyro_rps()
 {
     mems_sensor_data_t gyro; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -459,12 +459,12 @@ xyz_t IMU_ICM426xx::read_gyro_rps()
     return gyroRPS_FromRaw(gyro.value);
 }
 
-xyz_t IMU_ICM426xx::read_gyro_dps()
+xyz_t ImuIcm426xx::read_gyro_dps()
 {
     return read_gyro_rps() * RADIANS_TO_DEGREES;
 }
 
-xyz_t IMU_ICM426xx::read_acc()
+xyz_t ImuIcm426xx::read_acc()
 {
     mems_sensor_data_t acc; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -475,7 +475,7 @@ xyz_t IMU_ICM426xx::read_acc()
     return accFromRaw(acc.value);
 }
 
-FAST_CODE acc_gyro_rps_t IMU_ICM426xx::read_acc_gyro_rps()
+FAST_CODE acc_gyro_rps_t ImuIcm426xx::read_acc_gyro_rps()
 {
     bus_semaphore_take(_bus_mutex);
     _bus.read_register(REG_ACCEL_DATA_X1, &_spiAccGyroData.accGyro.data[0], sizeof(_spiAccGyroData.accGyro));
@@ -488,12 +488,12 @@ FAST_CODE acc_gyro_rps_t IMU_ICM426xx::read_acc_gyro_rps()
 /*!
 Return the gyroAcc data that was read in the ISR
 */
-FAST_CODE acc_gyro_rps_t IMU_ICM426xx::get_acc_gyro_rps() const
+FAST_CODE acc_gyro_rps_t ImuIcm426xx::get_acc_gyro_rps() const
 {
     return acc_gyro_rpsFromRaw(_spiAccGyroData.accGyro.value);
 }
 
-xyz_t IMU_ICM426xx::gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const
+xyz_t ImuIcm426xx::gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return xyz_t {
@@ -529,7 +529,7 @@ xyz_t IMU_ICM426xx::gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) con
 #endif
 }
 
-xyz_t IMU_ICM426xx::accFromRaw(const mems_sensor_data_t::value_t& data) const
+xyz_t ImuIcm426xx::accFromRaw(const mems_sensor_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return xyz_t {
@@ -565,7 +565,7 @@ xyz_t IMU_ICM426xx::accFromRaw(const mems_sensor_data_t::value_t& data) const
 #endif
 }
 
-acc_gyro_rps_t IMU_ICM426xx::acc_gyro_rpsFromRaw(const acc_gyro_data_t::value_t& data) const
+acc_gyro_rps_t ImuIcm426xx::acc_gyro_rpsFromRaw(const acc_gyro_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return acc_gyro_rps_t {

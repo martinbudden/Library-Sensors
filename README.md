@@ -65,9 +65,9 @@ inlined function. This is important because many of these functions are highly t
 It does result in an unconventional class tree: each concrete IMU class has two pointers to its bus: a pointer to `BUS_BASE` in `IMU_BASE`
 and a reference to either `BUS_I2C` or `BUS_SPI` in the class itself.
 
-`IMU_BNO085` is shown using `I2C_BUS`. It can be configured by a build flag to use `SPI_BUS`.
+`ImuBno085` is shown using `I2C_BUS`. It can be configured by a build flag to use `SPI_BUS`.
 
-`IMU_BMI270`, `IMU_LSM6DS3TR_C`, and `IMU_ICM426xx` are shown using `SPI_BUS`. They can be configured by build flags to use `I2C_BUS`.
+`ImuBmi270`, `ImuLsmds63trC`, and `ImuIcm426xx` are shown using `SPI_BUS`. They can be configured by build flags to use `I2C_BUS`.
 
 ```mermaid
 classDiagram
@@ -80,8 +80,8 @@ classDiagram
         SIGNAL_DATA_READY_FROM_ISR()
     }
 
-    IMU_Base <|-- IMU_M5_UNIFIED
-    class IMU_M5_UNIFIED {
+    ImuBase <|-- ImuM5Unified
+    class ImuM5Unified {
         read_gyro_raw() xyz_int32_t override
         read_acc_raw() xyz_int32_t override
 
@@ -90,10 +90,10 @@ classDiagram
         read_acc() xyz_t override
         read_acc_gyro_rps() acc_gyro_rps_t override
     }
-    IMU_M5_UNIFIED *-- BUS_I2C
+    ImuM5Unified *-- BUS_I2C
 
-    IMU_Base <|-- IMU_MPU6886
-    class IMU_MPU6886 {
+    ImuBase <|-- ImuMpu6886
+    class ImuMpu6886 {
         set_interrupt_driven() override
         setGyro_offset(const xyz_int32_t& gyro_offset) override
 
@@ -106,16 +106,16 @@ classDiagram
         read_acc_gyro_rps() acc_gyro_rps_t override
         get_acc_gyro_rps() acc_gyro_rps_t override
     }
-    IMU_MPU6886 *-- BUS_I2C
+    ImuMpu6886 *-- BUS_I2C
 
-    IMU_Base <|-- IMU_BNO085
-    class IMU_BNO085 {
+    ImuBase <|-- ImuBno085
+    class ImuBno085 {
         read_gyro_raw() xyz_int32_t override
         read_acc_raw() xyz_int32_t override
         read_gyro_rps() xyz_t override
         read_orientation() Quaternion override
     }
-    IMU_BNO085 *-- BUS_I2C
+    ImuBno085 *-- BUS_I2C
 
     BUS_BASE <|-- BUS_I2C
     class BUS_I2C {
@@ -156,7 +156,7 @@ classDiagram
         write_bytes(const uint8_t* data, size_t length) uint8_t
     }
 
-    class IMU_Base {
+    class ImuBase {
         <<abstract>>
         _axis_order axis_order_e
         _gyro_resolution_rps float
@@ -189,10 +189,10 @@ classDiagram
 
         virtual read_orientation() Quaternion
     }
-    IMU_Base *-- BUS_BASE
+    ImuBase *-- BUS_BASE
 
-    IMU_Base <|-- IMU_BMI270
-    class IMU_BMI270 {
+    ImuBase <|-- ImuBmi270
+    class ImuBmi270 {
         set_interrupt_driven() override
 
         read_gyro_raw() xyz_int32_t override
@@ -204,10 +204,10 @@ classDiagram
         read_acc_gyro_rps() acc_gyro_rps_t override
         get_acc_gyro_rps() acc_gyro_rps_t override
     }
-    IMU_BMI270 *-- BUS_SPI
+    ImuBmi270 *-- BUS_SPI
 
-    IMU_Base <|-- IMU_LSM6DS3TR_C
-    class IMU_LSM6DS3TR_C {
+    ImuBase <|-- ImuLsmds63trC
+    class ImuLsmds63trC {
         set_interrupt_driven() override
 
         read_gyro_raw() xyz_int32_t override
@@ -215,10 +215,10 @@ classDiagram
         read_acc_gyro_rps() acc_gyro_rps_t override
         get_acc_gyro_rps() acc_gyro_rps_t override
     }
-    IMU_LSM6DS3TR_C *-- BUS_SPI
+    ImuLsmds63trC *-- BUS_SPI
 
-    IMU_Base <|-- IMU_ICM426xx
-    class IMU_ICM426xx {
+    ImuBase <|-- ImuIcm426xx
+    class ImuIcm426xx {
         set_interrupt_driven() override
 
         read_gyro_raw() xyz_int32_t override
@@ -230,5 +230,5 @@ classDiagram
         read_acc_gyro_rps() acc_gyro_rps_t override
         get_acc_gyro_rps() acc_gyro_rps_t override
     }
-    IMU_ICM426xx *-- BUS_SPI
+    ImuIcm426xx *-- BUS_SPI
 ```

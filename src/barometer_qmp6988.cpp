@@ -54,25 +54,25 @@ namespace { // use anonymous namespace to make items local to this translation u
 } // end namespace
 
 #if defined(LIBRARY_SENSORS_BAROMETER_USE_SPI_BUS)
-BarometerQMP6988::BarometerQMP6988(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
+BarometerQmp6988::BarometerQmp6988(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
     BarometerBase(_bus),
     _bus(frequency, spi_index, pins)
 {
 }
-BarometerQMP6988::BarometerQMP6988(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
+BarometerQmp6988::BarometerQmp6988(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
     BarometerBase(_bus),
     _bus(frequency, spi_index, pins)
 {
 }
 #else
-BarometerQMP6988::BarometerQMP6988(BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+BarometerQmp6988::BarometerQmp6988(BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
     BarometerBase(_bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
 #endif
 
-int BarometerQMP6988::init()
+int BarometerQmp6988::init()
 {
 #if !defined(FRAMEWORK_TEST)
     const uint8_t chip_id = _bus.read_register_with_timeout(REG_CHIPID, 100);
@@ -106,7 +106,7 @@ int BarometerQMP6988::init()
 }
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
-void BarometerQMP6988::readCalibrationData()
+void BarometerQmp6988::readCalibrationData()
 {
     std::array<uint8_t, CALIBRATION_DATA_SIZE> data {};
     _bus.read_register(REG_CALIBRATION_DATA, &data[0], CALIBRATION_DATA_SIZE);
@@ -147,7 +147,7 @@ void BarometerQMP6988::readCalibrationData()
     _ikData.bp3 = 2915L   * static_cast<int64_t>(calibration.bp3) + 157155561L;  // 28Q65
 }
 
-void BarometerQMP6988::read_temperature_and_pressure()
+void BarometerQmp6988::read_temperature_and_pressure()
 {
     pressure_temperature_data_u pt; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
     _bus.read_register(REG_PRESSURE_MSB, &pt.data[0], sizeof(pt));
@@ -167,7 +167,7 @@ void BarometerQMP6988::read_temperature_and_pressure()
     _pressure_pascals    = static_cast<float>(pressure) / 16.0F;
 }
 
-int16_t BarometerQMP6988::convertTemperature(int32_t dt) const
+int16_t BarometerQmp6988::convertTemperature(int32_t dt) const
 {
     const int64_t dt64 = dt;
     // wk1: 60Q4 // bit size
@@ -180,7 +180,7 @@ int16_t BarometerQMP6988::convertTemperature(int32_t dt) const
     return ret;
 }
 
-int32_t BarometerQMP6988::convertPressure(int32_t dp, int16_t tx) const
+int32_t BarometerQmp6988::convertPressure(int32_t dp, int16_t tx) const
 {
     const int64_t dp64 = dp;
     const int64_t tx64 = tx;
@@ -221,7 +221,7 @@ int32_t BarometerQMP6988::convertPressure(int32_t dp, int16_t tx) const
     return ret;
 }
 
-float BarometerQMP6988::calculate_altitude_meters(float pressure, float temperature)
+float BarometerQmp6988::calculate_altitude_meters(float pressure, float temperature)
 {
     return (std::pow((101325.0F / pressure), 1.0F / 5.257F) - 1.0F) * (temperature + 273.15F) / 0.0065F;
 }

@@ -9,23 +9,23 @@ void tearDown()
 {
 }
 
-IMU_BNO085& newBNO085()
+ImuBno085& newBNO085()
 {
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
     constexpr uint32_t spiFrequency = 2000000;
-    static IMU_BNO085 imu(IMU_Base::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
+    static ImuBno085 imu(ImuBase::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
 #else
-    static IMU_BNO085 imu(IMU_Base::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{});
+    static ImuBno085 imu(ImuBase::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{});
 #endif
     return imu;
 }
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-init-variables,readability-magic-numbers)
 void test_bno085_channel_input_sensor_reports()
 {
-    IMU_BNO085 imu = newBNO085();
-    IMU_BNO085::ShtpPacket packet;
+    ImuBno085 imu = newBNO085();
+    ImuBno085::ShtpPacket packet;
 
-    packet.header.channel = IMU_BNO085::CHANNEL_INPUT_SENSOR_REPORTS;
+    packet.header.channel = ImuBno085::CHANNEL_INPUT_SENSOR_REPORTS;
     packet.data[9] = 0x03;
     packet.data[10] = 0x05;
     packet.data[11] = 0x38;
@@ -35,44 +35,44 @@ void test_bno085_channel_input_sensor_reports()
     packet.data[15] = 0x11;
     packet.data[16] = 0xF9;
 
-    packet.data[5] = IMU_BNO085::SENSOR_REPORTID_ACCELEROMETER;
-    TEST_ASSERT_EQUAL(IMU_BNO085::SENSOR_REPORTID_ACCELEROMETER, imu.parse_input_sensor_report(packet));
-    const IMU_BNO085::sensor_output_t acc = imu.get_acc_data();
+    packet.data[5] = ImuBno085::SENSOR_REPORTID_ACCELEROMETER;
+    TEST_ASSERT_EQUAL(ImuBno085::SENSOR_REPORTID_ACCELEROMETER, imu.parse_input_sensor_report(packet));
+    const ImuBno085::sensor_output_t acc = imu.get_acc_data();
     TEST_ASSERT_EQUAL(0x0503, acc.x);
     TEST_ASSERT_EQUAL(0x7538, acc.y);
     TEST_ASSERT_EQUAL(static_cast<int16_t>(0xD761), acc.z);
 
-    packet.data[5] = IMU_BNO085::SENSOR_REPORTID_GYROSCOPE_CALIBRATED;
-    TEST_ASSERT_EQUAL(IMU_BNO085::SENSOR_REPORTID_GYROSCOPE_CALIBRATED, imu.parse_input_sensor_report(packet));
-    const IMU_BNO085::sensor_output_t gyroRPS = imu.get_gyro_rps_Data();
+    packet.data[5] = ImuBno085::SENSOR_REPORTID_GYROSCOPE_CALIBRATED;
+    TEST_ASSERT_EQUAL(ImuBno085::SENSOR_REPORTID_GYROSCOPE_CALIBRATED, imu.parse_input_sensor_report(packet));
+    const ImuBno085::sensor_output_t gyroRPS = imu.get_gyro_rps_Data();
     TEST_ASSERT_EQUAL(0x0503, gyroRPS.x);
     TEST_ASSERT_EQUAL(0x7538, gyroRPS.y);
     TEST_ASSERT_EQUAL(static_cast<int16_t>(0xD761), gyroRPS.z);
 
-    packet.data[5] = IMU_BNO085::SENSOR_REPORTID_MAGNETIC_FIELD_CALIBRATED;
-    TEST_ASSERT_EQUAL(IMU_BNO085::SENSOR_REPORTID_MAGNETIC_FIELD_CALIBRATED, imu.parse_input_sensor_report(packet));
-    const IMU_BNO085::sensor_output_t mag = imu.get_mag_data();
+    packet.data[5] = ImuBno085::SENSOR_REPORTID_MAGNETIC_FIELD_CALIBRATED;
+    TEST_ASSERT_EQUAL(ImuBno085::SENSOR_REPORTID_MAGNETIC_FIELD_CALIBRATED, imu.parse_input_sensor_report(packet));
+    const ImuBno085::sensor_output_t mag = imu.get_mag_data();
     TEST_ASSERT_EQUAL(0x0503, mag.x);
     TEST_ASSERT_EQUAL(0x7538, mag.y);
     TEST_ASSERT_EQUAL(static_cast<int16_t>(0xD761), mag.z);
 
-    packet.data[5] = IMU_BNO085::SENSOR_REPORTID_LINEAR_ACCELERATION;
-    TEST_ASSERT_EQUAL(IMU_BNO085::SENSOR_REPORTID_LINEAR_ACCELERATION, imu.parse_input_sensor_report(packet));
-    const IMU_BNO085::sensor_output_t accLinear = imu.get_acc_linear_data();
+    packet.data[5] = ImuBno085::SENSOR_REPORTID_LINEAR_ACCELERATION;
+    TEST_ASSERT_EQUAL(ImuBno085::SENSOR_REPORTID_LINEAR_ACCELERATION, imu.parse_input_sensor_report(packet));
+    const ImuBno085::sensor_output_t accLinear = imu.get_acc_linear_data();
     TEST_ASSERT_EQUAL(0x0503, accLinear.x);
     TEST_ASSERT_EQUAL(0x7538, accLinear.y);
     TEST_ASSERT_EQUAL(static_cast<int16_t>(0xD761), accLinear.z);
 
-    packet.data[5] = IMU_BNO085::SENSOR_REPORTID_GRAVITY;
-    TEST_ASSERT_EQUAL(IMU_BNO085::SENSOR_REPORTID_GRAVITY, imu.parse_input_sensor_report(packet));
-    const IMU_BNO085::sensor_output_t gravity = imu.get_gravity_data();
+    packet.data[5] = ImuBno085::SENSOR_REPORTID_GRAVITY;
+    TEST_ASSERT_EQUAL(ImuBno085::SENSOR_REPORTID_GRAVITY, imu.parse_input_sensor_report(packet));
+    const ImuBno085::sensor_output_t gravity = imu.get_gravity_data();
     TEST_ASSERT_EQUAL(0x0503, gravity.x);
     TEST_ASSERT_EQUAL(0x7538, gravity.y);
     TEST_ASSERT_EQUAL(static_cast<int16_t>(0xD761), gravity.z);
 
-    packet.data[5] = IMU_BNO085::SENSOR_REPORTID_GAME_ROTATION_VECTOR;
-    TEST_ASSERT_EQUAL(IMU_BNO085::SENSOR_REPORTID_GAME_ROTATION_VECTOR, imu.parse_input_sensor_report(packet));
-    const IMU_BNO085::rotation_vector_t rotation_vector = imu.get_rotation_vector_data();
+    packet.data[5] = ImuBno085::SENSOR_REPORTID_GAME_ROTATION_VECTOR;
+    TEST_ASSERT_EQUAL(ImuBno085::SENSOR_REPORTID_GAME_ROTATION_VECTOR, imu.parse_input_sensor_report(packet));
+    const ImuBno085::rotation_vector_t rotation_vector = imu.get_rotation_vector_data();
     TEST_ASSERT_EQUAL(0x0503, rotation_vector.i);
     TEST_ASSERT_EQUAL(0x7538, rotation_vector.j);
     TEST_ASSERT_EQUAL(static_cast<int16_t>(0xD761), rotation_vector.k);
@@ -81,11 +81,11 @@ void test_bno085_channel_input_sensor_reports()
 
 void test_bno085_channel_gyro_integrated_rotation_vector_report()
 {
-    IMU_BNO085 imu = newBNO085();
+    ImuBno085 imu = newBNO085();
 
-    IMU_BNO085::ShtpPacket packet;
+    ImuBno085::ShtpPacket packet;
 
-    packet.header.channel = IMU_BNO085::CHANNEL_GYRO_INTEGRATED_ROTATION_VECTOR_REPORT;
+    packet.header.channel = ImuBno085::CHANNEL_GYRO_INTEGRATED_ROTATION_VECTOR_REPORT;
     packet.data[0] = 0x03;
     packet.data[1] = 0x05;
     packet.data[2] = 0x38;
@@ -94,9 +94,9 @@ void test_bno085_channel_gyro_integrated_rotation_vector_report()
     packet.data[5] = 0xD7;
     packet.data[6] = 0x11;
     packet.data[7] = 0xF9;
-    TEST_ASSERT_EQUAL(IMU_BNO085::SENSOR_REPORTID_GYRO_INTEGRATED_ROTATION_VECTOR, imu.parseGyro_integrated_rotation_vectorReport(packet));
+    TEST_ASSERT_EQUAL(ImuBno085::SENSOR_REPORTID_GYRO_INTEGRATED_ROTATION_VECTOR, imu.parseGyro_integrated_rotation_vectorReport(packet));
 
-    const IMU_BNO085::gyro_integrated_rotation_vector_t gyroRotation = imu.get_gyro_integrated_rotation_vectorData();
+    const ImuBno085::gyro_integrated_rotation_vector_t gyroRotation = imu.get_gyro_integrated_rotation_vectorData();
     TEST_ASSERT_EQUAL(0x0503, gyroRotation.i);
     TEST_ASSERT_EQUAL(0x7538, gyroRotation.j);
     TEST_ASSERT_EQUAL(static_cast<int16_t>(0xD761), gyroRotation.k);
@@ -122,11 +122,11 @@ void test_bno085()
 {
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
     constexpr uint32_t spiFrequency = 2000000;
-    static const IMU_BNO085 imu(IMU_Base::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
+    static const ImuBno085 imu(ImuBase::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
 #else
-    static const IMU_BNO085 imu(IMU_Base::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{});
+    static const ImuBno085 imu(ImuBase::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{});
 #endif
-    TEST_ASSERT_EQUAL(IMU_Base::IMU_AUTO_CALIBRATES | IMU_Base::IMU_PERFORMS_SENSOR_FUSION, imu.getFlags());
+    TEST_ASSERT_EQUAL(ImuBase::IMU_AUTO_CALIBRATES | ImuBase::IMU_PERFORMS_SENSOR_FUSION, imu.getFlags());
 }
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-init-variables,readability-magic-numbers)
 

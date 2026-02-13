@@ -4,23 +4,23 @@
 #include "bus_spi.h"
 #include "imu_base.h"
 
-class IMU_MPU6000 : public IMU_Base {
+class ImuMpu6000 : public ImuBase {
 public:
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_MPU6000_USE_SPI_BUS)
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuMpu6000_USE_SPI_BUS)
     // SPI constructor
-    IMU_MPU6000(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins);
-    IMU_MPU6000(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
+    ImuMpu6000(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins);
+    ImuMpu6000(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    IMU_MPU6000(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
-    IMU_MPU6000(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : IMU_MPU6000(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
-    IMU_MPU6000(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins) : IMU_MPU6000(axis_order, pins, I2C_ADDRESS) {}
+    ImuMpu6000(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
+    ImuMpu6000(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : ImuMpu6000(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    ImuMpu6000(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins) : ImuMpu6000(axis_order, pins, I2C_ADDRESS) {}
 
-    IMU_MPU6000(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
-    IMU_MPU6000(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : IMU_MPU6000(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
-    IMU_MPU6000(uint8_t axis_order, const BusI2c::i2c_pins_t& pins) : IMU_MPU6000(axis_order, pins, I2C_ADDRESS) {}
+    ImuMpu6000(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    ImuMpu6000(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : ImuMpu6000(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    ImuMpu6000(uint8_t axis_order, const BusI2c::i2c_pins_t& pins) : ImuMpu6000(axis_order, pins, I2C_ADDRESS) {}
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-    IMU_MPU6000(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    ImuMpu6000(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
 #endif
 #endif
     virtual int init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) override;
@@ -82,7 +82,7 @@ private:
     xyz_t accFromRaw(const mems_sensor_data_t::value_t& data) const;
     acc_gyro_rps_t acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t::value_t& data) const;
 private:
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_MPU6000_USE_SPI_BUS)
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuMpu6000_USE_SPI_BUS)
     BusSpi _bus; //!< SPI bus interface
 #else
     BusI2c _bus; //!< I2C bus interface

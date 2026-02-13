@@ -66,25 +66,25 @@ namespace { // use anonymous namespace to make items local to this translation u
 } // end namespace
 
 #if defined(LIBRARY_SENSORS_BAROMETER_USE_SPI_BUS)
-BarometerBMP280::BarometerBMP280(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
+BarometerBmp280::BarometerBmp280(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
     BarometerBase(_bus),
     _bus(frequency, spi_index, pins)
 {
 }
-BarometerBMP280::BarometerBMP280(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
+BarometerBmp280::BarometerBmp280(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
     BarometerBase(_bus),
     _bus(frequency, spi_index, pins)
 {
 }
 #else
-BarometerBMP280::BarometerBMP280(BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+BarometerBmp280::BarometerBmp280(BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
     BarometerBase(_bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
 #endif
 
-int BarometerBMP280::init()
+int BarometerBmp280::init()
 {
 #if !defined(FRAMEWORK_TEST)
     const uint8_t chip_id = _bus.read_register_with_timeout(REG_CHIPID, 100);
@@ -140,7 +140,7 @@ int BarometerBMP280::init()
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,hicpp-signed-bitwise,readability-magic-numbers)
 }
 
-void BarometerBMP280::read_temperature_and_pressure()
+void BarometerBmp280::read_temperature_and_pressure()
 {
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
     const auto T1 = static_cast<int32_t>(_calibrationData.value.dig_T1);
@@ -201,7 +201,7 @@ void BarometerBMP280::read_temperature_and_pressure()
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
 }
 
-float BarometerBMP280::calculate_altitude_meters(float pressure, float temperature)
+float BarometerBmp280::calculate_altitude_meters(float pressure, float temperature)
 {
     (void)temperature;
     return 44330.0F * (1.0F - std::pow(pressure/_pressure_at_reference_altitude, 0.1903F)); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

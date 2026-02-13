@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include <IMU_BMI270.h>
 #include <M5Unified.h>
+#include <imu_bmi270.h>
 
 
 
@@ -13,7 +13,7 @@
 //static constexpr uint8_t I2C_IRQ_LEVEL = IRQ_LEVEL_HIGH;
 
 
-static IMU_Base* imu;
+static ImuBase* imu;
 
 //#define INTERRUPT_DRIVEN
 
@@ -30,7 +30,7 @@ void setup()
     delay(1000);
 
     // statically allocate a BMI270 IMU object
-    static IMU_BMI270 imuStatic(IMU_Base::XPOS_YPOS_ZPOS, BusI2c::IMU_I2C_PINS);
+    static ImuBmi270 imuStatic(ImuBase::XPOS_YPOS_ZPOS, BusI2c::IMU_I2C_PINS);
 
     imu = &imuStatic;
 
@@ -60,7 +60,7 @@ void loop()
     const acc_gyro_rps_t acc_gyro_rps = imu->get_acc_gyro_rps();
 
     // convert the gyro data from radians per second to degrees per second
-    const xyz_t gyroDPS = acc_gyro_rps.gyroRPS * IMU_Base::RADIANS_TO_DEGREES;
+    const xyz_t gyroDPS = acc_gyro_rps.gyroRPS * ImuBase::RADIANS_TO_DEGREES;
     Serial.println();
     Serial.print("gyroX:");
     Serial.print(gyroDPS.x, 1);

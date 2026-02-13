@@ -14,9 +14,9 @@ void test_bmi270()
 {
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
     constexpr uint32_t spiFrequency = 2000000;
-    static const IMU_BMI270 imu(IMU_Base::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
+    static const ImuBmi270 imu(ImuBase::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
 #else
-    static const IMU_BMI270 imu(IMU_Base::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{});
+    static const ImuBmi270 imu(ImuBase::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{});
 #endif
     TEST_ASSERT_EQUAL(0, imu.getFlags());
 }

@@ -8,7 +8,7 @@ Targets
 #if defined(TARGET_RPI_PICO_SPI)
     #define BOARD_IDENTIFIER    "RPI_Pico_SPI"
 
-    #define IMU_AXIS_ORDER      IMU_Base::XPOS_YPOS_ZPOS
+    #define IMU_AXIS_ORDER      ImuBase::XPOS_YPOS_ZPOS
     #define USE_IMU_LSM6DS3TR_C
     #define IMU_SPI_INDEX       BUS_INDEX_0
     #define SPI_FREQUENCY_HZ    20000000 // 20 MHz
@@ -23,7 +23,7 @@ Targets
 #if defined(TARGET_RPI_PICO_I2C)
     #define BOARD_IDENTIFIER    "RPI_Pico_I2C"
 
-    #define IMU_AXIS_ORDER      IMU_Base::XPOS_YPOS_ZPOS
+    #define IMU_AXIS_ORDER      ImuBase::XPOS_YPOS_ZPOS
     #define USE_IMU_LSM6DS3TR_C
     #define IMU_SPI_INDEX       BUS_INDEX_0
     #define SPI_FREQUENCY_HZ    20000000 // 20 MHz

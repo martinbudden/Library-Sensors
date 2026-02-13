@@ -4,23 +4,23 @@
 #include "bus_spi.h"
 #include "imu_base.h"
 
-class IMU_ICM426xx : public IMU_Base {
+class ImuIcm426xx : public ImuBase {
 public:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_ICM426XX_USE_SPI_BUS)
     // SPI constructor
-    IMU_ICM426xx(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins);
-    IMU_ICM426xx(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
+    ImuIcm426xx(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins);
+    ImuIcm426xx(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    IMU_ICM426xx(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
-    IMU_ICM426xx(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axis_order, BusBase::BUS_INDEX_0, pins, I2C_address) {}
-    IMU_ICM426xx(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins) : IMU_ICM426xx(axis_order, pins, I2C_ADDRESS) {}
+    ImuIcm426xx(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
+    ImuIcm426xx(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : ImuIcm426xx(axis_order, BusBase::BUS_INDEX_0, pins, I2C_address) {}
+    ImuIcm426xx(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins) : ImuIcm426xx(axis_order, pins, I2C_ADDRESS) {}
 
-    IMU_ICM426xx(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
-    IMU_ICM426xx(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axis_order, BusBase::BUS_INDEX_0, pins, I2C_address) {}
-    IMU_ICM426xx(uint8_t axis_order, const BusI2c::i2c_pins_t& pins) : IMU_ICM426xx(axis_order, pins, I2C_ADDRESS) {}
+    ImuIcm426xx(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    ImuIcm426xx(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : ImuIcm426xx(axis_order, BusBase::BUS_INDEX_0, pins, I2C_address) {}
+    ImuIcm426xx(uint8_t axis_order, const BusI2c::i2c_pins_t& pins) : ImuIcm426xx(axis_order, pins, I2C_ADDRESS) {}
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-    IMU_ICM426xx(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    ImuIcm426xx(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
 #endif
 #endif
     virtual int init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) override;

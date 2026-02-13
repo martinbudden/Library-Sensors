@@ -10,7 +10,7 @@ magnetometer and a 32-bit ARM Cortex-M0+ microcontroller running Hillcrest’s S
 
 Communication with the BNO085 is via Hillcrest's Sensor Hub Transport Protocol (SHTP) over SPI or I2C.
 */
-class IMU_BNO085 : public IMU_Base {
+class ImuBno085 : public ImuBase {
 public:
     static constexpr uint8_t I2C_ADDRESS = 0x4A;
 
@@ -119,15 +119,15 @@ public:
     };
 #pragma pack(pop)
 public:
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_BNO085_USE_SPI_BUS)
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuBno085_USE_SPI_BUS)
     // SPI constructors
-    IMU_BNO085(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins);
-    IMU_BNO085(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
+    ImuBno085(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins);
+    ImuBno085(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    IMU_BNO085(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
-    IMU_BNO085(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : IMU_BNO085(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
-    IMU_BNO085(uint8_t axis_order, const BusI2c::i2c_pins_t& pins) : IMU_BNO085(axis_order, pins, I2C_ADDRESS) {}
+    ImuBno085(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    ImuBno085(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : ImuBno085(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    ImuBno085(uint8_t axis_order, const BusI2c::i2c_pins_t& pins) : ImuBno085(axis_order, pins, I2C_ADDRESS) {}
 #endif
 public:
     virtual int init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) override;
@@ -166,7 +166,7 @@ private:
     bool send_packet(uint8_t channelNumber, uint8_t data_length);
     bool send_command(uint8_t command);
 protected:
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_BNO085_USE_SPI_BUS)
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuBno085_USE_SPI_BUS)
     BusSpi _bus; //!< SPI bus interface
 #else
     BusI2c _bus; //!< I2C bus interface

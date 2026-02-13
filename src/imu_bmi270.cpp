@@ -167,34 +167,34 @@ extern const std::array<uint8_t, 8192> imu_bmi270_config_data;
 /*!
 Gyroscope data rates up to 6.4 kHz, accelerometer up to 1.6 kHz
 */
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_BMI270_USE_SPI_BUS)
-IMU_BMI270::IMU_BMI270(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
-    IMU_Base(axis_order, _bus),
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuBmi270_USE_SPI_BUS)
+ImuBmi270::ImuBmi270(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
+    ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
-IMU_BMI270::IMU_BMI270(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
-    IMU_Base(axis_order, _bus),
+ImuBmi270::ImuBmi270(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
+    ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
 #else
-IMU_BMI270::IMU_BMI270(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
-    IMU_Base(axis_order, _bus),
+ImuBmi270::ImuBmi270(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
+    ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
-IMU_BMI270::IMU_BMI270(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
-    IMU_Base(axis_order, _bus),
+ImuBmi270::ImuBmi270(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+    ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
 #endif
 
-int IMU_BMI270::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) // NOLINT(readability-function-cognitive-complexity)
+int ImuBmi270::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) // NOLINT(readability-function-cognitive-complexity)
 {
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
-    Serial.print("IMU_BMI270::init\r\n");
+    Serial.print("ImuBmi270::init\r\n");
 #endif
     static_assert(sizeof(mems_sensor_data_t) == mems_sensor_data_t::DATA_SIZE);
     static_assert(sizeof(acc_gyro_data_t) == acc_gyro_data_t::DATA_SIZE);
@@ -372,7 +372,7 @@ int IMU_BMI270::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivi
     return static_cast<int>(_gyro_sample_rate_hz);
 }
 
-void IMU_BMI270::loadConfigurationData()
+void ImuBmi270::loadConfigurationData()
 {
     const size_t dataSize = sizeof(::imu_bmi270_config_data);
     const std::array<uint8_t, 2> addressArray = {{
@@ -389,18 +389,18 @@ void IMU_BMI270::loadConfigurationData()
     delay_ms(10);
     [[maybe_unused]] const uint8_t internalStatus = _bus.read_register(REG_INTERNAL_STATUS);
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
-    Serial.printf("IMU_BMI270 init, internalStatus=%02x\r\n", internalStatus);
+    Serial.printf("ImuBmi270 init, internalStatus=%02x\r\n", internalStatus);
 #endif
     //assert(internalStatus == INIT_OK || internalStatus == SENSOR_STOPPED);
 }
 
-void IMU_BMI270::set_interrupt_driven()
+void ImuBmi270::set_interrupt_driven()
 {
     // set interrupt level as configured in init()
     _bus.set_interrupt_driven(BusBase::IRQ_LEVEL_HIGH);
 }
 
-IMU_Base::xyz_int32_t IMU_BMI270::read_gyro_raw()
+ImuBase::xyz_int32_t ImuBmi270::read_gyro_raw()
 {
     mems_sensor_data_t gyro; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -415,7 +415,7 @@ IMU_Base::xyz_int32_t IMU_BMI270::read_gyro_raw()
     };
 }
 
-IMU_Base::xyz_int32_t IMU_BMI270::read_acc_raw()
+ImuBase::xyz_int32_t ImuBmi270::read_acc_raw()
 {
     mems_sensor_data_t acc; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
 
@@ -430,22 +430,22 @@ IMU_Base::xyz_int32_t IMU_BMI270::read_acc_raw()
     };
 }
 
-xyz_t IMU_BMI270::read_gyro_rps()
+xyz_t ImuBmi270::read_gyro_rps()
 {
     return read_acc_gyro_rps().gyroRPS;
 }
 
-xyz_t IMU_BMI270::read_gyro_dps()
+xyz_t ImuBmi270::read_gyro_dps()
 {
     return read_acc_gyro_rps().gyroRPS * RADIANS_TO_DEGREES;
 }
 
-xyz_t IMU_BMI270::read_acc()
+xyz_t ImuBmi270::read_acc()
 {
     return read_acc_gyro_rps().acc;
 }
 
-FAST_CODE acc_gyro_rps_t IMU_BMI270::read_acc_gyro_rps()
+FAST_CODE acc_gyro_rps_t ImuBmi270::read_acc_gyro_rps()
 {
     bus_semaphore_take();
     _bus.read_register(REG_ACC_X_L, &_spiAccGyroData.accGyro.data[0], sizeof(_spiAccGyroData.accGyro));
@@ -458,12 +458,12 @@ FAST_CODE acc_gyro_rps_t IMU_BMI270::read_acc_gyro_rps()
 /*!
 Return the gyroAcc data that was read in the ISR
 */
-FAST_CODE acc_gyro_rps_t IMU_BMI270::get_acc_gyro_rps() const
+FAST_CODE acc_gyro_rps_t ImuBmi270::get_acc_gyro_rps() const
 {
     return acc_gyro_rpsFromRaw(_spiAccGyroData.accGyro.value);
 }
 
-acc_gyro_rps_t IMU_BMI270::acc_gyro_rpsFromRaw(const acc_gyro_data_t::value_t& data) const
+acc_gyro_rps_t ImuBmi270::acc_gyro_rpsFromRaw(const acc_gyro_data_t::value_t& data) const
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return acc_gyro_rps_t {

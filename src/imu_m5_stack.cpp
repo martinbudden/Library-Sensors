@@ -9,8 +9,8 @@ constexpr float ACC_8G_RES { 8.0 / 32768.0 };
 } // end namespace
 
 
-IMU_M5_STACK::IMU_M5_STACK(uint8_t axis_order) :
-    IMU_Base(axis_order, IMU_AUTO_CALIBRATES)
+ImuM5Stack::ImuM5Stack(uint8_t axis_order) :
+    ImuBase(axis_order, IMU_AUTO_CALIBRATES)
 {
     _gyro_resolution_dps = GYRO_2000DPS_RES;
     _gyro_resolution_rps = GYRO_2000DPS_RES * DEGREES_TO_RADIANS;
@@ -19,7 +19,7 @@ IMU_M5_STACK::IMU_M5_STACK(uint8_t axis_order) :
     _acc_sample_rate_hz = 500;
 }
 
-int IMU_M5_STACK::init(uint32_t outputDataRateHz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)
+int ImuM5Stack::init(uint32_t outputDataRateHz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)
 {
     (void)outputDataRateHz;
     (void)gyro_sensitivity;
@@ -45,7 +45,7 @@ int IMU_M5_STACK::init(uint32_t outputDataRateHz, uint8_t gyro_sensitivity, uint
     return _gyro_sample_rate_hz;
 }
 
-IMU_Base::xyz_int32_t IMU_M5_STACK::read_acc_raw()
+ImuBase::xyz_int32_t ImuM5Stack::read_acc_raw()
 {
     int16_t x {};
     int16_t y {};
@@ -58,7 +58,7 @@ IMU_Base::xyz_int32_t IMU_M5_STACK::read_acc_raw()
     return xyz_int32_t {.x = x, .y = y, .z = z };
 }
 
-xyz_t IMU_M5_STACK::read_acc()
+xyz_t ImuM5Stack::read_acc()
 {
     int16_t x {};
     int16_t y {};
@@ -76,7 +76,7 @@ xyz_t IMU_M5_STACK::read_acc()
     return map_axes(acc);
 }
 
-IMU_Base::xyz_int32_t IMU_M5_STACK::read_gyro_raw()
+ImuBase::xyz_int32_t ImuM5Stack::read_gyro_raw()
 {
     int16_t x {};
     int16_t y {};
@@ -89,7 +89,7 @@ IMU_Base::xyz_int32_t IMU_M5_STACK::read_gyro_raw()
     return xyz_int32_t {.x = x, .y = y, .z = z };
 }
 
-xyz_t IMU_M5_STACK::read_gyro_rps()
+xyz_t ImuM5Stack::read_gyro_rps()
 {
     int16_t x {};
     int16_t y {};
@@ -107,7 +107,7 @@ xyz_t IMU_M5_STACK::read_gyro_rps()
     return map_axes(gyroRPS);
 }
 
-xyz_t IMU_M5_STACK::read_gyro_dps()
+xyz_t ImuM5Stack::read_gyro_dps()
 {
     int16_t x {};
     int16_t y {};
@@ -125,7 +125,7 @@ xyz_t IMU_M5_STACK::read_gyro_dps()
     return map_axes(gyroDPS);
 }
 
-FAST_CODE acc_gyro_rps_t IMU_M5_STACK::read_acc_gyro_rps()
+FAST_CODE acc_gyro_rps_t ImuM5Stack::read_acc_gyro_rps()
 {
     const acc_gyro_rps_t gyroAcc {
         .gyroRPS = read_gyro_rps(),
@@ -135,7 +135,7 @@ FAST_CODE acc_gyro_rps_t IMU_M5_STACK::read_acc_gyro_rps()
     return gyroAcc;
 }
 
-acc_gyro_rps_t IMU_M5_STACK::acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t& data) const
+acc_gyro_rps_t ImuM5Stack::acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t& data) const
 {
 // NOLINTBEGIN(hicpp-signed-bitwise)
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)

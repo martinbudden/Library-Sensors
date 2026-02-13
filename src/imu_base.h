@@ -18,13 +18,13 @@ The gyro and accelerometer can be read together using read_acc_gyro_rps. For typ
 if the IMU is read via a 10 MHz  SPI bus this takes approximately 10 microseconds,
 if the IMU is read via a 400 kHz I2C bus this takes approximately 270 microseconds.
 */
-class IMU_Base {
+class ImuBase {
 public:
-    virtual ~IMU_Base() = default;
-    IMU_Base(uint8_t axis_order, BusBase& bus_base, uint8_t flags);
-    IMU_Base(uint8_t axis_order, BusBase& bus_base);
-    IMU_Base(uint8_t axis_order, uint8_t flags);
-    explicit IMU_Base(uint8_t axis_order);
+    virtual ~ImuBase() = default;
+    ImuBase(uint8_t axis_order, BusBase& bus_base, uint8_t flags);
+    ImuBase(uint8_t axis_order, BusBase& bus_base);
+    ImuBase(uint8_t axis_order, uint8_t flags);
+    explicit ImuBase(uint8_t axis_order);
 public:
     enum  { NOT_DETECTED = -1 };
     /*!

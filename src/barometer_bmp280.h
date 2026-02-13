@@ -5,7 +5,7 @@
 #include "bus_spi.h"
 
 
-class BarometerBMP280 : public BarometerBase {
+class BarometerBmp280 : public BarometerBase {
 public:
     static constexpr uint8_t I2C_ADDRESS = 0x76;
     static constexpr uint8_t I2C_ADDRESS_ALTERNATIVE = 0x77;
@@ -47,17 +47,17 @@ public:
 public:
 #if defined(LIBRARY_SENSORS_BAROMETER_USE_SPI_BUS)
     // SPI constructors
-    BarometerBMP280(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins);
-    BarometerBMP280(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
+    BarometerBmp280(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins);
+    BarometerBmp280(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    BarometerBMP280(BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
-    BarometerBMP280(const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : BarometerBMP280(BusI2c::BUS_INDEX_0, pins, I2C_address) {}
-    explicit BarometerBMP280(const BusI2c::stm32_i2c_pins_t& pins) : BarometerBMP280(pins, I2C_ADDRESS) {}
+    BarometerBmp280(BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
+    BarometerBmp280(const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : BarometerBmp280(BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    explicit BarometerBmp280(const BusI2c::stm32_i2c_pins_t& pins) : BarometerBmp280(pins, I2C_ADDRESS) {}
 
-    BarometerBMP280(BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
-    BarometerBMP280(const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : BarometerBMP280(BusI2c::BUS_INDEX_0, pins, I2C_address) {}
-    explicit BarometerBMP280(const BusI2c::i2c_pins_t& pins) : BarometerBMP280(pins, I2C_ADDRESS) {}
+    BarometerBmp280(BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    BarometerBmp280(const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : BarometerBmp280(BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    explicit BarometerBmp280(const BusI2c::i2c_pins_t& pins) : BarometerBmp280(pins, I2C_ADDRESS) {}
 #endif
     virtual int init() override;
     virtual void read_temperature_and_pressure() override;

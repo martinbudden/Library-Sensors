@@ -20,5 +20,5 @@
     "version": "0.0.6",
     "frameworks": "*",
     "platforms": "*",
-    "headers": ["BUS_I2C.h", "BUS_SPI.h", "imu_base.h", "IMU_BMI270.h", "IMU_BNO085.h", "IMU_ICM426xx.h", "IMU_ICM20602.h", "IMU_LSM6DS3TR_C.h", "IMU_MPU6000.h", "IMU_MPU6886.h", "IMU_M5Stack.h", "IMU_M5Unified.h", "IMU_Null.h", "BarometerBase.h", "BarometerBMP280.h"]
+    "headers": ["bus_i2c.h", "bus_spi.h", "imu_base.h", "imu_bmi270.h", "imu_bno085.h", "imu_icm426xx.h", "imu_icm20602.h", "imu_lsm6ds3tr_c.h", "imu_mpu6000.h", "imu_mpu6886.h", "imu_M5_stack.h", "imu_M5_unified.h", "imu_Null.h", "barometer_base.h", "barometer_bmp280.h", "barometer_qmp6988.h"]
 }

@@ -44,29 +44,29 @@ static constexpr uint8_t COMMAND_CLEAR_DCD_AND_RESET = 0x0B;
 
 // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
-#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_BNO085_USE_SPI_BUS)
-IMU_BNO085::IMU_BNO085(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
-    IMU_Base(axis_order, _bus, IMU_AUTO_CALIBRATES | IMU_PERFORMS_SENSOR_FUSION),
+#if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuBno085_USE_SPI_BUS)
+ImuBno085::ImuBno085(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
+    ImuBase(axis_order, _bus, IMU_AUTO_CALIBRATES | IMU_PERFORMS_SENSOR_FUSION),
     _bus(frequency, spi_index, pins),
     _axis_order_quaternion(axisOrientations[axis_order])
 {
 }
-IMU_BNO085::IMU_BNO085(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
-    IMU_Base(axis_order, _bus, IMU_AUTO_CALIBRATES | IMU_PERFORMS_SENSOR_FUSION),
+ImuBno085::ImuBno085(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
+    ImuBase(axis_order, _bus, IMU_AUTO_CALIBRATES | IMU_PERFORMS_SENSOR_FUSION),
     _bus(frequency, spi_index, pins),
     _axis_order_quaternion(axisOrientations[axis_order])
 {
 }
 #else
-IMU_BNO085::IMU_BNO085(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
-    IMU_Base(axis_order, _bus, IMU_AUTO_CALIBRATES | IMU_PERFORMS_SENSOR_FUSION),
+ImuBno085::ImuBno085(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+    ImuBase(axis_order, _bus, IMU_AUTO_CALIBRATES | IMU_PERFORMS_SENSOR_FUSION),
     _bus(I2C_address, i2c_index, pins),
     _axis_order_quaternion(axisOrientations[axis_order])
 {
 }
 #endif
 
-int IMU_BNO085::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)
+int ImuBno085::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)
 {
     assert(target_output_data_rate_hz <= 400);
     (void)gyro_sensitivity;
@@ -105,7 +105,7 @@ int IMU_BNO085::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivi
     return static_cast<int>(target_output_data_rate_hz);
 }
 
-void IMU_BNO085::set_feature_command(uint8_t report_id, uint32_t time_between_reports_us, uint32_t specific_config)
+void ImuBno085::set_feature_command(uint8_t report_id, uint32_t time_between_reports_us, uint32_t specific_config)
 {
     _shtp_packet.data[0] = SENSOR_REPORTID_SET_FEATURE_COMMAND;                          // Set feature command. Reference page 55
     _shtp_packet.data[1] = report_id;                                                     // Feature Report ID. 0x01 = Accelerometer, 0x05 = Rotation vector
@@ -128,19 +128,19 @@ void IMU_BNO085::set_feature_command(uint8_t report_id, uint32_t time_between_re
     send_packet(CHANNEL_SENSOR_HUB_CONTROL, 17);
 }
 
-IMU_Base::xyz_int32_t IMU_BNO085::read_gyro_raw()
+ImuBase::xyz_int32_t ImuBno085::read_gyro_raw()
 {
-    IMU_Base::xyz_int32_t ret {};
+    ImuBase::xyz_int32_t ret {};
     return ret;
 }
 
-IMU_Base::xyz_int32_t IMU_BNO085::read_acc_raw()
+ImuBase::xyz_int32_t ImuBno085::read_acc_raw()
 {
-    IMU_Base::xyz_int32_t ret {};
+    ImuBase::xyz_int32_t ret {};
     return ret;
 }
 
-Quaternion IMU_BNO085::read_orientation()
+Quaternion ImuBno085::read_orientation()
 {
     if (!_orientation_available) {
         read_packet_and_parse();
@@ -158,7 +158,7 @@ Quaternion IMU_BNO085::read_orientation()
     return _axis_order_quaternion * _integrated_rotation_vector;
 }
 
-xyz_t IMU_BNO085::read_gyro_rps()
+xyz_t ImuBno085::read_gyro_rps()
 {
     if (!_gyro_available) {
         read_packet_and_parse();
@@ -174,7 +174,7 @@ xyz_t IMU_BNO085::read_gyro_rps()
     };
 }
 
-xyz_t IMU_BNO085::get_acc() const
+xyz_t ImuBno085::get_acc() const
 {
     constexpr unsigned int Q_point = 8;
     constexpr float multiplier = 1.0F / (1U << Q_point);
@@ -186,7 +186,7 @@ xyz_t IMU_BNO085::get_acc() const
 }
 
 
-xyz_t IMU_BNO085::get_acc_linear() const
+xyz_t ImuBno085::get_acc_linear() const
 {
     constexpr unsigned int Q_point = 8;
     constexpr float multiplier = 1.0F / (1U << Q_point);
@@ -197,7 +197,7 @@ xyz_t IMU_BNO085::get_acc_linear() const
     };
 }
 
-xyz_t IMU_BNO085::get_gyro_rps() const
+xyz_t ImuBno085::get_gyro_rps() const
 {
     constexpr unsigned int Q_point = 9;
     constexpr float multiplier = 1.0F / (1U << Q_point);
@@ -208,7 +208,7 @@ xyz_t IMU_BNO085::get_gyro_rps() const
     };
 }
 
-xyz_t IMU_BNO085::get_mag() const
+xyz_t ImuBno085::get_mag() const
 {
     constexpr unsigned int Q_point = 4;
     constexpr float multiplier = 1.0F / (1U << Q_point);
@@ -219,7 +219,7 @@ xyz_t IMU_BNO085::get_mag() const
     };
 }
 
-xyz_t IMU_BNO085::get_gravity() const
+xyz_t ImuBno085::get_gravity() const
 {
     constexpr unsigned int Q_point = 8;
     constexpr float multiplier = 1.0F / (1U << Q_point);
@@ -230,7 +230,7 @@ xyz_t IMU_BNO085::get_gravity() const
     };
 }
 
-uint16_t IMU_BNO085::parse_command_response(const ShtpPacket& packet)
+uint16_t ImuBno085::parse_command_response(const ShtpPacket& packet)
 {
     const uint8_t report_id = packet.data[0];
     if (report_id == REPORT_ID_COMMAND_RESPONSE) {
@@ -251,7 +251,7 @@ The gyro integrated rotation vector input reports are sent via the special gyro 
 They DO NOT INCLUDE the usual report_id, sequence_number, status, and delay fields
 Rates of up to 400 Hz are supported.
 */
-uint16_t IMU_BNO085::parseGyro_integrated_rotation_vectorReport(const ShtpPacket& packet)
+uint16_t ImuBno085::parseGyro_integrated_rotation_vectorReport(const ShtpPacket& packet)
 {
     _orientation_available = true;
     _gyro_available = true;
@@ -275,7 +275,7 @@ packet.data[0:4]    5 byte timestamp
 packet.data[5:8]    4 bytes of data containing report_id, sequence_number, status, and delay.
 packet.date[9..]    sensor data starts
 */
-uint16_t IMU_BNO085::parse_input_sensor_report(const ShtpPacket& packet)
+uint16_t ImuBno085::parse_input_sensor_report(const ShtpPacket& packet)
 {
     if (packet.data[0] == REPORT_ID_BASE_TIMESTAMP_REFERENCE) {
         _timestamp = (static_cast<uint32_t>(packet.data[4]) << 24U)
@@ -404,7 +404,7 @@ uint16_t IMU_BNO085::parse_input_sensor_report(const ShtpPacket& packet)
     return report_id;
 }
 
-bool IMU_BNO085::read_packet_and_parse()
+bool ImuBno085::read_packet_and_parse()
 {
     static_assert(sizeof(ShtpHeader) == 4);
     if (read_packet()) {
@@ -425,7 +425,7 @@ bool IMU_BNO085::read_packet_and_parse()
     return false;
 }
 
-bool IMU_BNO085::read_packet()
+bool ImuBno085::read_packet()
 {
     // No interrupt pin set then we rely on receivePacket() to timeout. Strictly speaking this does not follow the SH-2 transport protocol.
     if (_bus.read_bytesWithTimeout(reinterpret_cast<uint8_t*>(&_shtp_packet.header), sizeof(ShtpHeader), BUS_TIMEOUT_MS) == false) { // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -461,7 +461,7 @@ Perform multiple reads until all bytes are read
 The ShtpPacket data buffer has max capacity of MAX_PACKET_SIZE. Any bytes over this amount will be lost.
 Arduino I2C read limit is 32 bytes. Header is 4 bytes, so max data we can read per interation is 28 bytes
 */
-bool IMU_BNO085::read_data(size_t read_length)
+bool ImuBno085::read_data(size_t read_length)
 {
     size_t index = 0;
     size_t bytesToRead = read_length;
@@ -506,7 +506,7 @@ bool IMU_BNO085::read_data(size_t read_length)
 }
 
 // NOTE: Arduino has a maximum 32 byte send.
-bool IMU_BNO085::send_packet(uint8_t channelNumber, uint8_t data_length)
+bool ImuBno085::send_packet(uint8_t channelNumber, uint8_t data_length)
 {
     const uint8_t packetLength = data_length + sizeof(_shtp_packet.header); // Add four bytes for the header
     _shtp_packet.header.lengthLSB = packetLength & 0xFF;
@@ -518,7 +518,7 @@ bool IMU_BNO085::send_packet(uint8_t channelNumber, uint8_t data_length)
     return true;
 }
 
-bool IMU_BNO085::send_command_calibrate_motion_engine()
+bool ImuBno085::send_command_calibrate_motion_engine()
 {
     _command_message.P.fill(0);
     _command_message.P[0] = 1; // acc calibration enabled
@@ -527,13 +527,13 @@ bool IMU_BNO085::send_command_calibrate_motion_engine()
     return send_command(COMMAND_CALIBRATE_MOTION_ENGINE);
 }
 
-bool IMU_BNO085::send_command_save_dynamic_calibration_data()
+bool ImuBno085::send_command_save_dynamic_calibration_data()
 {
     _command_message.P.fill(0);
     return send_command(COMMAND_SAVE_DYNAMIC_CALIBRATION_DATA);
 }
 
-bool IMU_BNO085::send_command(uint8_t command)
+bool ImuBno085::send_command(uint8_t command)
 {
     _command_message.report_id = REPORT_ID_COMMAND_REQUEST;
     _command_message.command = command;
