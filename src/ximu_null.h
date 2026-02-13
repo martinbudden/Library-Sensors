@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IMU_Base.h"
+#include "imu_base.h"
 
 /*!
 NULL IMU, useful for test code.

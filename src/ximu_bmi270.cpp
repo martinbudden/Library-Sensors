@@ -1,4 +1,4 @@
-#include "IMU_BMI270.h"
+#include "imu_bmi270.h"
 
 
 //#define LIBRARY_SENSORS_SERIAL_DEBUG

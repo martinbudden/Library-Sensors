@@ -1,4 +1,4 @@
-#include <IMU_BNO085.h>
+#include <imu_bno085.h>
 #include <unity.h>
 
 void setUp()

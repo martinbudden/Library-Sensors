@@ -3,7 +3,7 @@
 #include <HardwareSerial.h>
 #endif
 
-#include "IMU_BNO085.h"
+#include "imu_bno085.h"
 #include <cassert>
 #include <cstring>
 

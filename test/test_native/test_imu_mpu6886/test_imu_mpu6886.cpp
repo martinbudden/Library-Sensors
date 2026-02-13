@@ -1,4 +1,4 @@
-#include <IMU_MPU6886.h>
+#include <imu_mpu6886.h>
 #include <unity.h>
 
 void setUp()

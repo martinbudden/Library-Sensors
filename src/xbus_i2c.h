@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BUS_BASE.h"
+#include "bus_base.h"
 
 #if defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
 #if defined(FRAMEWORK_STM32_CUBE_F1)

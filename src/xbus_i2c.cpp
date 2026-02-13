@@ -1,4 +1,4 @@
-#include "BUS_I2C.h"
+#include "bus_i2c.h"
 
 #include <cassert>
 #if defined(FRAMEWORK_RPI_PICO)

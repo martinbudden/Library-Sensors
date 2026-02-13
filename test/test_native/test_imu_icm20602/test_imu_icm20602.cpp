@@ -1,4 +1,4 @@
-#include <IMU_ICM20602.h>
+#include <imu_icm20602.h>
 #include <unity.h>
 
 void setUp()

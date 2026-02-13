@@ -1,6 +1,6 @@
 #if defined(LIBRARY_SENSORS_IMU_USE_M5_STACK)
 
-#include "IMU_M5Stack.h"
+#include "imu_m5_stack.h"
 #include <M5Stack.h>
 
 namespace { // use anonymous namespace to make items local to this translation unit

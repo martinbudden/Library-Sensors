@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BUS_BASE.h"
+#include "bus_base.h"
 
 //#define LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT //!!TODO: make this based on member data, not build flag
 

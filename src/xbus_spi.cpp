@@ -1,4 +1,4 @@
-#include "BUS_SPI.h"
+#include "bus_spi.h"
 
 //#define LIBRARY_SENSORS_SERIAL_DEBUG
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)

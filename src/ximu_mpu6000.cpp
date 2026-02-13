@@ -1,4 +1,4 @@
-#include "IMU_MPU6000.h"
+#include "imu_mpu6000.h"
 
 //#define LIBRARY_SENSORS_SERIAL_DEBUG
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)

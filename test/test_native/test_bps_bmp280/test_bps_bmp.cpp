@@ -1,4 +1,4 @@
-#include <BarometerBMP280.h>
+#include <barometer_bmp280.h>
 #include <unity.h>
 
 void setUp()

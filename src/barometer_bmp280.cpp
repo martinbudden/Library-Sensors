@@ -1,4 +1,4 @@
-#include "BarometerBMP280.h"
+#include "barometer_bmp280.h"
 //#define LIBRARY_SENSORS_SERIAL_DEBUG
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
 #include <HardwareSerial.h>

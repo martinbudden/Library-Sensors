@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IMU_Base.h"
+#include "imu_base.h"
 
 
 class IMU_M5_STACK : public IMU_Base {

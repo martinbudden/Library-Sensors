@@ -1,8 +1,8 @@
 #pragma once
 
-#include "BUS_I2C.h"
-#include "BUS_SPI.h"
-#include "IMU_Base.h"
+#include "bus_i2c.h"
+#include "bus_spi.h"
+#include "imu_base.h"
 
 /*!
 The BNO085 is a System in Package (SiP) that integrates a triaxial accelerometer, triaxial gyroscope,

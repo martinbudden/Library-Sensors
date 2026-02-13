@@ -1,4 +1,4 @@
-#include <IMU_LSM6DS3TR_C.h>
+#include <imu_lsm6ds3tr_c.h>
 #include <unity.h>
 
 void setUp()

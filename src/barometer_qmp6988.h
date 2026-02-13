@@ -1,8 +1,8 @@
 #pragma once
 
-#include "BarometerBase.h"
-#include "BUS_I2C.h"
-#include "BUS_SPI.h"
+#include "barometer_base.h"
+#include "bus_i2c.h"
+#include "bus_spi.h"
 
 
 class BarometerQMP6988 : public BarometerBase {

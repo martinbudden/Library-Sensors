@@ -1,4 +1,4 @@
-#include "IMU_ICM426xx.h"
+#include "imu_icm426xx.h"
 //#define LIBRARY_SENSORS_SERIAL_DEBUG
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
 #if defined(FRAMEWORK_ARDUINO_ESP32) || defined(ESP32) || defined(ARDUINO_ARCH_ESP32)// ESP32, ARDUINO_ARCH_ESP32 defined in platform.txt
