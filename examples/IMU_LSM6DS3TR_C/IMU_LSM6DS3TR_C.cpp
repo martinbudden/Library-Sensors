@@ -26,7 +26,7 @@ void setup()
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
     static constexpr uint32_t spiFrequencyHz = 10000000; // 10 MHz
     //static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
-    //IMU_LSM6DS3TR_C(axis_order_e axisOrder, uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::spi_pins_t& pins);
+    //IMU_LSM6DS3TR_C(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
     static IMU_LSM6DS3TR_C imuStatic(IMU_Base::XPOS_YPOS_ZPOS, spiFrequencyHz, BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
 #else
 #if defined(LIBRARY_SENSORS_IMU_USE_I2C_WIRE_1)
@@ -42,11 +42,11 @@ void setup()
 
     // initialize the IMU
     const int ret = imu->init();
-    Serial.print("imuInit gyroSampleRateHz:");
+    Serial.print("imuInit gyro_sample_rate_hz:");
     Serial.println(ret);
     Serial.println();
 #if defined(INTERRUPT_DRIVEN)
-    imu->setInterruptDriven();
+    imu->set_interrupt_driven();
     Serial.println("\r\n**** Interrupt Driven ****\r\n");
 #endif
 }
@@ -58,13 +58,13 @@ void loop()
 #else
     imu->SIGNAL_IMU_DATA_READY_FROM_ISR();
     imu->WAIT_IMU_DATA_READY();
-    imu->readAccGyroRPS();
+    imu->read_acc_gyro_rps();
 #endif
     // take an IMU reading
-    const acc_gyro_rps_t accGyroRPS = imu->getAccGyroRPS();
+    const acc_gyro_rps_t acc_gyro_rps = imu->get_acc_gyro_rps();
 
     // convert the gyro radians per second value to degrees per second
-    const xyz_t gyroDPS = accGyroRPS.gyroRPS * IMU_Base::RADIANS_TO_DEGREES;
+    const xyz_t gyroDPS = acc_gyro_rps.gyroRPS * IMU_Base::RADIANS_TO_DEGREES;
 
     Serial.println();
     Serial.print("gyroX:");
@@ -75,7 +75,7 @@ void loop()
     Serial.println(gyroDPS.z, 1);
 
     // get the acc part of the accGyro reading
-    const xyz_t acc =  accGyroRPS.acc;
+    const xyz_t acc =  acc_gyro_rps.acc;
 
     Serial.print("accX:");
     Serial.print(acc.x);

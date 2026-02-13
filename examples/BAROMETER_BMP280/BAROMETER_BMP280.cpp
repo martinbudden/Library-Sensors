@@ -22,11 +22,11 @@ void setup()
     const int sampleRate = barometer->init();
 
     Serial.printf("\r\nSample rate:%d\r\n", sampleRate);
-    Serial.printf("Reference Altitude:%f\r\n", barometer->getReferenceAltitude());
-    Serial.printf("Pressure at reference Altitude:%f\r\n", barometer->getPressureAtReferenceAltitude());
+    Serial.printf("Reference Altitude:%f\r\n", barometer->get_reference_altitude());
+    Serial.printf("Pressure at reference Altitude:%f\r\n", barometer->get_pressure_at_reference_altitude());
 }
 
-float calculateAltitudeMeters(float pressure, float temperature)
+float calculate_altitude_meters(float pressure, float temperature)
 {
     return (std::pow((101325.0F/pressure), 1.0F/5.257F) - 1.0F) * (temperature + 273.15F) / 0.0065F;
 }
@@ -36,19 +36,19 @@ void loop()
     static uint32_t timePreviousMs =  0;
     static FilterMovingAverage<100> altitudeFilter {};
 
-    barometer->readTemperatureAndPressure();
+    barometer->read_temperature_and_pressure();
 
-    const float pressurePascals = barometer->getPressurePascals();
-    const float temperatureCelsius = barometer->getTemperatureCelsius();
-    const float altitudeMeters = barometer->calculateAltitudeMeters(pressurePascals, temperatureCelsius);
-    const float alt2 = calculateAltitudeMeters(pressurePascals, temperatureCelsius);
+    const float pressure_pascals = barometer->get_pressure_pascals();
+    const float temperature_celsius = barometer->get_temperature_celsius();
+    const float altitudeMeters = barometer->calculate_altitude_meters(pressure_pascals, temperature_celsius);
+    const float alt2 = calculate_altitude_meters(pressure_pascals, temperature_celsius);
     const float altitudeMA = altitudeFilter.filter(altitudeMeters);
 
     uint32_t timeMs = millis();
     if (timeMs > timePreviousMs + 500) {
         timePreviousMs = timeMs;
         Serial.println();
-        Serial.printf("Pressure:%8.2f,  Temperature:%4.1f\r\n", static_cast<double>(pressurePascals), static_cast<double>(temperatureCelsius));
+        Serial.printf("Pressure:%8.2f,  Temperature:%4.1f\r\n", static_cast<double>(pressure_pascals), static_cast<double>(temperature_celsius));
         Serial.printf("altitude:%6.2f,  alt2:%6.2f, altitudeMA:%6.2f\r\n", static_cast<double>(altitudeMeters), static_cast<double>(alt2), static_cast<double>(altitudeMA));
     }
     delay(25);

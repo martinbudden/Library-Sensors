@@ -12,43 +12,43 @@
 #endif
 
 
-IMU_Base::IMU_Base(axis_order_e axisOrder, BusBase& busBase, uint32_t flags) :
-    _axisOrder(axisOrder),
-    _busBase(&busBase),
+IMU_Base::IMU_Base(uint8_t axis_order, BusBase& bus_base, uint8_t flags) :
+    _bus_base(&bus_base),
+    _axis_order(axis_order),
     _flags(flags)
 {
 }
 
-IMU_Base::IMU_Base(axis_order_e axisOrder, BusBase& busBase) :
-    IMU_Base(axisOrder, busBase, 0)
+IMU_Base::IMU_Base(uint8_t axis_order, BusBase& bus_base) :
+    IMU_Base(axis_order, bus_base, 0)
 {
 }
 
-IMU_Base::IMU_Base(axis_order_e axisOrder, uint32_t flags):
-    _axisOrder(axisOrder),
-    _busBase(nullptr),
+IMU_Base::IMU_Base(uint8_t axis_order, uint8_t flags):
+    _bus_base(nullptr),
+    _axis_order(axis_order),
     _flags(flags)
 {
 }
 
-IMU_Base::IMU_Base(axis_order_e axisOrder) :
-    IMU_Base(axisOrder, 0)
+IMU_Base::IMU_Base(uint8_t axis_order) :
+    IMU_Base(axis_order, 0)
 {
 }
 
-int IMU_Base::init(uint32_t outputDataRateHz, void* busMutex)
+int IMU_Base::init(uint32_t target_output_data_rate_hz, void* bus_mutex)
 {
-    return init(outputDataRateHz, GYRO_FULL_SCALE_MAX, ACC_FULL_SCALE_MAX, busMutex);
+    return init(target_output_data_rate_hz, GYRO_FULL_SCALE_MAX, ACC_FULL_SCALE_MAX, bus_mutex);
 }
 
-int IMU_Base::init(uint32_t outputDataRateHz)
+int IMU_Base::init(uint32_t target_output_data_rate_hz)
 {
-    return init(outputDataRateHz, nullptr);
+    return init(target_output_data_rate_hz, nullptr);
 }
 
-int IMU_Base::init(void* busMutex)
+int IMU_Base::init(void* bus_mutex)
 {
-    return init(TARGET_OUTPUT_DATA_RATE_MAX, GYRO_FULL_SCALE_MAX, ACC_FULL_SCALE_MAX, busMutex);
+    return init(TARGET_OUTPUT_DATA_RATE_MAX, GYRO_FULL_SCALE_MAX, ACC_FULL_SCALE_MAX, bus_mutex);
 }
 
 int IMU_Base::init()
@@ -56,82 +56,82 @@ int IMU_Base::init()
     return init(nullptr);
 }
 
-void IMU_Base::setInterruptDriven()
+void IMU_Base::set_interrupt_driven()
 {
 }
 
-xyz_t IMU_Base::getGyroOffset() const
+xyz_t IMU_Base::get_gyro_offset() const
 {
-    return _gyroOffset;
+    return _gyro_offset;
 }
 
-void IMU_Base::setGyroOffset(const xyz_t& gyroOffset)
+void IMU_Base::setGyro_offset(const xyz_t& gyro_offset)
 {
-    _gyroOffset = gyroOffset;
+    _gyro_offset = gyro_offset;
 }
 
-xyz_t IMU_Base::getAccOffset() const
+xyz_t IMU_Base::get_acc_offset() const
 {
-    return _accOffset;
+    return _acc_offset;
 }
 
-void IMU_Base::setAccOffset(const xyz_t& accOffset)
+void IMU_Base::setAcc_offset(const xyz_t& acc_offset)
 {
-    _accOffset = accOffset;
+    _acc_offset = acc_offset;
 }
 
-xyz_t IMU_Base::readGyroRPS()
+xyz_t IMU_Base::read_gyro_rps()
 {
-    const xyz_int32_t gyroRaw = readGyroRaw();
-    return mapAxes({
-        .x = static_cast<float>(gyroRaw.x) * _gyroResolutionRPS - _gyroOffset.x,
-        .y = static_cast<float>(gyroRaw.y) * _gyroResolutionRPS - _gyroOffset.y,
-        .z = static_cast<float>(gyroRaw.z) * _gyroResolutionRPS - _gyroOffset.z
+    const xyz_int32_t gyroRaw = read_gyro_raw();
+    return map_axes({
+        .x = static_cast<float>(gyroRaw.x) * _gyro_resolution_rps - _gyro_offset.x,
+        .y = static_cast<float>(gyroRaw.y) * _gyro_resolution_rps - _gyro_offset.y,
+        .z = static_cast<float>(gyroRaw.z) * _gyro_resolution_rps - _gyro_offset.z
     });
 }
 
-xyz_t IMU_Base::readGyroDPS()
+xyz_t IMU_Base::read_gyro_dps()
 {
-    const xyz_int32_t gyroRaw = readGyroRaw();
-    return mapAxes({
-        .x = static_cast<float>(gyroRaw.x) * _gyroResolutionDPS - _gyroOffset.x,
-        .y = static_cast<float>(gyroRaw.y) * _gyroResolutionDPS - _gyroOffset.y,
-        .z = static_cast<float>(gyroRaw.z) * _gyroResolutionDPS - _gyroOffset.z
+    const xyz_int32_t gyroRaw = read_gyro_raw();
+    return map_axes({
+        .x = static_cast<float>(gyroRaw.x) * _gyro_resolution_dps - _gyro_offset.x,
+        .y = static_cast<float>(gyroRaw.y) * _gyro_resolution_dps - _gyro_offset.y,
+        .z = static_cast<float>(gyroRaw.z) * _gyro_resolution_dps - _gyro_offset.z
     });
 }
 
-xyz_t IMU_Base::readAcc()
+xyz_t IMU_Base::read_acc()
 {
-    const xyz_int32_t accRaw = readAccRaw();
-    return mapAxes({
-        .x = static_cast<float>(accRaw.x) * _accResolution - _accOffset.x,
-        .y = static_cast<float>(accRaw.y) * _accResolution - _accOffset.y,
-        .z = static_cast<float>(accRaw.z) * _accResolution - _accOffset.z
+    const xyz_int32_t accRaw = read_acc_raw();
+    return map_axes({
+        .x = static_cast<float>(accRaw.x) * _acc_resolution - _acc_offset.x,
+        .y = static_cast<float>(accRaw.y) * _acc_resolution - _acc_offset.y,
+        .z = static_cast<float>(accRaw.z) * _acc_resolution - _acc_offset.z
     });
 }
 
-acc_gyro_rps_t IMU_Base::readAccGyroRPS()
+acc_gyro_rps_t IMU_Base::read_acc_gyro_rps()
 {
     return acc_gyro_rps_t {
-        .gyroRPS = readGyroRPS(),
-        .acc = readAcc()
+        .gyroRPS = read_gyro_rps(),
+        .acc = read_acc()
     };
 }
 
-acc_gyro_rps_t IMU_Base::getAccGyroRPS() const
+acc_gyro_rps_t IMU_Base::get_acc_gyro_rps() const
 {
     return acc_gyro_rps_t {};
 }
 
-Quaternion IMU_Base::readOrientation()
+Quaternion IMU_Base::read_orientation()
 {
     return Quaternion {};
 }
 
-xyz_t IMU_Base::mapAxes(const xyz_t& data, axis_order_e axisOrder)
+xyz_t IMU_Base::map_axes(const xyz_t& data, uint8_t axis_order)
 {
 // NOLINTBEGIN(bugprone-branch-clone) false positive
-    switch (axisOrder) {
+    switch (axis_order) {
     case XPOS_YPOS_ZPOS:
         return data;
     case YPOS_XNEG_ZPOS: // rotate  90 degrees anticlockwise
@@ -320,9 +320,9 @@ xyz_t IMU_Base::mapAxes(const xyz_t& data, axis_order_e axisOrder)
     return data;
 }
 
-IMU_Base::axis_order_e IMU_Base::axisOrderInverse(axis_order_e axisOrder)
+uint8_t IMU_Base::axis_order_inverse(uint8_t axis_order)
 {
-    switch (axisOrder) {
+    switch (axis_order) {
     case YPOS_XNEG_ZPOS:
         return YNEG_XPOS_ZPOS;
     case YNEG_XPOS_ZPOS:
@@ -361,13 +361,13 @@ IMU_Base::axis_order_e IMU_Base::axisOrderInverse(axis_order_e axisOrder)
         return XPOS_YPOS_ZPOS_45; // 45
     default:
         // other axis orders are self-inverting
-        return axisOrder;
+        return axis_order;
     }
 }
 
-IMU_Base::xyz_alignment_t IMU_Base::alignmentFromAxisOrder(axis_order_e axisOrder)
+IMU_Base::xyz_alignment_t IMU_Base::alignment_from_axis_order(uint8_t axis_order)
 {
-    (void)axisOrder;
+    (void)axis_order;
     xyz_alignment_t alignment {
         .x = 0,
         .y = 0,
@@ -376,7 +376,7 @@ IMU_Base::xyz_alignment_t IMU_Base::alignmentFromAxisOrder(axis_order_e axisOrde
     return alignment;
 }
 
-IMU_Base::axis_order_e IMU_Base::axisOrderFromAlignment(const xyz_alignment_t& alignment)
+uint8_t IMU_Base::axis_orderFromAlignment(const xyz_alignment_t& alignment)
 {
     (void)alignment;
     return XPOS_YPOS_ZPOS;
@@ -392,50 +392,50 @@ void IMU_Base::calibrate(calibration_type_e calibrationType, size_t calibrationC
     int64_t accZ = 0;
 
     for (size_t ii = 0; ii < calibrationCount; ++ii) {
-        delayMs(1);
+        delay_ms(1);
 
-        const xyz_int32_t gyro32 = readGyroRaw();
+        const xyz_int32_t gyro32 = read_gyro_raw();
         gyroX += gyro32.x;
         gyroY += gyro32.y;
         gyroZ += gyro32.x;
 
-        const xyz_int32_t acc32 = readAccRaw();
+        const xyz_int32_t acc32 = read_acc_raw();
         accX += acc32.x;
         accY += acc32.y;
         accZ += acc32.z;
     }
 
-    const xyz_t gyroOffset = xyz_t {
+    const xyz_t gyro_offset = xyz_t {
         .x = static_cast<float>(gyroX) / static_cast<float>(calibrationCount),
         .y = static_cast<float>(gyroY) / static_cast<float>(calibrationCount),
         .z = static_cast<float>(gyroZ) / static_cast<float>(calibrationCount)
-    } *  getAccResolution();
+    } *  get_acc_resolution();
 
-    xyz_t accOffset = {
+    xyz_t acc_offset = {
         .x = static_cast<float>(accX) / static_cast<float>(calibrationCount),
         .y = static_cast<float>(accY) / static_cast<float>(calibrationCount),
         .z = static_cast<float>(accZ) / static_cast<float>(calibrationCount)
     };
 
-    const float oneG = 1.0F / getAccResolution();
+    const float oneG = 1.0F / get_acc_resolution();
     const float halfG = oneG / 2.0F;
-    if (accOffset.x > halfG) {
-        accOffset.x -= oneG;
-    } else if (accOffset.x < - halfG) {
-        accOffset.x += oneG;
-    } else if (accOffset.y > halfG) {
-        accOffset.y -= oneG;
-    } else if (accOffset.y < - halfG) {
-        accOffset.y += oneG;
-    } else if (accOffset.z > halfG) {
-        accOffset.z -= oneG;
-    } else if (accOffset.z < - halfG) {
-        accOffset.z += oneG;
+    if (acc_offset.x > halfG) {
+        acc_offset.x -= oneG;
+    } else if (acc_offset.x < - halfG) {
+        acc_offset.x += oneG;
+    } else if (acc_offset.y > halfG) {
+        acc_offset.y -= oneG;
+    } else if (acc_offset.y < - halfG) {
+        acc_offset.y += oneG;
+    } else if (acc_offset.z > halfG) {
+        acc_offset.z -= oneG;
+    } else if (acc_offset.z < - halfG) {
+        acc_offset.z += oneG;
     }
-    accOffset *= getAccResolution();
+    acc_offset *= get_acc_resolution();
 
-    setGyroOffset(gyroOffset);
+    setGyro_offset(gyro_offset);
     if (calibrationType == CALIBRATE_ACC_AND_GYRO) {
-        setAccOffset(accOffset);
+        setAcc_offset(acc_offset);
     }
 }

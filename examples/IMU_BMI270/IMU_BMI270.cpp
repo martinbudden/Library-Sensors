@@ -61,15 +61,15 @@ void setup()
     imu = &imuSensor;
 
     // initialize the IMU
-    const int gyroSampleRate = imu->init();
+    const int gyro_sampleRate = imu->init();
 
-    Serial.printf("gyro sample rate:%d\r\n", gyroSampleRate);
+    Serial.printf("gyro sample rate:%d\r\n", gyro_sampleRate);
 }
 
 void loop()
 {
     // take a gyro reading
-    const xyz_t gyroDPS =  imu->readGyroDPS();
+    const xyz_t gyroDPS =  imu->read_gyro_dps();
 
     Serial.println();
     Serial.print("gyroX:");
@@ -80,7 +80,7 @@ void loop()
     Serial.println(gyroDPS.z, 1);
 
     // take an accelerometer reading
-    const xyz_t acc =  imu->readAcc();
+    const xyz_t acc =  imu->read_acc();
 
     Serial.print("accX:");
     Serial.print(acc.x);

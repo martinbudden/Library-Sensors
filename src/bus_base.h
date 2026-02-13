@@ -92,39 +92,39 @@ public:
     };
 public:
     /*!
-    The deviceDataRegister is the register that is read to provide the data of primary interest.
+    The device_data_register is the register that is read to provide the data of primary interest.
     This sets up a pre-read buffer for the register, so the register can be read using a single SPI transmit/receive instruction.
     This can be used, in particular, to simplify DMA on some architectures.
     */
-    void setDeviceDataRegister(uint8_t deviceDataRegister, uint8_t* readBuf, size_t readLength) {
-        _deviceDataRegister = deviceDataRegister | READ_BIT;
-        _deviceReadBuf = readBuf + SPI_PRE_READ_BUFFER_OFFSET;
-        *_deviceReadBuf = _deviceDataRegister;
-        _deviceReadLength = readLength - SPI_PRE_READ_BUFFER_OFFSET;
+    void set_device_data_register(uint8_t device_data_register, uint8_t* readBuf, size_t read_length) {
+        _device_data_register = device_data_register | READ_BIT;
+        _device_read_buf = readBuf + SPI_PRE_READ_BUFFER_OFFSET;
+        *_device_read_buf = _device_data_register;
+        _device_read_length = read_length - SPI_PRE_READ_BUFFER_OFFSET;
     }
-    static void delayMs(int ms);
+    static void delay_ms(int ms);
 #if defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     static GPIO_TypeDef* gpioPort(port_pin_t portPin) { return reinterpret_cast<GPIO_TypeDef*>(GPIOA_BASE + portPin.port*(GPIOB_BASE - GPIOA_BASE)); }
     static uint16_t gpioPin(port_pin_t portPin) { return static_cast<uint16_t>(1U << portPin.pin); }
 #endif
 protected:
-    uint8_t _deviceDataRegister {}; // the device register that is read in the readDeviceData() function
-    uint8_t* _deviceReadBuf {};
-    size_t _deviceReadLength {};
+    uint8_t _device_data_register {}; // the device register that is read in the read_device_data() function
+    uint8_t* _device_read_buf {};
+    size_t _device_read_length {};
 #if defined(FRAMEWORK_USE_FREERTOS)
-    uint32_t _dataReadyQueueItem {}; // this is just a dummy item whose value is not used
-    BaseType_t _dataReadyQueueHigherPriorityTaskWoken = pdFALSE;
+    uint32_t _data_ready_queue_item {}; // this is just a dummy item whose value is not used
+    BaseType_t _data_ready_queue_higher_priority_task_woken = pdFALSE;
     enum { IMU_DATA_READY_QUEUE_LENGTH = 1 };
-    std::array<uint8_t, IMU_DATA_READY_QUEUE_LENGTH * sizeof(_dataReadyQueueItem)> _dataReadyQueueStorageArea {};
-    StaticQueue_t _dataReadyQueueStatic {};
-    QueueHandle_t _dataReadyQueue {};
+    std::array<uint8_t, IMU_DATA_READY_QUEUE_LENGTH * sizeof(_data_ready_queue_item)> _data_ready_queueStorageArea {};
+    StaticQueue_t _data_ready_queue_static {};
+    QueueHandle_t _data_ready_queue {};
 public:
-    int32_t WAIT_DATA_READY() { return xQueueReceive(_dataReadyQueue, &_dataReadyQueueItem, portMAX_DELAY); }
-    int32_t WAIT_DATA_READY(uint32_t ticksToWait) { return xQueueReceive(_dataReadyQueue, &_dataReadyQueueItem, ticksToWait); } // returns pdPASS(1) if queue read, pdFAIL(0) if timeout
+    int32_t WAIT_DATA_READY() { return xQueueReceive(_data_ready_queue, &_data_ready_queue_item, portMAX_DELAY); }
+    int32_t WAIT_DATA_READY(uint32_t ticksToWait) { return xQueueReceive(_data_ready_queue, &_data_ready_queue_item, ticksToWait); } // returns pdPASS(1) if queue read, pdFAIL(0) if timeout
     void SIGNAL_DATA_READY_FROM_ISR() {
-        _dataReadyQueueHigherPriorityTaskWoken = pdFALSE;
-        xQueueOverwriteFromISR(_dataReadyQueue, &_dataReadyQueueItem, &_dataReadyQueueHigherPriorityTaskWoken);
-        portYIELD_FROM_ISR(_dataReadyQueueHigherPriorityTaskWoken); // or portEND_SWITCHING_ISR() depending on the port.
+        _data_ready_queue_higher_priority_task_woken = pdFALSE;
+        xQueueOverwriteFromISR(_data_ready_queue, &_data_ready_queue_item, &_data_ready_queue_higher_priority_task_woken);
+        portYIELD_FROM_ISR(_data_ready_queue_higher_priority_task_woken); // or portEND_SWITCHING_ISR() depending on the port.
     }
 #else
 public:
@@ -134,7 +134,7 @@ public:
 #endif
 };
 
-inline void BusBase::delayMs(int ms)
+inline void BusBase::delay_ms(int ms)
 {
 #if defined(FRAMEWORK_USE_FREERTOS)
     vTaskDelay(pdMS_TO_TICKS(ms));

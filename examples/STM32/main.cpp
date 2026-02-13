@@ -45,7 +45,7 @@ void setup()
     // initialize the IMU
     imu->init();
 #if defined(INTERRUPT_DRIVEN)
-    imu->setInterruptDriven();
+    imu->set_interrupt_driven();
 #endif
 }
 
@@ -55,16 +55,16 @@ void loop()
 #if defined(INTERRUPT_DRIVEN)
     imu->WAIT_IMU_DATA_READY();
 #else
-    imu->readAccGyroRPS();
+    imu->read_acc_gyro_rps();
 #endif
 
     Serial.println();
 
     // get the gyro data read in the Interrupt Service Routine
-    const acc_gyro_rps_t accGyroRPS =  imu->getAccGyroRPS();
+    const acc_gyro_rps_t acc_gyro_rps =  imu->get_acc_gyro_rps();
 
     // convert the gyro data from radians per second to degrees per second
-    const xyz_t gyroDPS =  accGyroRPS.gyroRPS * IMU_Base::RADIANS_TO_DEGREES;
+    const xyz_t gyroDPS =  acc_gyro_rps.gyroRPS * IMU_Base::RADIANS_TO_DEGREES;
     Serial.println();
     Serial.print("gyroX:");
     Serial.print(gyroDPS.x, 1);
@@ -73,7 +73,7 @@ void loop()
     Serial.print(" gyroZ:");
     Serial.println(gyroDPS.z, 1);
 
-    const xyz_t acc =  accGyroRPS.acc;
+    const xyz_t acc =  acc_gyro_rps.acc;
 
     Serial.print("accX:");
     Serial.print(acc.x);

@@ -9,19 +9,19 @@ class IMU_ICM20602 : public IMU_Base {
 public:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_ICM20602_USE_SPI_BUS)
     // SPI constructors
-    IMU_ICM20602(axis_order_e axisOrder, uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::stm32_spi_pins_t& pins);
-    IMU_ICM20602(axis_order_e axisOrder, uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::spi_pins_t& pins);
+    IMU_ICM20602(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins);
+    IMU_ICM20602(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    IMU_ICM20602(axis_order_e axisOrder, BusBase::bus_index_e I2C_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
-    IMU_ICM20602(axis_order_e axisOrder, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM20602(axisOrder, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
-    IMU_ICM20602(axis_order_e axisOrder, const BusI2c::stm32_i2c_pins_t& pins) : IMU_ICM20602(axisOrder, pins, I2C_ADDRESS) {}
+    IMU_ICM20602(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
+    IMU_ICM20602(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM20602(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    IMU_ICM20602(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins) : IMU_ICM20602(axis_order, pins, I2C_ADDRESS) {}
 
-    IMU_ICM20602(axis_order_e axisOrder, BusBase::bus_index_e I2C_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
-    IMU_ICM20602(axis_order_e axisOrder, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM20602(axisOrder, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
-    IMU_ICM20602(axis_order_e axisOrder, const BusI2c::i2c_pins_t& pins) : IMU_ICM20602(axisOrder, pins, I2C_ADDRESS) {}
+    IMU_ICM20602(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    IMU_ICM20602(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM20602(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
+    IMU_ICM20602(uint8_t axis_order, const BusI2c::i2c_pins_t& pins) : IMU_ICM20602(axis_order, pins, I2C_ADDRESS) {}
 #endif
-    virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex) override;
+    virtual int init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) override;
 public:
     static constexpr uint8_t I2C_ADDRESS = 0x68;
 #pragma pack(push, 1)
@@ -64,23 +64,23 @@ private:
         acc_temperature_gyro_data_t accGyro;
     };
 public:
-    virtual void setInterruptDriven() override;
+    virtual void set_interrupt_driven() override;
 
-    virtual xyz_int32_t readGyroRaw() override;
-    virtual xyz_int32_t readAccRaw() override;
+    virtual xyz_int32_t read_gyro_raw() override;
+    virtual xyz_int32_t read_acc_raw() override;
 
-    virtual xyz_t readGyroRPS() override;
-    virtual xyz_t readGyroDPS() override;
-    virtual xyz_t readAcc() override;
-    virtual acc_gyro_rps_t readAccGyroRPS() override;
-    virtual acc_gyro_rps_t getAccGyroRPS() const override;
+    virtual xyz_t read_gyro_rps() override;
+    virtual xyz_t read_gyro_dps() override;
+    virtual xyz_t read_acc() override;
+    virtual acc_gyro_rps_t read_acc_gyro_rps() override;
+    virtual acc_gyro_rps_t get_acc_gyro_rps() const override;
 
     float readTemperature() const;
     int32_t readTemperatureRaw() const;
 private:
     xyz_t gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const;
     xyz_t accFromRaw(const mems_sensor_data_t::value_t& data) const;
-    acc_gyro_rps_t accGyroRPSFromRaw(const acc_temperature_gyro_data_t::value_t& data) const;
+    acc_gyro_rps_t acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t::value_t& data) const;
 private:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_ICM20602_USE_SPI_BUS)
     BusSpi _bus; //!< SPI bus interface

@@ -19,7 +19,7 @@ void setup()
 void loop()
 {
     // read the gyro data and convert from radians per second to degrees per second
-    const xyz_t gyroDPS = imu->readGyroRPS() * IMU_Base::RADIANS_TO_DEGREES;
+    const xyz_t gyroDPS = imu->read_gyro_rps() * IMU_Base::RADIANS_TO_DEGREES;
     Serial.print("gyroX:");
     Serial.print(gyroDPS.x);
     Serial.print(" gyroY:");
@@ -28,7 +28,7 @@ void loop()
     Serial.println(gyroDPS.z);
 
     // read the orientation quaternion
-    const Quaternion orientation = imu->readOrientation();
+    const Quaternion orientation = imu->read_orientation();
     // calculate the roll and pitch angles from the quaternion
     const float rollAngleDegrees = orientation.calculateRollDegrees();
     const float pitchAngleDegrees = orientation.calculatePitchDegrees();

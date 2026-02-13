@@ -8,22 +8,22 @@ class IMU_ICM426xx : public IMU_Base {
 public:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_ICM426XX_USE_SPI_BUS)
     // SPI constructor
-    IMU_ICM426xx(axis_order_e axisOrder, uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::stm32_spi_pins_t& pins);
-    IMU_ICM426xx(axis_order_e axisOrder, uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::spi_pins_t& pins);
+    IMU_ICM426xx(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins);
+    IMU_ICM426xx(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    IMU_ICM426xx(axis_order_e axisOrder, BusBase::bus_index_e I2C_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
-    IMU_ICM426xx(axis_order_e axisOrder, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axisOrder, BusBase::BUS_INDEX_0, pins, I2C_address) {}
-    IMU_ICM426xx(axis_order_e axisOrder, const BusI2c::stm32_i2c_pins_t& pins) : IMU_ICM426xx(axisOrder, pins, I2C_ADDRESS) {}
+    IMU_ICM426xx(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
+    IMU_ICM426xx(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axis_order, BusBase::BUS_INDEX_0, pins, I2C_address) {}
+    IMU_ICM426xx(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins) : IMU_ICM426xx(axis_order, pins, I2C_ADDRESS) {}
 
-    IMU_ICM426xx(axis_order_e axisOrder, BusBase::bus_index_e I2C_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
-    IMU_ICM426xx(axis_order_e axisOrder, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axisOrder, BusBase::BUS_INDEX_0, pins, I2C_address) {}
-    IMU_ICM426xx(axis_order_e axisOrder, const BusI2c::i2c_pins_t& pins) : IMU_ICM426xx(axisOrder, pins, I2C_ADDRESS) {}
+    IMU_ICM426xx(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    IMU_ICM426xx(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : IMU_ICM426xx(axis_order, BusBase::BUS_INDEX_0, pins, I2C_address) {}
+    IMU_ICM426xx(uint8_t axis_order, const BusI2c::i2c_pins_t& pins) : IMU_ICM426xx(axis_order, pins, I2C_ADDRESS) {}
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
-    IMU_ICM426xx(axis_order_e axisOrder, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    IMU_ICM426xx(uint8_t axis_order, TwoWire& wire, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
 #endif
 #endif
-    virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex) override;
+    virtual int init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) override;
 public:
     static constexpr uint8_t I2C_ADDRESS = 0x6A;
     static constexpr uint8_t I2C_ADDRESS_ALTERNATIVE = 0x6B;
@@ -56,20 +56,20 @@ public:
     };
     static_assert(sizeof(spi_acc_gyro_data_t) == sizeof(acc_gyro_data_t) + BusBase::SPI_PRE_READ_BUFFER_SIZE);
 public:
-    virtual void setInterruptDriven() override;
+    virtual void set_interrupt_driven() override;
 
-    virtual xyz_int32_t readGyroRaw() override;
-    virtual xyz_int32_t readAccRaw() override;
+    virtual xyz_int32_t read_gyro_raw() override;
+    virtual xyz_int32_t read_acc_raw() override;
 
-    virtual xyz_t readGyroRPS() override;
-    virtual xyz_t readGyroDPS() override;
-    virtual xyz_t readAcc() override;
-    virtual acc_gyro_rps_t readAccGyroRPS() override;
-    virtual acc_gyro_rps_t getAccGyroRPS() const override;
+    virtual xyz_t read_gyro_rps() override;
+    virtual xyz_t read_gyro_dps() override;
+    virtual xyz_t read_acc() override;
+    virtual acc_gyro_rps_t read_acc_gyro_rps() override;
+    virtual acc_gyro_rps_t get_acc_gyro_rps() const override;
 private:
     xyz_t gyroRPS_FromRaw(const mems_sensor_data_t::value_t& data) const;
     xyz_t accFromRaw(const mems_sensor_data_t::value_t& data) const;
-    acc_gyro_rps_t accGyroRPSFromRaw(const acc_gyro_data_t::value_t& data) const;
+    acc_gyro_rps_t acc_gyro_rpsFromRaw(const acc_gyro_data_t::value_t& data) const;
 private:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_ICM426XX_USE_SPI_BUS)
     BusSpi _bus; //!< SPI bus interface

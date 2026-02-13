@@ -21,25 +21,25 @@ void test_icm426xx()
     TEST_ASSERT_EQUAL(0, imu.getFlags());
 
     imu.init(8000, IMU_Base::GYRO_FULL_SCALE_MAX, IMU_Base::ACC_FULL_SCALE_MAX, nullptr);
-    TEST_ASSERT_EQUAL(12, imu.getGyroIdMSP());
-    TEST_ASSERT_EQUAL(11, imu.getAccIdMSP());
+    TEST_ASSERT_EQUAL(12, imu.get_gyro_id_msp());
+    TEST_ASSERT_EQUAL(11, imu.get_acc_id_msp());
 
-    TEST_ASSERT_EQUAL_FLOAT(2000.0F / 32768.0F, imu.getGyroResolutionDPS());
-    TEST_ASSERT_EQUAL_FLOAT(16.0F / 32768.0F, imu.getAccResolution());
-    TEST_ASSERT_EQUAL(8000, imu.getGyroSampleRateHz());
-    TEST_ASSERT_EQUAL(8000, imu.getAccSampleRateHz());
+    TEST_ASSERT_EQUAL_FLOAT(2000.0F / 32768.0F, imu.get_gyro_resolution_dps());
+    TEST_ASSERT_EQUAL_FLOAT(16.0F / 32768.0F, imu.get_acc_resolution());
+    TEST_ASSERT_EQUAL(8000, imu.get_gyro_sample_rate_hz());
+    TEST_ASSERT_EQUAL(8000, imu.get_acc_sample_rate_hz());
 
     imu.init(4000, IMU_Base::GYRO_FULL_SCALE_2000_DPS, IMU_Base::ACC_FULL_SCALE_16G, nullptr);
-    TEST_ASSERT_EQUAL_FLOAT(2000.0F / 32768.0F, imu.getGyroResolutionDPS());
-    TEST_ASSERT_EQUAL_FLOAT(16.0F / 32768.0F, imu.getAccResolution());
-    TEST_ASSERT_EQUAL(4000, imu.getGyroSampleRateHz());
-    TEST_ASSERT_EQUAL(4000, imu.getAccSampleRateHz());
+    TEST_ASSERT_EQUAL_FLOAT(2000.0F / 32768.0F, imu.get_gyro_resolution_dps());
+    TEST_ASSERT_EQUAL_FLOAT(16.0F / 32768.0F, imu.get_acc_resolution());
+    TEST_ASSERT_EQUAL(4000, imu.get_gyro_sample_rate_hz());
+    TEST_ASSERT_EQUAL(4000, imu.get_acc_sample_rate_hz());
 
     imu.init(2000, IMU_Base::GYRO_FULL_SCALE_1000_DPS, IMU_Base::ACC_FULL_SCALE_8G, nullptr);
-    TEST_ASSERT_EQUAL_FLOAT(1000.0F / 32768.0F, imu.getGyroResolutionDPS());
-    TEST_ASSERT_EQUAL_FLOAT(8.0F / 32768.0F, imu.getAccResolution());
-    TEST_ASSERT_EQUAL(2000, imu.getGyroSampleRateHz());
-    TEST_ASSERT_EQUAL(2000, imu.getAccSampleRateHz());
+    TEST_ASSERT_EQUAL_FLOAT(1000.0F / 32768.0F, imu.get_gyro_resolution_dps());
+    TEST_ASSERT_EQUAL_FLOAT(8.0F / 32768.0F, imu.get_acc_resolution());
+    TEST_ASSERT_EQUAL(2000, imu.get_gyro_sample_rate_hz());
+    TEST_ASSERT_EQUAL(2000, imu.get_acc_sample_rate_hz());
 }
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-init-variables,readability-magic-numbers)
 

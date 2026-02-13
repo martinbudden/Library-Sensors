@@ -73,8 +73,8 @@ and a reference to either `BUS_I2C` or `BUS_SPI` in the class itself.
 classDiagram
     class BUS_BASE {
         _deviceRegister uint8_t
-        _deviceReadBuf uint8_t*
-        _deviceReadLength size_t
+        _device_read_buf uint8_t*
+        _device_read_length size_t
         WAIT_DATA_READY() int32_t
         WAIT_DATA_READY(uint32_t ticksToWait) int32_t
         SIGNAL_DATA_READY_FROM_ISR()
@@ -82,153 +82,153 @@ classDiagram
 
     IMU_Base <|-- IMU_M5_UNIFIED
     class IMU_M5_UNIFIED {
-        readGyroRaw() xyz_int32_t override
-        readAccRaw() xyz_int32_t override
+        read_gyro_raw() xyz_int32_t override
+        read_acc_raw() xyz_int32_t override
 
-        readGyroRPS() xyz_t override
-        readGyroDPS() xyz_t override
-        readAcc() xyz_t override
-        readAccGyroRPS() accGyroRPS_t override
+        read_gyro_rps() xyz_t override
+        read_gyro_dps() xyz_t override
+        read_acc() xyz_t override
+        read_acc_gyro_rps() acc_gyro_rps_t override
     }
     IMU_M5_UNIFIED *-- BUS_I2C
 
     IMU_Base <|-- IMU_MPU6886
     class IMU_MPU6886 {
-        setInterruptDriven() override
-        setGyroOffset(const xyz_int32_t& gyroOffset) override
+        set_interrupt_driven() override
+        setGyro_offset(const xyz_int32_t& gyro_offset) override
 
-        readGyroRaw() xyz_int32_t override
-        readAccRaw() xyz_int32_t override
+        read_gyro_raw() xyz_int32_t override
+        read_acc_raw() xyz_int32_t override
 
-        readGyroRPS() xyz_t override
-        readGyroDPS() xyz_t override
-        readAcc() xyz_t override
-        readAccGyroRPS() accGyroRPS_t override
-        getAccGyroRPS() accGyroRPS_t override
+        read_gyro_rps() xyz_t override
+        read_gyro_dps() xyz_t override
+        read_acc() xyz_t override
+        read_acc_gyro_rps() acc_gyro_rps_t override
+        get_acc_gyro_rps() acc_gyro_rps_t override
     }
     IMU_MPU6886 *-- BUS_I2C
 
     IMU_Base <|-- IMU_BNO085
     class IMU_BNO085 {
-        readGyroRaw() xyz_int32_t override
-        readAccRaw() xyz_int32_t override
-        readGyroRPS() xyz_t override
-        readOrientation() Quaternion override
+        read_gyro_raw() xyz_int32_t override
+        read_acc_raw() xyz_int32_t override
+        read_gyro_rps() xyz_t override
+        read_orientation() Quaternion override
     }
     IMU_BNO085 *-- BUS_I2C
 
     BUS_BASE <|-- BUS_I2C
     class BUS_I2C {
-        _I2C_index i2c_index_e
+        _i2c_index i2c_index_e
         _pins pins_t
         _I2C_address uint8_t
 
-        setInterruptDriven()
-        setDeviceDataRegister(uint8_t deviceRegister, uint8_t* readBuf, size_t readLength)
+        set_interrupt_driven()
+        set_device_data_register(uint8_t deviceRegister, uint8_t* readBuf, size_t read_length)
 
-        readDeviceData() bool
-        readRegister(uint8_t reg) uint8_t
-        readRegisterWithTimeout(uint8_t reg, uint32_t timeoutMs) uint8_t
-        readRegister(uint8_t reg, uint8_t* data, size_t length) bool
-        readBytes(uint8_t* data, size_t length) bool
-        readBytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) bool
-        writeRegister(uint8_t reg, uint8_t data) uint8_t
-        writeRegister(uint8_t reg, const uint8_t* data, size_t length) uint8_t
-        writeBytes(const uint8_t* data, size_t length) uint8_t
+        read_device_data() bool
+        read_register(uint8_t reg) uint8_t
+        read_register_with_timeout(uint8_t reg, uint32_t timeoutMs) uint8_t
+        read_register(uint8_t reg, uint8_t* data, size_t length) bool
+        read_bytes(uint8_t* data, size_t length) bool
+        read_bytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) bool
+        write_register(uint8_t reg, uint8_t data) uint8_t
+        write_register(uint8_t reg, const uint8_t* data, size_t length) uint8_t
+        write_bytes(const uint8_t* data, size_t length) uint8_t
     }
 
     BUS_BASE <|-- BUS_SPI
     class BUS_SPI {
-        _SPI_index SPI_index_e
+        _spi_index spi_index_e
         _pins pins_t
 
-        setInterruptDriven()
-        setDeviceDataRegister(uint8_t deviceRegister, uint8_t* readBuf, size_t readLength)
+        set_interrupt_driven()
+        set_device_data_register(uint8_t deviceRegister, uint8_t* readBuf, size_t read_length)
 
-        readDeviceData() bool
-        readRegister(uint8_t reg) uint8_t
-        readRegisterWithTimeout(uint8_t reg, uint32_t timeoutMs) uint8_t
-        readRegister(uint8_t reg, uint8_t* data, size_t length) bool
-        readBytes(uint8_t* data, size_t length) bool
-        readBytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) bool
-        writeRegister(uint8_t reg, uint8_t data) uint8_t
-        writeRegister(uint8_t reg, const uint8_t* data, size_t length) uint8_t
-        writeBytes(const uint8_t* data, size_t length) uint8_t
+        read_device_data() bool
+        read_register(uint8_t reg) uint8_t
+        read_register_with_timeout(uint8_t reg, uint32_t timeoutMs) uint8_t
+        read_register(uint8_t reg, uint8_t* data, size_t length) bool
+        read_bytes(uint8_t* data, size_t length) bool
+        read_bytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) bool
+        write_register(uint8_t reg, uint8_t data) uint8_t
+        write_register(uint8_t reg, const uint8_t* data, size_t length) uint8_t
+        write_bytes(const uint8_t* data, size_t length) uint8_t
     }
 
     class IMU_Base {
         <<abstract>>
-        _axisOrder axis_order_e
-        _gyroResolutionRPS float
-        _gyroResolutionDPS float
-        _accResolution float
-        _gyroSampleRateHz uint32_t
-        _accSampleRateHz uint32_t
-        _gyroOffset xyz_int32_t
-        _accOffset xyz_int32_t
+        _axis_order axis_order_e
+        _gyro_resolution_rps float
+        _gyro_resolution_dps float
+        _acc_resolution float
+        _gyro_sample_rate_hz uint32_t
+        _acc_sample_rate_hz uint32_t
+        _gyro_offset xyz_int32_t
+        _acc_offset xyz_int32_t
         WAIT_IMU_DATA_READY() int32_t
         WAIT_IMU_DATA_READY(uint32_t ticksToWait) int32_t
 
-        readGyroRaw() xyz_int32_t  *
-        readAccRaw() xyz_int32_t *
+        read_gyro_raw() xyz_int32_t  *
+        read_acc_raw() xyz_int32_t *
 
         virtual init()
-        virtual setInterruptDriven()
-        virtual getGyroOffset() xyz_int32_t
-        virtual setGyroOffset()
-        virtual getAccOffset() xyz_int32_t
-        virtual setAccOffset()
+        virtual set_interrupt_driven()
+        virtual get_gyro_offset() xyz_int32_t
+        virtual setGyro_offset()
+        virtual get_acc_offset() xyz_int32_t
+        virtual setAcc_offset()
 
-        virtual getAccOneG_Raw() int32_t
+        virtual get_accOneG_Raw() int32_t
 
-        virtual readGyroRPS() xyz_t
-        virtual readGyroDPS() xyz_t
-        virtual readAcc() xyz_t
-        virtual readAccGyroRPS() accGyroRPS_t
-        virtual getAccGyroRPS() accGyroRPS_t
+        virtual read_gyro_rps() xyz_t
+        virtual read_gyro_dps() xyz_t
+        virtual read_acc() xyz_t
+        virtual read_acc_gyro_rps() acc_gyro_rps_t
+        virtual get_acc_gyro_rps() acc_gyro_rps_t
 
-        virtual readOrientation() Quaternion
+        virtual read_orientation() Quaternion
     }
     IMU_Base *-- BUS_BASE
 
     IMU_Base <|-- IMU_BMI270
     class IMU_BMI270 {
-        setInterruptDriven() override
+        set_interrupt_driven() override
 
-        readGyroRaw() xyz_int32_t override
-        readAccRaw() xyz_int32_t override
+        read_gyro_raw() xyz_int32_t override
+        read_acc_raw() xyz_int32_t override
 
-        readGyroRPS() xyz_t override
-        readGyroDPS() xyz_t override
-        readAcc() xyz_t override
-        readAccGyroRPS() accGyroRPS_t override
-        getAccGyroRPS() accGyroRPS_t override
+        read_gyro_rps() xyz_t override
+        read_gyro_dps() xyz_t override
+        read_acc() xyz_t override
+        read_acc_gyro_rps() acc_gyro_rps_t override
+        get_acc_gyro_rps() acc_gyro_rps_t override
     }
     IMU_BMI270 *-- BUS_SPI
 
     IMU_Base <|-- IMU_LSM6DS3TR_C
     class IMU_LSM6DS3TR_C {
-        setInterruptDriven() override
+        set_interrupt_driven() override
 
-        readGyroRaw() xyz_int32_t override
-        readAccRaw() xyz_int32_t override
-        readAccGyroRPS() accGyroRPS_t override
-        getAccGyroRPS() accGyroRPS_t override
+        read_gyro_raw() xyz_int32_t override
+        read_acc_raw() xyz_int32_t override
+        read_acc_gyro_rps() acc_gyro_rps_t override
+        get_acc_gyro_rps() acc_gyro_rps_t override
     }
     IMU_LSM6DS3TR_C *-- BUS_SPI
 
     IMU_Base <|-- IMU_ICM426xx
     class IMU_ICM426xx {
-        setInterruptDriven() override
+        set_interrupt_driven() override
 
-        readGyroRaw() xyz_int32_t override
-        readAccRaw() xyz_int32_t override
+        read_gyro_raw() xyz_int32_t override
+        read_acc_raw() xyz_int32_t override
 
-        readGyroRPS() xyz_t override
-        readGyroDPS() xyz_t override
-        readAcc() xyz_t override
-        readAccGyroRPS() accGyroRPS_t override
-        getAccGyroRPS() accGyroRPS_t override
+        read_gyro_rps() xyz_t override
+        read_gyro_dps() xyz_t override
+        read_acc() xyz_t override
+        read_acc_gyro_rps() acc_gyro_rps_t override
+        get_acc_gyro_rps() acc_gyro_rps_t override
     }
     IMU_ICM426xx *-- BUS_SPI
 ```

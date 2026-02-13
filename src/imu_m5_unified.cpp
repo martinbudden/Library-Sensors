@@ -4,28 +4,28 @@
 #include <IMU_M5Unified.h>
 #include <cassert>
 
-IMU_M5_UNIFIED::IMU_M5_UNIFIED(axis_order_e axisOrder) :
-    IMU_Base(axisOrder, IMU_AUTO_CALIBRATES)
+IMU_M5_UNIFIED::IMU_M5_UNIFIED(uint8_t axis_order) :
+    IMU_Base(axis_order, IMU_AUTO_CALIBRATES)
 {
 }
 
-int IMU_M5_UNIFIED::init(uint32_t outputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex)
+int IMU_M5_UNIFIED::init(uint32_t outputDataRateHz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex)
 {
     (void)outputDataRateHz;
-    (void)gyroSensitivity;
-    (void)accSensitivity;
+    (void)gyro_sensitivity;
+    (void)acc_sensitivity;
 
     // MSP compatible gyro and acc identifiers, use defaults, since no MSP value for MPU6886
-    _gyroIdMSP = MSP_GYRO_ID_DEFAULT;
-    _accIdMSP = MSP_ACC_ID_DEFAULT;
+    _gyro_id_msp = MSP_GYRO_ID_DEFAULT;
+    _acc_id_msp = MSP_ACC_ID_DEFAULT;
 
-    _gyroSampleRateHz = 500;
-    _accSampleRateHz = 500;
+    _gyro_sample_rate_hz = 500;
+    _acc_sample_rate_hz = 500;
 
 #if defined(FRAMEWORK_USE_FREERTOS)
-    _busMutex = static_cast<SemaphoreHandle_t>(busMutex);
+    _bus_mutex = static_cast<SemaphoreHandle_t>(bus_mutex);
 #else
-    _busMutex = busMutex;
+    _bus_mutex = bus_mutex;
 #endif
 
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
@@ -39,18 +39,18 @@ int IMU_M5_UNIFIED::init(uint32_t outputDataRateHz, gyro_sensitivity_e gyroSensi
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_ZPOS_XNEG_YNEG)
     M5.Imu.setAxisOrder(m5::IMU_Class::axis_z_pos, m5::IMU_Class::axis_x_neg, m5::IMU_Class::axis_y_neg);
 #else
-    setAxisOrder(_axisOrder);
+    setAxisOrder(_axis_order);
 #endif
 
     // return the gyro sample rate actually set
-    return _gyroSampleRateHz;
+    return _gyro_sample_rate_hz;
 }
 
-void IMU_M5_UNIFIED::setAxisOrder(axis_order_e axisOrder)
+void IMU_M5_UNIFIED::setAxisOrder(uint8_t axis_order)
 {
-    _axisOrder = axisOrder;
+    _axis_order = axis_order;
 
-    switch (axisOrder) {
+    switch (axis_order) {
     case XPOS_YPOS_ZPOS:
         M5.Imu.setAxisOrder(m5::IMU_Class::axis_x_pos, m5::IMU_Class::axis_y_pos, m5::IMU_Class::axis_z_pos);
         break;
@@ -135,18 +135,18 @@ void IMU_M5_UNIFIED::setAxisOrder(axis_order_e axisOrder)
     }
 }
 
-IMU_Base::xyz_int32_t IMU_M5_UNIFIED::readAccRaw()
+IMU_Base::xyz_int32_t IMU_M5_UNIFIED::read_acc_raw()
 {
-    assert(false && ("M5Unified variants should not call readAccRaw")); // NOLINT(readability-simplify-boolean-expr)
+    assert(false && ("M5Unified variants should not call read_acc_raw")); // NOLINT(readability-simplify-boolean-expr)
     return xyz_int32_t {};
 }
 
-xyz_t IMU_M5_UNIFIED::readAcc()
+xyz_t IMU_M5_UNIFIED::read_acc()
 {
     // This is very slow on the M5 Atom.
-    busSemaphoreTake(_busMutex);
+    bus_semaphore_take(_bus_mutex);
     [[maybe_unused]] const auto imu_update = M5.Imu.update();
-    busSemaphoreGive(_busMutex);
+    bus_semaphore_give(_bus_mutex);
 
     const m5::IMU_Class::imu_data_t& data = M5.Imu.getImuData();
     const xyz_t acc = {
@@ -160,18 +160,18 @@ xyz_t IMU_M5_UNIFIED::readAcc()
     return acc;
 }
 
-IMU_Base::xyz_int32_t IMU_M5_UNIFIED::readGyroRaw()
+IMU_Base::xyz_int32_t IMU_M5_UNIFIED::read_gyro_raw()
 {
-    assert(false && ("M5Unified variants should not call readGyroRaw")); // NOLINT(readability-simplify-boolean-expr)
+    assert(false && ("M5Unified variants should not call read_gyro_raw")); // NOLINT(readability-simplify-boolean-expr)
     return xyz_int32_t {};
 }
 
-xyz_t IMU_M5_UNIFIED::readGyroRPS()
+xyz_t IMU_M5_UNIFIED::read_gyro_rps()
 {
     // This is very slow on the M5 Atom.
-    busSemaphoreTake(_busMutex);
+    bus_semaphore_take(_bus_mutex);
     [[maybe_unused]] const auto imu_update = M5.Imu.update();
-    busSemaphoreGive(_busMutex);
+    bus_semaphore_give(_bus_mutex);
 
     const m5::IMU_Class::imu_data_t& data = M5.Imu.getImuData();
     const xyz_t gyroRPS {
@@ -184,12 +184,12 @@ xyz_t IMU_M5_UNIFIED::readGyroRPS()
     return gyroRPS;
 }
 
-xyz_t IMU_M5_UNIFIED::readGyroDPS()
+xyz_t IMU_M5_UNIFIED::read_gyro_dps()
 {
     // This is very slow on the M5 Atom.
-    busSemaphoreTake(_busMutex);
+    bus_semaphore_take(_bus_mutex);
     [[maybe_unused]] const auto imu_update = M5.Imu.update();
-    busSemaphoreGive(_busMutex);
+    bus_semaphore_give(_bus_mutex);
 
     const m5::IMU_Class::imu_data_t& data = M5.Imu.getImuData();
     const xyz_t gyroDPS {
@@ -202,12 +202,12 @@ xyz_t IMU_M5_UNIFIED::readGyroDPS()
     return gyroDPS;
 }
 
-FAST_CODE acc_gyro_rps_t IMU_M5_UNIFIED::readAccGyroRPS()
+FAST_CODE acc_gyro_rps_t IMU_M5_UNIFIED::read_acc_gyro_rps()
 {
     // This is very slow on the M5 Atom.
-    busSemaphoreTake(_busMutex);
+    bus_semaphore_take(_bus_mutex);
     [[maybe_unused]] const auto imu_update = M5.Imu.update();
-    busSemaphoreGive(_busMutex);
+    bus_semaphore_give(_bus_mutex);
 
     const m5::IMU_Class::imu_data_t& data = M5.Imu.getImuData();
     return acc_gyro_rps_t {

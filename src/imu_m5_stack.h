@@ -5,16 +5,16 @@
 
 class IMU_M5_STACK : public IMU_Base {
 public:
-    explicit IMU_M5_STACK(axis_order_e axisOrder);
+    explicit IMU_M5_STACK(uint8_t axis_order);
 public:
-    virtual int init(uint32_t targetOutputDataRateHz, gyro_sensitivity_e gyroSensitivity, acc_sensitivity_e accSensitivity, void* busMutex) override;
-    virtual xyz_int32_t readGyroRaw() override;
-    virtual xyz_int32_t readAccRaw() override;
+    virtual int init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivity, uint8_t acc_sensitivity, void* bus_mutex) override;
+    virtual xyz_int32_t read_gyro_raw() override;
+    virtual xyz_int32_t read_acc_raw() override;
 
-    virtual xyz_t readGyroRPS() override;
-    virtual xyz_t readGyroDPS() override;
-    virtual xyz_t readAcc() override;
-    virtual acc_gyro_rps_t readAccGyroRPS() override;
+    virtual xyz_t read_gyro_rps() override;
+    virtual xyz_t read_gyro_dps() override;
+    virtual xyz_t read_acc() override;
+    virtual acc_gyro_rps_t read_acc_gyro_rps() override;
 
 private:
     struct acc_temperature_gyro_data_t { // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
@@ -34,5 +34,5 @@ private:
         uint8_t gyro_z_h;
         uint8_t gyro_z_l;
     };
-    acc_gyro_rps_t accGyroRPSFromRaw(const acc_temperature_gyro_data_t& data) const;
+    acc_gyro_rps_t acc_gyro_rpsFromRaw(const acc_temperature_gyro_data_t& data) const;
 };

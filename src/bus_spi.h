@@ -63,65 +63,65 @@ public:
     };
 public:
     virtual ~BusSpi();
-    BusSpi(uint32_t frequency, bus_index_e SPI_index, const stm32_spi_pins_t& pins);
-    BusSpi(uint32_t frequency, bus_index_e SPI_index, const spi_pins_t& pins);
+    BusSpi(uint32_t frequency, bus_index_e spi_index, const stm32_spi_pins_t& pins);
+    BusSpi(uint32_t frequency, bus_index_e spi_index, const spi_pins_t& pins);
 public:
     void init();
-    void configureDMA();
-    void setInterruptDriven(irq_level_e irqLevel);
+    void configure_dma();
+    void set_interrupt_driven(irq_level_e irqLevel);
 
-    uint16_t calculateClockDivider(uint32_t frequencyHz);
-    uint32_t calculateClock(uint16_t clockDivisor);
+    uint16_t calculate_clock_divider(uint32_t frequencyHz);
+    uint32_t calculate_clock(uint16_t clockDivisor);
     void setClockDivisor(uint16_t divisor);
     void setClockPhasePolarity(bool leadingEdge);
-    void dmaEnable(bool enable);
-    void dmaSequence(segment_t* segments);
-    void dmaWait();
-    void dmaRelease();
-    bool dmaIsBusy();
+    void dma_enable(bool enable);
+    void dma_sequence(segment_t* segments);
+    void dma_wait();
+    void dma_release();
+    bool dma_is_busy();
 
-    bool readDeviceData();
-    bool readDeviceDataDMA();
-    uint8_t readRegister(uint8_t reg) const;
-    uint8_t readRegisterWithTimeout(uint8_t reg, uint32_t timeoutMs) const;
-    bool readRegister(uint8_t reg, uint8_t* data, size_t length) const;
-    bool readBytes(uint8_t* data, size_t length) const;
-    bool readBytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) const;
-    uint8_t writeRegister(uint8_t reg, uint8_t data);
-    uint8_t writeRegister(uint8_t reg, const uint8_t* data, size_t length);
-    uint8_t writeBytes(const uint8_t* data, size_t length);
+    bool read_device_data();
+    bool read_device_data_dma();
+    uint8_t read_register(uint8_t reg) const;
+    uint8_t read_register_with_timeout(uint8_t reg, uint32_t timeoutMs) const;
+    bool read_register(uint8_t reg, uint8_t* data, size_t length) const;
+    bool read_bytes(uint8_t* data, size_t length) const;
+    bool read_bytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) const;
+    uint8_t write_register(uint8_t reg, uint8_t data);
+    uint8_t write_register(uint8_t reg, const uint8_t* data, size_t length);
+    uint8_t write_bytes(const uint8_t* data, size_t length);
     static void cs_select(const BusSpi& bus);
     static void cs_deselect(const BusSpi& bus);
-    uint16_t getIrqPin() const { return _pins.irq.pin; }
+    uint16_t getIrq_pin() const { return _pins.irq.pin; }
 public:
     static BusSpi* self; //!< alias of `this` to be used in interrupt service routine
 private:
-    uint32_t _clockDivider {1};
-    uint32_t _frequencyHz;
-    bus_index_e _SPI_index;
+    uint32_t _clock_divider {1};
+    uint32_t _frequency_hz;
+    bus_index_e _spi_index;
     stm32_spi_pins_t _pins;
 #if defined(FRAMEWORK_RPI_PICO)
     spi_inst_t* _spi {};
-    uint32_t _dmaInterruptNumber {};
-    uint32_t _dmaRxChannel {};
-    uint32_t _dmaTxChannel {};
+    uint32_t _dma_interrupt_number {};
+    uint32_t _dma_rx_channel {};
+    uint32_t _dma_tx_channel {};
     enum { START_NOW = true, DONT_START_YET = false };
-    static void dataReadyISR(unsigned int gpio, uint32_t events);
-    static void dmaRxCompleteISR();
+    static void data_ready_isr(unsigned int gpio, uint32_t events);
+    static void dma_rx_complete_isr();
 #elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
-    static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
+    static void data_ready_isr(); // cppcheck-suppress unusedPrivateFunction
     spi_device_handle_t _spi {}; // set by spi_bus_add_device in init()
     mutable spi_transaction_t _spiTransaction {};
 #elif defined(FRAMEWORK_STM32_CUBE) || defined(FRAMEWORK_ARDUINO_STM32)
     mutable SPI_HandleTypeDef _spi {};
 #elif defined(FRAMEWORK_TEST)
 #else // defaults to FRAMEWORK_ARDUINO
-    static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
-    mutable volatile uint32_t* _csOut {};
-    uint32_t _csBit {};
+    static void data_ready_isr(); // cppcheck-suppress unusedPrivateFunction
+    mutable volatile uint32_t* _cs_out {};
+    uint32_t _cs_bit {};
     SPIClass& _spi;
 #endif // FRAMEWORK
 #if defined(LIBRARY_SENSORS_USE_SPI_HARDWARE_CHIP_SELECT)
-    mutable std::array<uint8_t, 256> _writeReadBuf {};
+    mutable std::array<uint8_t, 256> _write_read_buf {};
 #endif
 };

@@ -66,20 +66,20 @@ namespace { // use anonymous namespace to make items local to this translation u
 } // end namespace
 
 #if defined(LIBRARY_SENSORS_BAROMETER_USE_SPI_BUS)
-BarometerBMP280::BarometerBMP280(uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::stm32_spi_pins_t& pins) :
+BarometerBMP280::BarometerBMP280(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
     BarometerBase(_bus),
-    _bus(frequency, SPI_index, pins)
+    _bus(frequency, spi_index, pins)
 {
 }
-BarometerBMP280::BarometerBMP280(uint32_t frequency, BusBase::bus_index_e SPI_index, const BusSpi::spi_pins_t& pins) :
+BarometerBMP280::BarometerBMP280(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
     BarometerBase(_bus),
-    _bus(frequency, SPI_index, pins)
+    _bus(frequency, spi_index, pins)
 {
 }
 #else
-BarometerBMP280::BarometerBMP280(BusBase::bus_index_e I2C_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+BarometerBMP280::BarometerBMP280(BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
     BarometerBase(_bus),
-    _bus(I2C_address, I2C_index, pins)
+    _bus(I2C_address, i2c_index, pins)
 {
 }
 #endif
@@ -87,60 +87,60 @@ BarometerBMP280::BarometerBMP280(BusBase::bus_index_e I2C_index, const BusI2c::i
 int BarometerBMP280::init()
 {
 #if !defined(FRAMEWORK_TEST)
-    const uint8_t chipID = _bus.readRegisterWithTimeout(REG_CHIPID, 100);
+    const uint8_t chip_id = _bus.read_register_with_timeout(REG_CHIPID, 100);
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
-    Serial.print("IMU init, chipID:0x");
-    Serial.println(chipID, HEX);
+    Serial.print("IMU init, chip_id:0x");
+    Serial.println(chip_id, HEX);
 #endif
-    if (chipID != CHIPID_RESPONSE) {
+    if (chip_id != CHIPID_RESPONSE) {
         return NOT_DETECTED;
     }
 #endif
-    /*_calibrationData.value.dig_T1 = readRegister16_LE(REG_DIG_T1);
-    _calibrationData.value.dig_T2 = readRegister16S_LE(REG_DIG_T2);
-    _calibrationData.value.dig_T3 = readRegister16S_LE(REG_DIG_T3);
+    /*_calibrationData.value.dig_T1 = read_register16_LE(REG_DIG_T1);
+    _calibrationData.value.dig_T2 = read_register16S_LE(REG_DIG_T2);
+    _calibrationData.value.dig_T3 = read_register16S_LE(REG_DIG_T3);
 
-    _calibrationData.value.dig_P1 = readRegister16_LE(REG_DIG_P1);
-    _calibrationData.value.dig_P2 = readRegister16S_LE(REG_DIG_P2);
-    _calibrationData.value.dig_P3 = readRegister16S_LE(REG_DIG_P3);
-    _calibrationData.value.dig_P4 = readRegister16S_LE(REG_DIG_P4);
-    _calibrationData.value.dig_P5 = readRegister16S_LE(REG_DIG_P5);
-    _calibrationData.value.dig_P6 = readRegister16S_LE(REG_DIG_P6);
-    _calibrationData.value.dig_P7 = readRegister16S_LE(REG_DIG_P7);
-    _calibrationData.value.dig_P8 = readRegister16S_LE(REG_DIG_P8);
-    _calibrationData.value.dig_P9 = readRegister16S_LE(REG_DIG_P9);*/
+    _calibrationData.value.dig_P1 = read_register16_LE(REG_DIG_P1);
+    _calibrationData.value.dig_P2 = read_register16S_LE(REG_DIG_P2);
+    _calibrationData.value.dig_P3 = read_register16S_LE(REG_DIG_P3);
+    _calibrationData.value.dig_P4 = read_register16S_LE(REG_DIG_P4);
+    _calibrationData.value.dig_P5 = read_register16S_LE(REG_DIG_P5);
+    _calibrationData.value.dig_P6 = read_register16S_LE(REG_DIG_P6);
+    _calibrationData.value.dig_P7 = read_register16S_LE(REG_DIG_P7);
+    _calibrationData.value.dig_P8 = read_register16S_LE(REG_DIG_P8);
+    _calibrationData.value.dig_P9 = read_register16S_LE(REG_DIG_P9);*/
 
-    _bus.readRegister(REG_DIG_T1, &_calibrationData.data[0], sizeof(_calibrationData));
-    delayMs(1);
+    _bus.read_register(REG_DIG_T1, &_calibrationData.data[0], sizeof(_calibrationData));
+    delay_ms(1);
 
     /*
     don't need to set REG_CONFIG, since default of 0 gives us what we need, namely:
     const uint8_t standbyMs = STANDBY_MS_0p5;
     const uint8_t filter = FILTER_OFF;
     const uint8_t spi3wire = 0;
-    _bus.writeRegister(REG_CONFIG, (standbyMs << 5) | (filter << 2) | spi3wire); // cppcheck-suppress badBitmaskCheck
-    delayMs(1);
+    _bus.write_register(REG_CONFIG, (standbyMs << 5) | (filter << 2) | spi3wire); // cppcheck-suppress badBitmaskCheck
+    delay_ms(1);
     */
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,hicpp-signed-bitwise,readability-magic-numbers)
-    _bus.writeRegister(REG_CONTROL, MEASUREMENT_MODE);
-    delayMs(1);
+    _bus.write_register(REG_CONTROL, MEASUREMENT_MODE);
+    delay_ms(1);
 
-    readTemperatureAndPressure();
-    _pressureAtReferenceAltitude = _pressurePascals;
-    _referenceAltitude = 0.0F;
+    read_temperature_and_pressure();
+    _pressure_at_reference_altitude = _pressure_pascals;
+    _reference_altitude = 0.0F;
 
     enum { TIME_INIT_MAX = 20 }; // 20/16 = 1.25 ms
     enum { TIME_MEASURE_PER_OSRS_MAX = 37 }; // 37/16 = 2.3125 ms
     enum { TIME_SETUP_PRESSURE_MAX = 10 }; // 10/16 = 0.625 ms
 
-    constexpr uint32_t delayMs = ((TIME_INIT_MAX + TIME_MEASURE_PER_OSRS_MAX * (((1 << TEMPERATURE_OSR) >> 1) + ((1 << PRESSURE_OSR) >> 1)) + TIME_SETUP_PRESSURE_MAX + 15) / 16);
-    _sampleRateHz = 1000 / delayMs; // delay ~ 23ms, sample rate ~ 43.5Hz
-    return static_cast<int>(_sampleRateHz);
+    constexpr uint32_t delay_ms = ((TIME_INIT_MAX + TIME_MEASURE_PER_OSRS_MAX * (((1 << TEMPERATURE_OSR) >> 1) + ((1 << PRESSURE_OSR) >> 1)) + TIME_SETUP_PRESSURE_MAX + 15) / 16);
+    _sample_rate_hz = 1000 / delay_ms; // delay ~ 23ms, sample rate ~ 43.5Hz
+    return static_cast<int>(_sample_rate_hz);
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,hicpp-signed-bitwise,readability-magic-numbers)
 }
 
-void BarometerBMP280::readTemperatureAndPressure()
+void BarometerBMP280::read_temperature_and_pressure()
 {
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
     const auto T1 = static_cast<int32_t>(_calibrationData.value.dig_T1);
@@ -157,10 +157,10 @@ void BarometerBMP280::readTemperatureAndPressure()
     const auto P9 = static_cast<int64_t>(_calibrationData.value.dig_P9);
 
     // burst read of temperature and pressure data
-    _bus.writeRegister(REG_CONTROL, MEASUREMENT_MODE);
+    _bus.write_register(REG_CONTROL, MEASUREMENT_MODE);
     // read together in burst so data is consistent, as specified in datasheet
     pressure_temperature_data_u pt; // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init,misc-const-correctness)
-    _bus.readRegister(REG_PRESSURE_MSB, &pt.data[0], sizeof(pt));
+    _bus.read_register(REG_PRESSURE_MSB, &pt.data[0], sizeof(pt));
     const auto adcT = static_cast<int32_t>(
             ((static_cast<uint32_t>(pt.value.temperature_msb) << 16) |
             (static_cast<uint32_t>(pt.value.temperature_lsb) << 8) |
@@ -174,7 +174,7 @@ void BarometerBMP280::readTemperatureAndPressure()
     const int32_t vt1 = (((adcT >> 3) - (T1 << 1))) * T2;
     const int32_t vt2 = ((((adcT >> 4) - T1) * ((adcT >> 4) - T1)) >> 12) * T3;
     _temperatureFine = (vt1 >> 11) + (vt2 >> 14);
-    _temperatureCelsius = static_cast<float>((_temperatureFine * 5 + 128) >> 8) / 100.0F;
+    _temperature_celsius = static_cast<float>((_temperatureFine * 5 + 128) >> 8) / 100.0F;
 
     auto vp1 = static_cast<int64_t>(_temperatureFine) - 128000;
     int64_t vp2 = vp1 * vp1 * P6;
@@ -197,12 +197,12 @@ void BarometerBMP280::readTemperatureAndPressure()
     vp2 = (P8 * p) >> 19;
 
     p = ((p + vp1 + vp2) >> 8) + (P7 << 4);
-    _pressurePascals =  static_cast<float>(p) / 256.0F;
+    _pressure_pascals =  static_cast<float>(p) / 256.0F;
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-pro-type-union-access,hicpp-signed-bitwise,readability-magic-numbers)
 }
 
-float BarometerBMP280::calculateAltitudeMeters(float pressure, float temperature)
+float BarometerBMP280::calculate_altitude_meters(float pressure, float temperature)
 {
     (void)temperature;
-    return 44330.0F * (1.0F - std::pow(pressure/_pressureAtReferenceAltitude, 0.1903F)); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    return 44330.0F * (1.0F - std::pow(pressure/_pressure_at_reference_altitude, 0.1903F)); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 }

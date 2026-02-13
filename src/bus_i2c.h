@@ -47,48 +47,48 @@ public:
         port_pin_t irq;
     };
 public:
-    BusI2c(uint8_t I2C_address, bus_index_e I2C_index);
+    BusI2c(uint8_t I2C_address, bus_index_e i2c_index);
     explicit BusI2c(uint8_t I2C_address) : BusI2c(I2C_address, BUS_INDEX_0) {}
-    BusI2c(uint8_t I2C_address, bus_index_e I2C_index, const i2c_pins_t& pins);
+    BusI2c(uint8_t I2C_address, bus_index_e i2c_index, const i2c_pins_t& pins);
     BusI2c(uint8_t I2C_address, const i2c_pins_t& pins) : BusI2c(I2C_address, BUS_INDEX_0, pins) {}
 
-    BusI2c(uint8_t I2C_address, bus_index_e I2C_index, const stm32_i2c_pins_t& pins);
+    BusI2c(uint8_t I2C_address, bus_index_e i2c_index, const stm32_i2c_pins_t& pins);
     BusI2c(uint8_t I2C_address, const stm32_i2c_pins_t& pins) : BusI2c(I2C_address, BUS_INDEX_0, pins) {}
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
     BusI2c(uint8_t I2C_address, TwoWire& wire, const i2c_pins_t& pins);
 #endif
 public:
     void init();
-    void setInterruptDriven(irq_level_e irqLevel);
-    bool readDeviceData();
-    uint8_t readRegister(uint8_t reg) const;
-    uint8_t readRegisterWithTimeout(uint8_t reg, uint32_t timeoutMs) const;
-    bool readRegister(uint8_t reg, uint8_t* data, size_t length) const;
-    bool readBytes(uint8_t* data, size_t length) const;
-    bool readBytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) const;
-    uint8_t writeRegister(uint8_t reg, uint8_t data);
-    uint8_t writeRegister(uint8_t reg, const uint8_t* data, size_t length);
-    uint8_t writeBytes(const uint8_t* data, size_t length);
+    void set_interrupt_driven(irq_level_e irqLevel);
+    bool read_device_data();
+    uint8_t read_register(uint8_t reg) const;
+    uint8_t read_register_with_timeout(uint8_t reg, uint32_t timeoutMs) const;
+    bool read_register(uint8_t reg, uint8_t* data, size_t length) const;
+    bool read_bytes(uint8_t* data, size_t length) const;
+    bool read_bytesWithTimeout(uint8_t* data, size_t length, uint32_t timeoutMs) const;
+    uint8_t write_register(uint8_t reg, uint8_t data);
+    uint8_t write_register(uint8_t reg, const uint8_t* data, size_t length);
+    uint8_t write_bytes(const uint8_t* data, size_t length);
 private:
     static BusI2c* self; //!< alias of `this` to be used in interrupt service routine
-    bus_index_e _I2C_index {};
+    bus_index_e _i2c_index {};
     stm32_i2c_pins_t _pins {};
 #if defined(FRAMEWORK_RPI_PICO)
     enum { RETAIN_CONTROL_OF_BUS = true };
     enum { DONT_RETAIN_CONTROL_OF_BUS = false };
-    static void dataReadyISR(unsigned int gpio, uint32_t events);
+    static void data_ready_isr(unsigned int gpio, uint32_t events);
     i2c_inst_t* _I2C {};
 #elif defined(FRAMEWORK_ESPIDF)
-    static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
+    static void data_ready_isr(); // cppcheck-suppress unusedPrivateFunction
     //i2c_master_bus_handle_t _bus_handle {};
     //i2c_master_dev_handle_t _dev_handle {};
 #elif defined(FRAMEWORK_STM32_CUBE)
-    static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
+    static void data_ready_isr(); // cppcheck-suppress unusedPrivateFunction
     mutable I2C_HandleTypeDef _I2C {};
 #elif defined(FRAMEWORK_TEST)
-    static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
+    static void data_ready_isr(); // cppcheck-suppress unusedPrivateFunction
 #else // defaults to FRAMEWORK_ARDUINO
-    static void dataReadyISR(); // cppcheck-suppress unusedPrivateFunction
+    static void data_ready_isr(); // cppcheck-suppress unusedPrivateFunction
     TwoWire& _wire;
 #endif
     uint8_t _I2C_address {};
