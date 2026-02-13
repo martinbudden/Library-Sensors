@@ -8,7 +8,7 @@ Barometer virtual base class.
 */
 class BarometerBase {
 public:
-    enum  { NOT_DETECTED = -1 };
+    static constexpr int32_t NOT_DETECTED = -1;
 
     // Values for reporting barometer type back to MSP (MultiWii Serial Protocol)
     static constexpr uint8_t MSP_BAROMETER_ID_DEFAULT = 0;

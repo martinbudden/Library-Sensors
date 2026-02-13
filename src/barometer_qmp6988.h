@@ -10,9 +10,9 @@ public:
     static constexpr uint8_t I2C_ADDRESS = 0x56;
     static constexpr uint8_t I2C_ADDRESS_ALTERNATIVE = 0x70;
     static constexpr uint8_t CHIP_ID = 0x58;
-    enum { MAX_SPI_FREQUENCY_HZ = 10000000 };
+    static constexpr uint32_t MAX_SPI_FREQUENCY_HZ = 10000000;
 public:
-    enum { CALIBRATION_DATA_SIZE = 25 };
+    static constexpr size_t CALIBRATION_DATA_SIZE = 25;
     union calibration_data_t { // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
         int32_t a0;
         int16_t a1;
@@ -28,7 +28,7 @@ public:
         int16_t bp3;
     };
     union pressure_temperature_data_u { // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
-        enum { DATA_SIZE = 6 };
+        static constexpr size_t DATA_SIZE = 6;
         std::array<uint8_t, DATA_SIZE> data;
         struct value_t {
             uint8_t pressure_msb;
@@ -56,15 +56,15 @@ public:
 public:
 #if defined(LIBRARY_SENSORS_BAROMETER_USE_SPI_BUS)
     // SPI constructors
-    BarometerQmp6988(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins);
-    BarometerQmp6988(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
+    BarometerQmp6988(uint32_t frequency, uint8_t spi_index, const BusSpi::stm32_spi_pins_t& pins);
+    BarometerQmp6988(uint32_t frequency, uint8_t spi_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    BarometerQmp6988(BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
+    BarometerQmp6988(uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
     BarometerQmp6988(const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : BarometerQmp6988(BusI2c::BUS_INDEX_0, pins, I2C_address) {}
     explicit BarometerQmp6988(const BusI2c::stm32_i2c_pins_t& pins) : BarometerQmp6988(pins, I2C_ADDRESS) {}
 
-    BarometerQmp6988(BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    BarometerQmp6988(uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
     BarometerQmp6988(const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : BarometerQmp6988(BusI2c::BUS_INDEX_0, pins, I2C_address) {}
     explicit BarometerQmp6988(const BusI2c::i2c_pins_t& pins) : BarometerQmp6988(pins, I2C_ADDRESS) {}
 #endif

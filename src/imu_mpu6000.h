@@ -8,15 +8,15 @@ class ImuMpu6000 : public ImuBase {
 public:
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuMpu6000_USE_SPI_BUS)
     // SPI constructor
-    ImuMpu6000(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins);
-    ImuMpu6000(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
+    ImuMpu6000(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::stm32_spi_pins_t& pins);
+    ImuMpu6000(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::spi_pins_t& pins);
 #else
     // I2C constructors
-    ImuMpu6000(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
+    ImuMpu6000(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address);
     ImuMpu6000(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) : ImuMpu6000(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
     ImuMpu6000(uint8_t axis_order, const BusI2c::stm32_i2c_pins_t& pins) : ImuMpu6000(axis_order, pins, I2C_ADDRESS) {}
 
-    ImuMpu6000(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
+    ImuMpu6000(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address);
     ImuMpu6000(uint8_t axis_order, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) : ImuMpu6000(axis_order, BusI2c::BUS_INDEX_0, pins, I2C_address) {}
     ImuMpu6000(uint8_t axis_order, const BusI2c::i2c_pins_t& pins) : ImuMpu6000(axis_order, pins, I2C_ADDRESS) {}
 #if !defined(FRAMEWORK_RPI_PICO) && !defined(FRAMEWORK_ESPIDF) &&!defined(FRAMEWORK_STM32_CUBE) && !defined(FRAMEWORK_TEST)
@@ -29,7 +29,7 @@ public:
     static constexpr uint8_t I2C_ADDRESS_ALTERNATIVE = 0x69;
 #pragma pack(push, 1)
     union mems_sensor_data_t {
-        enum { DATA_SIZE = 6 };
+        static constexpr size_t DATA_SIZE = 6;
         std::array<uint8_t, DATA_SIZE> data;
         struct value_t {
             uint8_t x_h;
@@ -41,7 +41,7 @@ public:
         } value;
     };
     union acc_temperature_gyro_data_t { // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
-        enum { DATA_SIZE = 14 };
+        static constexpr size_t DATA_SIZE = 14;
         std::array<uint8_t, DATA_SIZE> data;
         struct value_t {
             uint8_t acc_x_h;

@@ -76,16 +76,27 @@ STM32 bus index is one-based so, for SPI, BUS_INDEX_0 corresponds to SPI1
 */
 class BusBase {
 public:
-    enum bus_index_e : uint8_t { BUS_INDEX_0, BUS_INDEX_1, BUS_INDEX_2, BUS_INDEX_3, BUS_INDEX_4, BUS_INDEX_5, BUS_INDEX_6, BUS_INDEX_7 };
+    static constexpr uint8_t BUS_INDEX_0 = 0;
+    static constexpr uint8_t BUS_INDEX_1 = 1;
+    static constexpr uint8_t BUS_INDEX_2 = 2;
+    static constexpr uint8_t BUS_INDEX_3 = 3;
+    static constexpr uint8_t BUS_INDEX_4 = 4;
+    static constexpr uint8_t BUS_INDEX_5 = 5;
+    static constexpr uint8_t BUS_INDEX_6 = 6;
+    static constexpr uint8_t BUS_INDEX_7 = 7;
     static constexpr uint8_t READ_BIT = 0x80U;
-    enum { SPI_PRE_READ_BUFFER_SIZE = 4 }; // to reserve space for the transmit instruction that occurs before a read
+    static constexpr uint8_t SPI_PRE_READ_BUFFER_SIZE = 4; // to reserve space for the transmit instruction that occurs before a read
 #if defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
-    enum { SPI_PRE_READ_BUFFER_OFFSET = SPI_PRE_READ_BUFFER_SIZE };
+    static constexpr uint8_t SPI_PRE_READ_BUFFER_OFFSET = SPI_PRE_READ_BUFFER_SIZE;
 #else
-    enum { SPI_PRE_READ_BUFFER_OFFSET = SPI_PRE_READ_BUFFER_SIZE - 1 };
+    static constexpr uint8_t SPI_PRE_READ_BUFFER_OFFSET = SPI_PRE_READ_BUFFER_SIZE - 1;
 #endif
-    enum { IRQ_NOT_SET = 0xFF };
-    enum irq_level_e { IRQ_LEVEL_LOW = 0x01, IRQ_LEVEL_HIGH = 0x02, IRQ_EDGE_FALL = 0x04, IRQ_EDGE_RISE = 0x08, IRQ_EDGE_CHANGE = 0x04|0x08 };
+    static constexpr uint8_t IRQ_NOT_SET = 0xFF;
+    static constexpr uint8_t IRQ_LEVEL_LOW = 0x01;
+    static constexpr uint8_t IRQ_LEVEL_HIGH = 0x02;
+    static constexpr uint8_t IRQ_EDGE_FALL = 0x04;
+    static constexpr uint8_t IRQ_EDGE_RISE = 0x08;
+    static constexpr uint8_t IRQ_EDGE_CHANGE = 0x04|0x08;
     struct port_pin_t {
         uint8_t port;
         uint8_t pin;
@@ -114,7 +125,7 @@ protected:
 #if defined(FRAMEWORK_USE_FREERTOS)
     uint32_t _data_ready_queue_item {}; // this is just a dummy item whose value is not used
     BaseType_t _data_ready_queue_higher_priority_task_woken = pdFALSE;
-    enum { IMU_DATA_READY_QUEUE_LENGTH = 1 };
+    static constexpr uint8_t IMU_DATA_READY_QUEUE_LENGTH = 1;
     std::array<uint8_t, IMU_DATA_READY_QUEUE_LENGTH * sizeof(_data_ready_queue_item)> _data_ready_queueStorageArea {};
     StaticQueue_t _data_ready_queue_static {};
     QueueHandle_t _data_ready_queue {};

@@ -18,7 +18,7 @@ public:
 
 private:
     struct acc_temperature_gyro_data_t { // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
-        enum { DATA_SIZE = 14 };
+        static constexpr size_t DATA_SIZE = 14;
         uint8_t acc_x_h;
         uint8_t acc_x_l;
         uint8_t acc_y_h;

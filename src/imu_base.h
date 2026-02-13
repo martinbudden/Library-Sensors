@@ -26,7 +26,7 @@ public:
     ImuBase(uint8_t axis_order, uint8_t flags);
     explicit ImuBase(uint8_t axis_order);
 public:
-    enum  { NOT_DETECTED = -1 };
+    static constexpr int32_t NOT_DETECTED = -1;
     /*!
     Axes order describing the sensor axes relative to the body axes.
     For example, if the sensor is rotated relative to the body so that the
@@ -133,10 +133,12 @@ public:
     static constexpr uint8_t MSP_ACC_ID_NONE = 1;
     static constexpr uint8_t MSP_ACC_ID_VIRTUAL = 21;
 
-    enum calibration_type_e { CALIBRATE_ACC_AND_GYRO, CALIBRATE_GYRO_ONLY };
+    static constexpr uint8_t CALIBRATE_ACC_AND_GYRO = 0;
+    static constexpr uint8_t CALIBRATE_GYRO_ONLY = 1;
 
     // IMU characteristics flag values
-    enum : uint32_t { IMU_AUTO_CALIBRATES = 0x01, IMU_PERFORMS_SENSOR_FUSION = 0x02 };
+    static constexpr uint32_t IMU_AUTO_CALIBRATES = 0x01;
+    static constexpr uint32_t IMU_PERFORMS_SENSOR_FUSION = 0x02;
 
     static constexpr float sin45f = 0.7071067811865475F;
     static constexpr float cos45f = 0.7071067811865475F;
@@ -193,7 +195,7 @@ public:
     uint32_t get_acc_sample_rate_hz() const { return _acc_sample_rate_hz; }
     uint16_t get_gyro_id_msp() const { return _gyro_id_msp; }
     uint16_t get_acc_id_msp() const { return _acc_id_msp; }
-    void calibrate(calibration_type_e calibrationType, size_t calibrationCount);
+    void calibrate(uint8_t calibrationType, size_t calibrationCount);
 
     virtual void set_interrupt_driven();
     int32_t WAIT_IMU_DATA_READY() { return _bus_base->WAIT_DATA_READY(); }

@@ -168,23 +168,23 @@ extern const std::array<uint8_t, 8192> imu_bmi270_config_data;
 Gyroscope data rates up to 6.4 kHz, accelerometer up to 1.6 kHz
 */
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuBmi270_USE_SPI_BUS)
-ImuBmi270::ImuBmi270(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
+ImuBmi270::ImuBmi270(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::stm32_spi_pins_t& pins) :
     ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
-ImuBmi270::ImuBmi270(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
+ImuBmi270::ImuBmi270(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::spi_pins_t& pins) :
     ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
 #else
-ImuBmi270::ImuBmi270(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
+ImuBmi270::ImuBmi270(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
     ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
-ImuBmi270::ImuBmi270(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+ImuBmi270::ImuBmi270(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
     ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {

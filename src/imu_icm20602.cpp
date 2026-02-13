@@ -96,18 +96,18 @@ constexpr uint8_t REG_ZA_OFFSET_L           = 0x7E;
 // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,hicpp-signed-bitwise)
 
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuIcm20602_USE_SPI_BUS)
-ImuIcm20602::ImuIcm20602(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
+ImuIcm20602::ImuIcm20602(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::stm32_spi_pins_t& pins) :
     ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
-ImuIcm20602::ImuIcm20602(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
+ImuIcm20602::ImuIcm20602(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::spi_pins_t& pins) :
     ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
 #else
-ImuIcm20602::ImuIcm20602(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+ImuIcm20602::ImuIcm20602(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
     ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {

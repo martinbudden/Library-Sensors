@@ -174,25 +174,25 @@ constexpr uint8_t REG_BANK2_ACCEL_CONFIG_STATIC4    = 0x05;
 Gyroscope data rates up to 6.4 kHz, accelerometer up to 1.6 kHz
 */
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_IMU_ICM426XX_USE_SPI_BUS)
-ImuIcm426xx::ImuIcm426xx(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
+ImuIcm426xx::ImuIcm426xx(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::stm32_spi_pins_t& pins) :
     ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
     static_assert(sizeof(mems_sensor_data_t) == mems_sensor_data_t::DATA_SIZE);
     static_assert(sizeof(acc_gyro_data_t) == acc_gyro_data_t::DATA_SIZE);
 }
-ImuIcm426xx::ImuIcm426xx(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
+ImuIcm426xx::ImuIcm426xx(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::spi_pins_t& pins) :
     ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
 #else
-ImuIcm426xx::ImuIcm426xx(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
+ImuIcm426xx::ImuIcm426xx(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
     ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
-ImuIcm426xx::ImuIcm426xx(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+ImuIcm426xx::ImuIcm426xx(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
     ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {

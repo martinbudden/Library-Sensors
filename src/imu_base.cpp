@@ -382,7 +382,7 @@ uint8_t ImuBase::axis_orderFromAlignment(const xyz_alignment_t& alignment)
     return XPOS_YPOS_ZPOS;
 }
 
-void ImuBase::calibrate(calibration_type_e calibrationType, size_t calibrationCount)
+void ImuBase::calibrate(uint8_t calibrationType, size_t calibrationCount)
 {
     int64_t gyroX = 0;
     int64_t gyroY = 0;

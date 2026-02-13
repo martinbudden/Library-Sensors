@@ -40,7 +40,7 @@ FAST_CODE void BusI2c::data_ready_isr()
 }
 #endif
 
-BusI2c::BusI2c(uint8_t I2C_address, bus_index_e i2c_index, const stm32_i2c_pins_t& pins) :
+BusI2c::BusI2c(uint8_t I2C_address, uint8_t i2c_index, const stm32_i2c_pins_t& pins) :
     _i2c_index(i2c_index),
     _pins(pins),
 #if defined(FRAMEWORK_RPI_PICO)
@@ -59,7 +59,7 @@ BusI2c::BusI2c(uint8_t I2C_address, bus_index_e i2c_index, const stm32_i2c_pins_
     init();
 }
 
-BusI2c::BusI2c(uint8_t I2C_address, bus_index_e i2c_index, const i2c_pins_t& pins) :
+BusI2c::BusI2c(uint8_t I2C_address, uint8_t i2c_index, const i2c_pins_t& pins) :
     _i2c_index(i2c_index),
 #if defined(FRAMEWORK_RPI_PICO)
     _I2C(i2c_index == BUS_INDEX_1 ? i2c1 : i2c0),
@@ -81,7 +81,7 @@ BusI2c::BusI2c(uint8_t I2C_address, bus_index_e i2c_index, const i2c_pins_t& pin
     init();
 }
 
-void BusI2c::init()
+void BusI2c::init() // NOLINT(readability-make-member-function-const)
 {
 #if defined(FRAMEWORK_RPI_PICO)
     static_assert(static_cast<int>(IRQ_LEVEL_LOW) == GPIO_IRQ_LEVEL_LOW);
@@ -228,7 +228,7 @@ BusI2c::BusI2c(uint8_t I2C_address, TwoWire& wire, const i2c_pins_t& pins) :
 }
 #endif
 
-BusI2c::BusI2c(uint8_t I2C_address, bus_index_e i2c_index)
+BusI2c::BusI2c(uint8_t I2C_address, uint8_t i2c_index)
 #if defined(FRAMEWORK_RPI_PICO)
     : BusI2c(I2C_address, i2c_index,
         i2c_index == BUS_INDEX_0 ? i2c_pins_t{.sda=PICO_DEFAULT_I2C_SDA_PIN, .scl=PICO_DEFAULT_I2C_SCL_PIN, .irq=IRQ_NOT_SET} :
@@ -245,7 +245,7 @@ BusI2c::BusI2c(uint8_t I2C_address, bus_index_e i2c_index)
 {
 }
 
-void BusI2c::set_interrupt_driven(irq_level_e irqLevel) // NOLINT(readability-make-member-function-const)
+void BusI2c::set_interrupt_driven(uint8_t irqLevel) // NOLINT(readability-make-member-function-const)
 {
     self = this;
 

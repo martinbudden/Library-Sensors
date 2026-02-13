@@ -247,7 +247,7 @@ BusSpi::~BusSpi() // NOLINT(hicpp-use-equals-default,modernize-use-equals-defaul
 #endif
 }
 
-BusSpi::BusSpi(uint32_t frequencyHz, bus_index_e spi_index, const spi_pins_t& pins) :
+BusSpi::BusSpi(uint32_t frequencyHz, uint8_t spi_index, const spi_pins_t& pins) :
     _frequency_hz(frequencyHz)
     ,_spi_index(spi_index)
     ,_pins {
@@ -279,7 +279,7 @@ BusSpi::BusSpi(uint32_t frequencyHz, bus_index_e spi_index, const spi_pins_t& pi
     init();
 }
 
-BusSpi::BusSpi(uint32_t frequencyHz, bus_index_e spi_index, const stm32_spi_pins_t& pins) :
+BusSpi::BusSpi(uint32_t frequencyHz, uint8_t spi_index, const stm32_spi_pins_t& pins) :
     _frequency_hz(frequencyHz)
     ,_spi_index(spi_index)
     ,_pins(pins)
@@ -591,7 +591,7 @@ When the IMU interrupt pin indicates data ready, the dataReady ISR is called and
 
 This routine sets the GPIO IRQ pin to input and attaches the dataReady ISR to be triggered by that pin.
 */
-void BusSpi::set_interrupt_driven(irq_level_e irqLevel) // NOLINT(readability-make-member-function-const)
+void BusSpi::set_interrupt_driven(uint8_t irqLevel) // NOLINT(readability-make-member-function-const)
 {
     self = this;
     assert(_pins.irq.pin != IRQ_NOT_SET);

@@ -154,23 +154,23 @@ constexpr uint8_t REG_OUTZ_H_ACC            = 0x2D;
 Gyroscope data rates up to 6.4 kHz, accelerometer up to 1.6 kHz
 */
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS) || defined(LIBRARY_SENSORS_ImuLsmds63trC_USE_SPI_BUS)
-ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
+ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::stm32_spi_pins_t& pins) :
     ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
-ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
+ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::spi_pins_t& pins) :
     ImuBase(axis_order, _bus),
     _bus(frequency, spi_index, pins)
 {
 }
 #else
-ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
+ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, uint8_t i2c_index, const BusI2c::stm32_i2c_pins_t& pins, uint8_t I2C_address) :
     ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {
 }
-ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+ImuLsmds63trC::ImuLsmds63trC(uint8_t axis_order, uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
     ImuBase(axis_order, _bus),
     _bus(I2C_address, i2c_index, pins)
 {

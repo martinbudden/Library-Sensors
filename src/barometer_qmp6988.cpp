@@ -54,18 +54,18 @@ namespace { // use anonymous namespace to make items local to this translation u
 } // end namespace
 
 #if defined(LIBRARY_SENSORS_BAROMETER_USE_SPI_BUS)
-BarometerQmp6988::BarometerQmp6988(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::stm32_spi_pins_t& pins) :
+BarometerQmp6988::BarometerQmp6988(uint32_t frequency, uint8_t spi_index, const BusSpi::stm32_spi_pins_t& pins) :
     BarometerBase(_bus),
     _bus(frequency, spi_index, pins)
 {
 }
-BarometerQmp6988::BarometerQmp6988(uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins) :
+BarometerQmp6988::BarometerQmp6988(uint32_t frequency, uint8_t spi_index, const BusSpi::spi_pins_t& pins) :
     BarometerBase(_bus),
     _bus(frequency, spi_index, pins)
 {
 }
 #else
-BarometerQmp6988::BarometerQmp6988(BusBase::bus_index_e i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
+BarometerQmp6988::BarometerQmp6988(uint8_t i2c_index, const BusI2c::i2c_pins_t& pins, uint8_t I2C_address) :
     BarometerBase(_bus),
     _bus(I2C_address, i2c_index, pins)
 {

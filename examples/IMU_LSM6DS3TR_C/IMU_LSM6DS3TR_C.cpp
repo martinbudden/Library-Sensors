@@ -26,7 +26,7 @@ void setup()
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
     static constexpr uint32_t spiFrequencyHz = 10000000; // 10 MHz
     //static ImuLsmds63trC imuStatic(ImuBase::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
-    //ImuLsmds63trC(uint8_t axis_order, uint32_t frequency, BusBase::bus_index_e spi_index, const BusSpi::spi_pins_t& pins);
+    //ImuLsmds63trC(uint8_t axis_order, uint32_t frequency, uint8_t spi_index, const BusSpi::spi_pins_t& pins);
     static ImuLsmds63trC imuStatic(ImuBase::XPOS_YPOS_ZPOS, spiFrequencyHz, BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
 #else
 #if defined(LIBRARY_SENSORS_IMU_USE_I2C_WIRE_1)

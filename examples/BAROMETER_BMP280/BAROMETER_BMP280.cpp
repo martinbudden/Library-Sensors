@@ -3,7 +3,7 @@
 #include <barometer_bmp280.h>
 
 //#if defined(TARGET_M5STACK_STAMPS3_FLY)
-static constexpr BusBase::bus_index_e i2cBusIndex = BusBase::BUS_INDEX_0;
+static constexpr uint8_ti2cBusIndex = BusBase::BUS_INDEX_0;
 static constexpr BusI2c::i2c_pins_t i2cPins {.sda=3,.scl=4,.irq=BusI2c::IRQ_NOT_SET};
 //#endif
 

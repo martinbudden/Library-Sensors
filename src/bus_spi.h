@@ -30,7 +30,7 @@ typedef struct spi_inst spi_inst_t;
 
 class BusSpi : public BusBase {
 public:
-    enum { BITS_PER_BYTE = 8 };
+    static constexpr uint8_t BITS_PER_BYTE = 8;
     struct spi_pins_t {
         uint8_t cs;
         uint8_t sck;
@@ -45,7 +45,11 @@ public:
         port_pin_t copi; // TX, COPI, MOSI, PICO
         port_pin_t irq; // interrupt pin
     };
-    enum bus_status_e { BUS_READY, BUS_BUSY, BUS_ABORT };
+
+    static constexpr uint8_t BUS_READY = 0;
+    static constexpr uint8_t BUS_BUSY = 1;
+    static constexpr uint8_t BUS_ABORT = 2;
+
     struct segment_t {
         union {
             struct {
@@ -59,16 +63,16 @@ public:
         } u;
         int len;
         bool negateCS; // Should CS be negated at the end of this segment
-        bus_status_e (*callbackFn)(uint32_t arg);
+        uint8_t (*callbackFn)(uint32_t arg);
     };
 public:
     virtual ~BusSpi();
-    BusSpi(uint32_t frequency, bus_index_e spi_index, const stm32_spi_pins_t& pins);
-    BusSpi(uint32_t frequency, bus_index_e spi_index, const spi_pins_t& pins);
+    BusSpi(uint32_t frequency, uint8_t spi_index, const stm32_spi_pins_t& pins);
+    BusSpi(uint32_t frequency, uint8_t spi_index, const spi_pins_t& pins);
 public:
     void init();
     void configure_dma();
-    void set_interrupt_driven(irq_level_e irqLevel);
+    void set_interrupt_driven(uint8_t irqLevel);
 
     uint16_t calculate_clock_divider(uint32_t frequencyHz);
     uint32_t calculate_clock(uint16_t clockDivisor);
@@ -98,14 +102,15 @@ public:
 private:
     uint32_t _clock_divider {1};
     uint32_t _frequency_hz;
-    bus_index_e _spi_index;
+    uint8_t _spi_index;
     stm32_spi_pins_t _pins;
 #if defined(FRAMEWORK_RPI_PICO)
     spi_inst_t* _spi {};
     uint32_t _dma_interrupt_number {};
     uint32_t _dma_rx_channel {};
     uint32_t _dma_tx_channel {};
-    enum { START_NOW = true, DONT_START_YET = false };
+    static constexpr bool START_NOW = true;
+    static constexpr bool DONT_START_YET = false;
     static void data_ready_isr(unsigned int gpio, uint32_t events);
     static void dma_rx_complete_isr();
 #elif defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
