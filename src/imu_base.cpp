@@ -113,7 +113,7 @@ xyz_t ImuBase::read_acc()
 acc_gyro_rps_t ImuBase::read_acc_gyro_rps()
 {
     return acc_gyro_rps_t {
-        .gyroRPS = read_gyro_rps(),
+        .gyro_rps = read_gyro_rps(),
         .acc = read_acc()
     };
 }

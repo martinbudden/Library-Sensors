@@ -212,7 +212,7 @@ FAST_CODE acc_gyro_rps_t ImuM5Unified::read_acc_gyro_rps()
     const m5::IMU_Class::imu_data_t& data = M5.Imu.getImuData();
     return acc_gyro_rps_t {
         // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-        .gyroRPS = {
+        .gyro_rps = {
             .x = data.gyro.x * DEGREES_TO_RADIANS,
             .y = data.gyro.y * DEGREES_TO_RADIANS,
             .z = data.gyro.z * DEGREES_TO_RADIANS

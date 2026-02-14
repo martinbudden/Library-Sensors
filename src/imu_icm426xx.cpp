@@ -569,7 +569,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
 {
 #if defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_YPOS_ZPOS)
     return acc_gyro_rps_t {
-        .gyroRPS = {
+        .gyro_rps = {
             .x =   static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x,
             .y =   static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y,
             .z =   static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z
@@ -582,7 +582,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YPOS_XNEG_ZPOS)
     return acc_gyro_rps_t {
-        .gyroRPS = {
+        .gyro_rps = {
             .x =   static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y,
             .y = -(static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x),
             .z =   static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z
@@ -595,7 +595,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XNEG_YNEG_ZPOS)
     return acc_gyro_rps_t {
-        .gyroRPS = {
+        .gyro_rps = {
             .x = -(static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x),
             .y = -(static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y),
             .z =   static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z
@@ -608,7 +608,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_YNEG_XPOS_ZPOS)
     return acc_gyro_rps_t {
-        .gyroRPS = {
+        .gyro_rps = {
             .x = -(static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y),
             .y =   static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x,
             .z =   static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z
@@ -621,7 +621,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
     };
 #elif defined(LIBRARY_SENSORS_IMU_FIXED_AXES_XPOS_ZPOS_YNEG)
     return acc_gyro_rps_t {
-        .gyroRPS = {
+        .gyro_rps = {
             .x =   static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x,
             .y =   static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z,
             .z = -(static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y)
@@ -639,7 +639,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
     switch (_axis_order) {
     case XPOS_YPOS_ZPOS: // NOLINT(bugprone-branch-clone)
         return acc_gyro_rps_t {
-            .gyroRPS = {
+            .gyro_rps = {
                 .x =   static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x,
                 .y =   static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y,
                 .z =   static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z
@@ -652,7 +652,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
         };
     case YPOS_XNEG_ZPOS:
         return acc_gyro_rps_t {
-            .gyroRPS = {
+            .gyro_rps = {
                 .x =   static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y,
                 .y = -(static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x),
                 .z =   static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z
@@ -665,7 +665,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
         };
     case XNEG_YNEG_ZPOS:
         return acc_gyro_rps_t {
-            .gyroRPS = {
+            .gyro_rps = {
                 .x = -(static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x),
                 .y = -(static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y),
                 .z =   static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z
@@ -678,7 +678,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
         };
     case YNEG_XPOS_ZPOS:
         return acc_gyro_rps_t {
-            .gyroRPS = {
+            .gyro_rps = {
                 .x = -(static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y),
                 .y =   static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x,
                 .z =   static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z
@@ -691,7 +691,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
         };
     case XPOS_YNEG_ZNEG:
         return acc_gyro_rps_t {
-            .gyroRPS = {
+            .gyro_rps = {
                 .x =   static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x,
                 .y = -(static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y),
                 .z = -(static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z)
@@ -704,7 +704,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
         };
     case YPOS_XPOS_ZNEG:
         return acc_gyro_rps_t {
-            .gyroRPS = {
+            .gyro_rps = {
                 .x =   static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y,
                 .y =   static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x,
                 .z = -(static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z)
@@ -717,7 +717,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
         };
     case XNEG_YPOS_ZNEG:
         return acc_gyro_rps_t {
-            .gyroRPS = {
+            .gyro_rps = {
                 .x = -(static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x),
                 .y =   static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y,
                 .z = -(static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z)
@@ -730,7 +730,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
         };
     case YNEG_XNEG_ZNEG:
         return acc_gyro_rps_t {
-            .gyroRPS = {
+            .gyro_rps = {
                 .x = -(static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y),
                 .y = -(static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x),
                 .z = -(static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z)
@@ -743,7 +743,7 @@ acc_gyro_rps_t ImuIcm426xx::acc_gyro_rps_from_raw(const acc_gyro_data_t::value_t
         };
     default:
         return acc_gyro_rps_t {
-            .gyroRPS = map_axes({
+            .gyro_rps = map_axes({
                 .x =   static_cast<float>(data.gyro_x) * _gyro_resolution_rps - _gyro_offset.x,
                 .y =   static_cast<float>(data.gyro_y) * _gyro_resolution_rps - _gyro_offset.y,
                 .z =   static_cast<float>(data.gyro_z) * _gyro_resolution_rps - _gyro_offset.z

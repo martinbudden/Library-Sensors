@@ -50,7 +50,7 @@ void loop()
     const acc_gyro_rps_t acc_gyro_rps =  imu->get_acc_gyro_rps();
 
     // convert the gyro data from radians per second to degrees per second
-    const xyz_t gyro_dps =  acc_gyro_rps.gyroRPS * ImuBase::RADIANS_TO_DEGREES;
+    const xyz_t gyro_dps =  acc_gyro_rps.gyro_rps * ImuBase::RADIANS_TO_DEGREES;
     Serial.println();
     Serial.print("gyroX:");
     Serial.print(gyro_dps.x, 1);
