@@ -95,7 +95,7 @@ classDiagram
     ImuBase <|-- ImuMpu6886
     class ImuMpu6886 {
         set_interrupt_driven() override
-        setGyro_offset(const xyz_int32_t& gyro_offset) override
+        set_gyro_offset(const xyz_int32_t& gyro_offset) override
 
         read_gyro_raw() xyz_int32_t override
         read_acc_raw() xyz_int32_t override
@@ -175,9 +175,9 @@ classDiagram
         virtual init()
         virtual set_interrupt_driven()
         virtual get_gyro_offset() xyz_int32_t
-        virtual setGyro_offset()
+        virtual set_gyro_offset()
         virtual get_acc_offset() xyz_int32_t
-        virtual setAcc_offset()
+        virtual set_acc_offset()
 
         virtual get_acc_one_g_raw() int32_t
 

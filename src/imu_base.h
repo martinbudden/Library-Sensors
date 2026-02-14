@@ -203,9 +203,9 @@ public:
     void SIGNAL_IMU_DATA_READY_FROM_ISR() { _bus_base->SIGNAL_DATA_READY_FROM_ISR(); } //! should not be used directly, made public for debugging purposes
 
     xyz_t get_gyro_offset() const;
-    void setGyro_offset(const xyz_t& gyro_offset);
+    void set_gyro_offset(const xyz_t& gyro_offset);
     xyz_t get_acc_offset() const;
-    void setAcc_offset(const xyz_t& acc_offset);
+    void set_acc_offset(const xyz_t& acc_offset);
 
     virtual xyz_int32_t read_gyro_raw() = 0;
     virtual xyz_int32_t read_acc_raw() = 0;

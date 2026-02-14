@@ -65,7 +65,7 @@ xyz_t ImuBase::get_gyro_offset() const
     return _gyro_offset;
 }
 
-void ImuBase::setGyro_offset(const xyz_t& gyro_offset)
+void ImuBase::set_gyro_offset(const xyz_t& gyro_offset)
 {
     _gyro_offset = gyro_offset;
 }
@@ -75,7 +75,7 @@ xyz_t ImuBase::get_acc_offset() const
     return _acc_offset;
 }
 
-void ImuBase::setAcc_offset(const xyz_t& acc_offset)
+void ImuBase::set_acc_offset(const xyz_t& acc_offset)
 {
     _acc_offset = acc_offset;
 }
@@ -434,8 +434,8 @@ void ImuBase::calibrate(uint8_t calibration_type, size_t calibration_count)
     }
     acc_offset *= get_acc_resolution();
 
-    setGyro_offset(gyro_offset);
+    set_gyro_offset(gyro_offset);
     if (calibration_type == CALIBRATE_ACC_AND_GYRO) {
-        setAcc_offset(acc_offset);
+        set_acc_offset(acc_offset);
     }
 }
