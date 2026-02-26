@@ -1013,13 +1013,13 @@ uint32_t BusSpi::calculate_clock(uint16_t clock_divisor)
 }
 
 // Set the clock divisor to be used for accesses by the given device
-void BusSpi::setClockDivisor(uint16_t divisor)
+void BusSpi::set_clock_divisor(uint16_t divisor)
 {
     (void)divisor;
 }
 
 // Set the clock phase/polarity to be used for accesses by the given device
-void BusSpi::setClockPhasePolarity(bool leading_edge)
+void BusSpi::set_clock_phase_polarity(bool leading_edge)
 {
     (void)leading_edge;
 }

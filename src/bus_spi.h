@@ -76,8 +76,8 @@ public:
 
     uint16_t calculate_clock_divider(uint32_t frequency_hz);
     uint32_t calculate_clock(uint16_t clock_divisor);
-    void setClockDivisor(uint16_t divisor);
-    void setClockPhasePolarity(bool leading_edge);
+    void set_clock_divisor(uint16_t divisor);
+    void set_clock_phase_polarity(bool leading_edge);
     void dma_enable(bool enable);
     void dma_sequence(segment_t* segments);
     void dma_wait();

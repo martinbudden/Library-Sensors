@@ -13,8 +13,8 @@ void tearDown()
 void test_icm426xx()
 {
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
-    constexpr uint32_t spiFrequency = 2000000;
-    static ImuIcm426xx imu(ImuBase::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
+    constexpr uint32_t SPI_FREQUENCY = 2000000;
+    static ImuIcm426xx imu(ImuBase::XPOS_YPOS_ZPOS, SPI_FREQUENCY, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
 #else
     static ImuIcm426xx imu(ImuBase::XPOS_YPOS_ZPOS, IMU_I2C_SDA_PIN, IMU_I2C_SCL_PIN);
 #endif

@@ -12,8 +12,8 @@ void tearDown()
 ImuBno085& newBNO085()
 {
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
-    constexpr uint32_t spiFrequency = 2000000;
-    static ImuBno085 imu(ImuBase::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
+    constexpr uint32_t SPI_FREQUENCY = 2000000;
+    static ImuBno085 imu(ImuBase::XPOS_YPOS_ZPOS, SPI_FREQUENCY, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
 #else
     static ImuBno085 imu(ImuBase::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{});
 #endif
@@ -107,10 +107,10 @@ void test_bno085_channel_gyro_integrated_rotation_vector_report()
     //constexpr int gyro_Q_point = 10;
 
     // BNO085 uses [real, i, j, k] for quaternion, VectorQuaternionMatrix uses [w, x, y, z]
-    TEST_ASSERT_EQUAL_FLOAT(static_cast<float>(gyroRotation.real) * powf(2, -orientation_Q_point), orientation.getW());
-    TEST_ASSERT_EQUAL_FLOAT(static_cast<float>(gyroRotation.i) * powf(2, -orientation_Q_point), orientation.getX());
-    TEST_ASSERT_EQUAL_FLOAT(static_cast<float>(gyroRotation.j) * powf(2, -orientation_Q_point), orientation.getY());
-    TEST_ASSERT_EQUAL_FLOAT(static_cast<float>(gyroRotation.k) * powf(2, -orientation_Q_point), orientation.getZ());
+    TEST_ASSERT_EQUAL_FLOAT(static_cast<float>(gyroRotation.real) * powf(2, -orientation_Q_point), orientation.get_w());
+    TEST_ASSERT_EQUAL_FLOAT(static_cast<float>(gyroRotation.i) * powf(2, -orientation_Q_point), orientation.get_x());
+    TEST_ASSERT_EQUAL_FLOAT(static_cast<float>(gyroRotation.j) * powf(2, -orientation_Q_point), orientation.get_y());
+    TEST_ASSERT_EQUAL_FLOAT(static_cast<float>(gyroRotation.k) * powf(2, -orientation_Q_point), orientation.get_z());
 
     constexpr int Q_point = 14;
     const float multiplier = pow(2, Q_point * -1);
@@ -121,8 +121,8 @@ void test_bno085_channel_gyro_integrated_rotation_vector_report()
 void test_bno085()
 {
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
-    constexpr uint32_t spiFrequency = 2000000;
-    static const ImuBno085 imu(ImuBase::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
+    constexpr uint32_t SPI_FREQUENCY = 2000000;
+    static const ImuBno085 imu(ImuBase::XPOS_YPOS_ZPOS, SPI_FREQUENCY, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
 #else
     static const ImuBno085 imu(ImuBase::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{});
 #endif

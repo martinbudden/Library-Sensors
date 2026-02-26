@@ -13,8 +13,8 @@ void tearDown()
 void test_mpu6000()
 {
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
-    constexpr uint32_t spiFrequency = 2000000;
-    static ImuMpu6000 imu(ImuBase::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
+    constexpr uint32_t SPI_FREQUENCY = 2000000;
+    static ImuMpu6000 imu(ImuBase::XPOS_YPOS_ZPOS, SPI_FREQUENCY, BusSpi::BUS_INDEX_0, BusSpi::spi_pins_t{});
 #else
     static ImuMpu6000 imu(ImuBase::XPOS_YPOS_ZPOS, BusI2c::i2c_pins_t{});
 #endif

@@ -8,8 +8,8 @@ static void setupIMU()
     //const BusSpi::spi_pins_t pins = IMU_SPI_PINS;
 
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
-    static constexpr uint32_t spiFrequency = 20000000;
-    const ImuLsmds63trC imu(ImuBase::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
+    static constexpr uint32_t SPI_FREQUENCY = 20000000;
+    const ImuLsmds63trC imu(ImuBase::XPOS_YPOS_ZPOS, SPI_FREQUENCY, BusSpi::IMU_SPI_INDEX, BusSpi::IMU_SPI_PINS);
     (void)imu;
 #else
     enum { I2C_Address = 0x68 };

@@ -359,9 +359,9 @@ uint16_t ImuBno085::parse_input_sensor_report(const ShtpPacket& packet)
     case SENSOR_REPORTID_GEOMAGNETIC_ROTATION_VECTOR:
         [[fallthrough]];
     case SENSOR_REPORTID_AR_VR_STABILIZED_ROTATION_VECTOR:
-        _rotation_vector.radianAccuracy = static_cast<uint16_t>(packet.data[18]) << 8U | packet.data[17];
+        _rotation_vector.radian_accuracy = static_cast<uint16_t>(packet.data[18]) << 8U | packet.data[17];
         [[fallthrough]];
-    // the GAME rotation vectors do not report radianAccuracy
+    // the GAME rotation vectors do not report radian_accuracy
     case SENSOR_REPORTID_GAME_ROTATION_VECTOR:
         [[fallthrough]];
     case SENSOR_REPORTID_AR_VR_STABILIZED_GAME_ROTATION_VECTOR:
@@ -432,10 +432,10 @@ bool ImuBno085::read_packet()
         return false;
     }
 
-    uint16_t data_length = ((static_cast<uint16_t>(_shtp_packet.header.lengthMSB)) << 8) | (static_cast<uint16_t>(_shtp_packet.header.lengthLSB));
+    uint16_t data_length = ((static_cast<uint16_t>(_shtp_packet.header.length_msb)) << 8) | (static_cast<uint16_t>(_shtp_packet.header.length_lsb));
     data_length &= 0x7FFFU; // Clear the most significant bit.
-    //Serial.printf("data_lengthMSB:%0x\r\n", _shtp_packet.header.lengthMSB);
-    //Serial.printf("data_lengthLSB:%0x\r\n", _shtp_packet.header.lengthLSB);
+    //Serial.printf("data_length_msb:%0x\r\n", _shtp_packet.header.length_msb);
+    //Serial.printf("data_length_lsb:%0x\r\n", _shtp_packet.header.length_lsb);
     //Serial.printf("data_lengthA:%0x\r\n", data_length);
     if (data_length <= sizeof(ShtpHeader)) {
         //Packet is empty
@@ -509,8 +509,8 @@ bool ImuBno085::read_data(size_t read_length)
 bool ImuBno085::send_packet(uint8_t channel_number, uint8_t data_length)
 {
     const uint8_t packet_length = data_length + sizeof(_shtp_packet.header); // Add four bytes for the header
-    _shtp_packet.header.lengthLSB = packet_length & 0xFF;
-    _shtp_packet.header.lengthMSB = packet_length >> 8;
+    _shtp_packet.header.length_lsb = packet_length & 0xFF;
+    _shtp_packet.header.length_msb = packet_length >> 8;
     _shtp_packet.header.channel = channel_number;
     _shtp_packet.header.sequence_number = _sequence_number[channel_number]++;
     _bus.write_bytes(reinterpret_cast<uint8_t*>(&_shtp_packet), packet_length); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)

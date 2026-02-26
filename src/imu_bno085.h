@@ -55,8 +55,8 @@ public:
 
 #pragma pack(push, 1)
     struct ShtpHeader {
-        uint8_t lengthLSB;
-        uint8_t lengthMSB;
+        uint8_t length_lsb;
+        uint8_t length_msb;
         uint8_t channel;
         uint8_t sequence_number;
     };
@@ -104,7 +104,7 @@ public:
         int16_t k;
         int16_t real;
         uint16_t accuracy;
-        uint16_t radianAccuracy;
+        uint16_t radian_accuracy;
     };
     struct gyro_integrated_rotation_vector_t {
         // gyro value

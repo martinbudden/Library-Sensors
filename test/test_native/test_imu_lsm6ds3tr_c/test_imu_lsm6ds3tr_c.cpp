@@ -13,8 +13,8 @@ void tearDown()
 void test_lsm6ds3tr_c()
 {
 #if defined(LIBRARY_SENSORS_IMU_USE_SPI_BUS)
-    constexpr uint32_t spiFrequency = 2000000;
-    const ImuLsmds63trC imu(ImuBase::XPOS_YPOS_ZPOS, spiFrequency, BusSpi::BUS_INDEX_0,
+    constexpr uint32_t SPI_FREQUENCY = 2000000;
+    const ImuLsmds63trC imu(ImuBase::XPOS_YPOS_ZPOS, SPI_FREQUENCY, BusSpi::BUS_INDEX_0,
         BusSpi::spi_pins_t{});
 #else
     constexpr uint8_t SDA_pin = 0;
