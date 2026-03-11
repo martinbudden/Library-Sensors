@@ -1,7 +1,7 @@
 #if defined(LIBRARY_SENSORS_IMU_USE_M5_UNIFIED)
-#include <M5Unified.h>
 
-#include <IMU_M5Unified.h>
+#include "imu_m5_unified.h"
+#include <M5Unified.h>
 #include <cassert>
 
 ImuM5Unified::ImuM5Unified(uint8_t axis_order) :

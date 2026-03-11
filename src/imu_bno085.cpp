@@ -1,9 +1,8 @@
+#include "imu_bno085.h"
 //#define LIBRARY_SENSORS_SERIAL_DEBUG
 #if defined(LIBRARY_SENSORS_SERIAL_DEBUG)
 #include <HardwareSerial.h>
 #endif
-
-#include "imu_bno085.h"
 #include <cassert>
 #include <cstring>
 
