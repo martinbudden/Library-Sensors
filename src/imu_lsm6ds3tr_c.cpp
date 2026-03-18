@@ -21,7 +21,7 @@ constexpr uint8_t REG_RESERVED_00           = 0x00;
 constexpr uint8_t REG_FUNC_CFG_ACCESS       = 0x01;
 constexpr uint8_t REG_RESERVED_03           = 0x03;
 
-#if defined(USE_ImuLsmds63trC)
+#if defined(USE_IMU_LSMDS63TR_C)
 
 constexpr uint8_t REG_RESERVED_02           = 0x02;
 constexpr uint8_t REG_SENSOR_SYNC_TIME_FRAME= 0x04;
@@ -234,8 +234,8 @@ int ImuLsmds63trC::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensit
 #endif
     delay_ms(1);
 
-    // calculate the GYRO_ODR bit values to write to the REG_CTRL2_G register
-    const uint8_t GYRO_ODR =
+    // calculate the gyro_odr bit values to write to the REG_CTRL2_G register
+    const uint8_t gyro_odr=
         target_output_data_rate_hz == 0 ? GYRO_ODR_6664_HZ :
         target_output_data_rate_hz > 3332 ? GYRO_ODR_6664_HZ :
         target_output_data_rate_hz > 1666 ? GYRO_ODR_3332_HZ :
@@ -248,15 +248,15 @@ int ImuLsmds63trC::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensit
         target_output_data_rate_hz > 13 ? GYRO_ODR_26_HZ : GYRO_ODR_12p5_HZ;
     // report the value that was actually set
     _gyro_sample_rate_hz =
-        GYRO_ODR == GYRO_ODR_6664_HZ ? 6664 :
-        GYRO_ODR == GYRO_ODR_3332_HZ ? 3332 :
-        GYRO_ODR == GYRO_ODR_1666_HZ ? 1666 :
-        GYRO_ODR == GYRO_ODR_833_HZ ? 833 :
-        GYRO_ODR == GYRO_ODR_416_HZ ? 416 :
-        GYRO_ODR == GYRO_ODR_208_HZ ? 208 :
-        GYRO_ODR == GYRO_ODR_104_HZ ? 104:
-        GYRO_ODR == GYRO_ODR_52_HZ ? 52 :
-        GYRO_ODR == GYRO_ODR_26_HZ ? 26 : 12;
+        gyro_odr == GYRO_ODR_6664_HZ ? 6664 :
+        gyro_odr == GYRO_ODR_3332_HZ ? 3332 :
+        gyro_odr == GYRO_ODR_1666_HZ ? 1666 :
+        gyro_odr == GYRO_ODR_833_HZ ? 833 :
+        gyro_odr == GYRO_ODR_416_HZ ? 416 :
+        gyro_odr == GYRO_ODR_208_HZ ? 208 :
+        gyro_odr == GYRO_ODR_104_HZ ? 104:
+        gyro_odr == GYRO_ODR_52_HZ ? 52 :
+        gyro_odr == GYRO_ODR_26_HZ ? 26 : 12;
 
     // set the anti-alias LPF filter according to the gyro sampling rate
     _bus.write_register(REG_CTRL6_C, _gyro_sample_rate_hz > 3000 ? LPF1_HI : LPF1_MEDIUM_HI);
@@ -264,33 +264,33 @@ int ImuLsmds63trC::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensit
 
     switch (gyro_sensitivity) {
     case GYRO_FULL_SCALE_125_DPS: // NOLINT(bugprone-branch-clone) false positive
-        _bus.write_register(REG_CTRL2_G, GYRO_RANGE_125_DPS | GYRO_ODR);
+        _bus.write_register(REG_CTRL2_G, GYRO_RANGE_125_DPS | gyro_odr);
         _gyro_resolution_dps = 245.0F / 32768.0F;
         break;
     case GYRO_FULL_SCALE_250_DPS:
-        _bus.write_register(REG_CTRL2_G, GYRO_RANGE_245_DPS | GYRO_ODR); // cppcheck-suppress badBitmaskCheck
+        _bus.write_register(REG_CTRL2_G, GYRO_RANGE_245_DPS | gyro_odr); // cppcheck-suppress badBitmaskCheck
         _gyro_resolution_dps = 245.0F / 32768.0F;
         break;
     case GYRO_FULL_SCALE_500_DPS:
-        _bus.write_register(REG_CTRL2_G, GYRO_RANGE_500_DPS | GYRO_ODR);
+        _bus.write_register(REG_CTRL2_G, GYRO_RANGE_500_DPS | gyro_odr);
         _gyro_resolution_dps = 500.0F / 32768.0F;
         break;
     case GYRO_FULL_SCALE_1000_DPS:
-        _bus.write_register(REG_CTRL2_G, GYRO_RANGE_1000_DPS | GYRO_ODR);
+        _bus.write_register(REG_CTRL2_G, GYRO_RANGE_1000_DPS | gyro_odr);
         _gyro_resolution_dps = 1000.0F / 32768.0F;
         break;
     case GYRO_FULL_SCALE_2000_DPS:
         [[fallthrough]];
     default:
-        _bus.write_register(REG_CTRL2_G, GYRO_RANGE_2000_DPS | GYRO_ODR);
+        _bus.write_register(REG_CTRL2_G, GYRO_RANGE_2000_DPS | gyro_odr);
         _gyro_resolution_dps = 2000.0F / 32768.0F;
         break;
     }
     _gyro_resolution_rps = _gyro_resolution_dps * DEGREES_TO_RADIANS;
     delay_ms(1);
 
-    // calculate the ACC_ODR bit values to write to the REG_CTRL1_XL register
-    const uint8_t ACC_ODR =
+    // calculate the acc_odr bit values to write to the REG_CTRL1_XL register
+    const uint8_t acc_odr =
         target_output_data_rate_hz == 0 ? ACC_ODR_6664_HZ :
         target_output_data_rate_hz > 3332 ? ACC_ODR_6664_HZ :
         target_output_data_rate_hz > 1666 ? ACC_ODR_3332_HZ :
@@ -303,31 +303,31 @@ int ImuLsmds63trC::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensit
         target_output_data_rate_hz > 13 ? ACC_ODR_26_HZ : ACC_ODR_12p5_HZ;
     // report the value that was actually set
     _acc_sample_rate_hz =
-        ACC_ODR == ACC_ODR_6664_HZ ? 6664 :
-        ACC_ODR == ACC_ODR_3332_HZ ? 3332 :
-        ACC_ODR == ACC_ODR_1666_HZ ? 1666 :
-        ACC_ODR == ACC_ODR_833_HZ ? 833 :
-        ACC_ODR == ACC_ODR_416_HZ ? 416 :
-        ACC_ODR == ACC_ODR_208_HZ ? 208 :
-        ACC_ODR == ACC_ODR_104_HZ ? 104:
-        ACC_ODR == ACC_ODR_52_HZ ? 52 :
-        ACC_ODR == ACC_ODR_26_HZ ? 26 : 12;
+        acc_odr == ACC_ODR_6664_HZ ? 6664 :
+        acc_odr == ACC_ODR_3332_HZ ? 3332 :
+        acc_odr == ACC_ODR_1666_HZ ? 1666 :
+        acc_odr == ACC_ODR_833_HZ ? 833 :
+        acc_odr == ACC_ODR_416_HZ ? 416 :
+        acc_odr == ACC_ODR_208_HZ ? 208 :
+        acc_odr == ACC_ODR_104_HZ ? 104:
+        acc_odr == ACC_ODR_52_HZ ? 52 :
+        acc_odr == ACC_ODR_26_HZ ? 26 : 12;
 
     switch (acc_sensitivity) {
     case ACC_FULL_SCALE_2G:
-        _bus.write_register(REG_CTRL1_XL, ACC_RANGE_2G | ACC_ODR); // cppcheck-suppress badBitmaskCheck
+        _bus.write_register(REG_CTRL1_XL, ACC_RANGE_2G | acc_odr); // cppcheck-suppress badBitmaskCheck
         _acc_resolution = 2.0F / 32768.0F;
         break;
     case ACC_FULL_SCALE_4G:
-        _bus.write_register(REG_CTRL1_XL, ACC_RANGE_4G | ACC_ODR);
+        _bus.write_register(REG_CTRL1_XL, ACC_RANGE_4G | acc_odr);
         _acc_resolution = 4.0F / 32768.0F;
         break;
     case ACC_FULL_SCALE_8G:
-        _bus.write_register(REG_CTRL1_XL, ACC_RANGE_8G | ACC_ODR);
+        _bus.write_register(REG_CTRL1_XL, ACC_RANGE_8G | acc_odr);
         _acc_resolution = 8.0F / 32768.0F;
         break;
     default:
-        _bus.write_register(REG_CTRL1_XL, ACC_RANGE_16G | ACC_ODR);
+        _bus.write_register(REG_CTRL1_XL, ACC_RANGE_16G | acc_odr);
         _acc_resolution = 16.0F / 32768.0F;
         break;
     }

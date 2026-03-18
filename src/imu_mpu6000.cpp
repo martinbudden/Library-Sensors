@@ -149,9 +149,9 @@ int ImuMpu6000::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivi
     _bus.write_register(REG_INT_ENABLE, DATA_READY_ENABLE);
     delay_ms(15);
 
-    // calculate the GYRO_SAMPLE_RATE_DIVIDER values to write to the REG_SAMPLE_RATE_DIVIDER register
-    // sample rate = gyroscopeOutputRate / (1 + sampleRateDivider)
-    const uint8_t GYRO_SAMPLE_RATE_DIVIDER =
+    // calculate the gyro_sample_rate_divider values to write to the REG_SAMPLE_RATE_DIVIDER register
+    // sample rate = gyro_odr / (1 + gyro_ sample_date_divider)
+    const uint8_t gyro_sample_rate_divider =
         target_output_data_rate_hz == 0 ? 0 : // default to 8kHz
         target_output_data_rate_hz > 4000 ? 0 : // div by 1
         target_output_data_rate_hz > 2000 ? 1 : // div by 2
@@ -160,64 +160,64 @@ int ImuMpu6000::init(uint32_t target_output_data_rate_hz, uint8_t gyro_sensitivi
         target_output_data_rate_hz > 250  ? 15 : 31;
     // report the value that was actually set
     _gyro_sample_rate_hz =
-        GYRO_SAMPLE_RATE_DIVIDER  == 0 ? 8000 :
-        GYRO_SAMPLE_RATE_DIVIDER  == 1 ? 4000 :
-        GYRO_SAMPLE_RATE_DIVIDER  == 3 ? 2000 :
-        GYRO_SAMPLE_RATE_DIVIDER  == 7 ? 1000 :
-        GYRO_SAMPLE_RATE_DIVIDER  == 15 ? 500 : 125;
+        gyro_sample_rate_divider == 0 ? 8000 :
+        gyro_sample_rate_divider == 1 ? 4000 :
+        gyro_sample_rate_divider == 3 ? 2000 :
+        gyro_sample_rate_divider == 7 ? 1000 :
+        gyro_sample_rate_divider == 15 ? 500 : 125;
 
-    _bus.write_register(REG_SAMPLE_RATE_DIVIDER, GYRO_SAMPLE_RATE_DIVIDER);
+    _bus.write_register(REG_SAMPLE_RATE_DIVIDER, gyro_sample_rate_divider);
     delay_ms(15);
     _bus.write_register(REG_CONFIG, DLPF_CFG_260_HZ); // DLPF_CFG_260_HZ sets base sample rate to 8kHz
     delay_ms(15);
 
-    // calculate the GYRO_RANGE bit values to write to the REG_GYRO_CONFIG0 register
-    uint8_t GYRO_RANGE = 0;
+    // calculate the gyro_range bit values to write to the REG_GYRO_CONFIG0 register
+    uint8_t gyro_range = 0;
     switch (gyro_sensitivity) {
     case GYRO_FULL_SCALE_125_DPS:
         [[fallthrough]];
     case GYRO_FULL_SCALE_250_DPS:
-        GYRO_RANGE = GYRO_RANGE_250_DPS;
+        gyro_range = GYRO_RANGE_250_DPS;
         _gyro_resolution_dps = 250.0F / 32768.0F;
         break;
     case GYRO_FULL_SCALE_500_DPS:
-        GYRO_RANGE = GYRO_RANGE_500_DPS;
+        gyro_range = GYRO_RANGE_500_DPS;
         _gyro_resolution_dps = 500.0F / 32768.0F;
         break;
     case GYRO_FULL_SCALE_1000_DPS:
-        GYRO_RANGE = GYRO_RANGE_1000_DPS;
+        gyro_range = GYRO_RANGE_1000_DPS;
         _gyro_resolution_dps = 1000.0F / 32768.0F;
         break;
     default:
-        GYRO_RANGE = GYRO_RANGE_2000_DPS;
+        gyro_range = GYRO_RANGE_2000_DPS;
         _gyro_resolution_dps = 2000.0F / 32768.0F;
         break;
     }
     _gyro_resolution_rps = _gyro_resolution_dps * DEGREES_TO_RADIANS;
-    _bus.write_register(REG_GYRO_CONFIG, GYRO_RANGE);
+    _bus.write_register(REG_GYRO_CONFIG, gyro_range);
     delay_ms(15);
 
     _acc_sample_rate_hz = 1000;
-    uint8_t ACCEL_RANGE = 0;
+    uint8_t acc_range = 0;
     switch (acc_sensitivity) {
     case ACC_FULL_SCALE_2G:
-        ACCEL_RANGE = ACCEL_RANGE_2G;
+        acc_range = ACCEL_RANGE_2G;
         _acc_resolution = 2.0F / 32768.0F;
         break;
     case ACC_FULL_SCALE_4G:
-        ACCEL_RANGE = ACCEL_RANGE_4G;
+        acc_range = ACCEL_RANGE_4G;
         _acc_resolution = 4.0F / 32768.0F;
         break;
     case ACC_FULL_SCALE_8G:
-        ACCEL_RANGE = ACCEL_RANGE_8G;
+        acc_range = ACCEL_RANGE_8G;
         _acc_resolution = 8.0F / 32768.0F;
         break;
     default:
-        ACCEL_RANGE = ACCEL_RANGE_16G;
+        acc_range = ACCEL_RANGE_16G;
         _acc_resolution = 16.0F / 32768.0F;
         break;
     }
-    _bus.write_register(REG_ACCEL_CONFIG, ACCEL_RANGE);
+    _bus.write_register(REG_ACCEL_CONFIG, acc_range);
     delay_ms(15);
 
     // return the gyro sample rate actually set

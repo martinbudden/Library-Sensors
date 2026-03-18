@@ -226,7 +226,7 @@ public:
     xyz_t map_axes(const xyz_t& data) const { return map_axes(data, _axis_order); }
     static uint8_t axis_order_inverse(uint8_t axis_order);
     static xyz_alignment_t alignment_from_axis_order(uint8_t axis_order);
-    static uint8_t axis_orderFromAlignment(const xyz_alignment_t& alignment);
+    static uint8_t axis_order_from_alignment(const xyz_alignment_t& alignment);
 
     uint8_t get_flags() const { return _flags; }
 #if defined(FRAMEWORK_USE_FREERTOS)

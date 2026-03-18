@@ -376,7 +376,7 @@ ImuBase::xyz_alignment_t ImuBase::alignment_from_axis_order(uint8_t axis_order)
     return alignment;
 }
 
-uint8_t ImuBase::axis_orderFromAlignment(const xyz_alignment_t& alignment)
+uint8_t ImuBase::axis_order_from_alignment(const xyz_alignment_t& alignment)
 {
     (void)alignment;
     return XPOS_YPOS_ZPOS;
