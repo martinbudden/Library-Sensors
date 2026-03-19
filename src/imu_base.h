@@ -206,6 +206,10 @@ public:
     void set_gyro_offset(const xyz_t& gyro_offset);
     xyz_t get_acc_offset() const;
     void set_acc_offset(const xyz_t& acc_offset);
+    xyz_t get_gyro_offset_mapped() const;
+    void set_gyro_offset_mapped(const xyz_t& offset);
+    xyz_t get_acc_offset_mapped() const;
+    void set_acc_offset_mapped(const xyz_t& offset);
 
     virtual xyz_int32_t read_gyro_raw() = 0;
     virtual xyz_int32_t read_acc_raw() = 0;

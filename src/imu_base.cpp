@@ -80,6 +80,26 @@ void ImuBase::set_acc_offset(const xyz_t& acc_offset)
     _acc_offset = acc_offset;
 }
 
+xyz_t ImuBase::get_gyro_offset_mapped() const
+{
+    return map_axes(get_gyro_offset(), get_axis_order());
+}
+
+void ImuBase::set_gyro_offset_mapped(const xyz_t& offset)
+{
+    set_gyro_offset(ImuBase::map_axes(offset, axis_order_inverse(get_axis_order())));
+}
+
+xyz_t ImuBase::get_acc_offset_mapped() const
+{
+    return ImuBase::map_axes(get_acc_offset(), get_axis_order());
+}
+
+void ImuBase::set_acc_offset_mapped(const xyz_t& offset)
+{
+    set_acc_offset(map_axes(offset, axis_order_inverse(get_axis_order())));
+}
+
 xyz_t ImuBase::read_gyro_rps()
 {
     const xyz_int32_t gyro_raw = read_gyro_raw();
